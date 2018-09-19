@@ -1,0 +1,243 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+
+
+```{r 1. prepare input data}
+rm(list = ls())
+source("test/stable/load_pkgs.R")
+stations <- fread(paste0(dir_flux, "station/flux_166.csv"))
+stations$ID <- 1:nrow(stations)
+# tasks:
+# check multiple growing season regions
+# whether wWHd or wHANTS
+
+# prepare gpp input data, 04 March, 2018
+# Update 12 Sep, 2018
+# 1. fluxsite observations -----------------------------------------------------
+df_raw <- fread(paste0(dir_flux, "fluxsites166_official_dd.csv"))
+df_raw <- merge(df_raw, stations[, .(site, lat, IGBP)])
+# South Hemisphere
+df_raw$date %<>% ymd()
+
+# GPP_NT has 42147 negative values, while GPP_DT has no negative value.
+info_raw <- df_raw[, .(npos  = sum(GPP_DT >= 0, na.rm = T), 
+                       npos2 = sum(GPP_DT >= 1, na.rm = T)), .(site, year)]
+
+nday  <- 300 # 365*0.6 # 365*0.6 # 300
+info1 <- info_raw[npos >= nday & npos2 >= 100, ]
+# info2 <- info_raw[N <  nday, ] #too less, all year data set to NA
+
+# merge will drop site-year not in info1
+d_obs1 <- merge(info1, df_raw, by = c("site", "year"))
+
+# d_obs2 <- merge(info2, df_raw, by = c("site", "year"))
+# d_obs2$GPP_NT <- NA
+# d_obs <- rbind(d_obs1, d_obs2)
+
+df <- d_obs1
+df %<>% reorder_name(c("site", "IGBP", "lat","date", "year", "month", 
+                          "growing", "N", "GPP_DT", "GPP_NT", "GPP_vpm"))
+setkeyv(df, c("site", "date"))
+
+sites_rm <- c("GF-Guy", "AU-Cum")
+sites <- unique(df$site) %>% setdiff(sites_rm)
+st <- stations[site %in% sites]
+st$IGBP <- factor(st$IGBP, IGBPnames_006)
+st    <- st[order(IGBP, site)] %>% {.[, ID := 1:.N]}
+sites <- st$site
+
+fprintf("%s sites left ...\n", length(sites))
+```
+
+* Remove bad sites
+US-Tw3 : only 1 year data, 5 growing season in it.
+CH-Fru : has checked NDVI, EVI and GPP_mod, only one growing season.
+AU-Dyu : too many missing values, suggest to remove this site
+AU-Cum : only 1 year data, not seasonality
+AU-GWW : only 1 year data, not seasonality
+
+
+GF-Guy : EBF, not seasonality
+AU-Cum : EBF, not seasonality
+
+AU-Wac : only 1y, and VI is inverse of GPP
+sites_rm <- c("GF-Guy")
+```{r}
+check_input.GPPObs <- function(df, sitename){
+    d <- df[site == sitename, .(t = date, y = GPP_DT, w = 1)] #%T>% plotdata(365)
+    # d_obs[site == sitename, .(t = date, y = GPP_DT, w = 1)] %>% plotdata(365)
+    do.call(check_input, d)
+}
+
+check_season <- function(INPUT,
+                         FUN_season = c("season", "season_3y"),
+                         FUN_fit = "wWHIT",
+                         wFUN,
+                         lambda = 1000,
+                         iters = 3,
+                         IsPlot = F, ...) {
+    # sitename <- "US-ARM" # "FR-LBr", "ZA-Kru", "US-ARM"
+    FUN_season <- get(FUN_season)
+    wFUN       <- get(wFUN)
+    res  <- FUN_season(INPUT, south = INPUT$south, rFUN = get(FUN_fit),
+                       wFUN = wFUN,
+                     IsPlot = IsPlot,
+                     lambda = lambda,
+                     iters = iters,
+                     minpeakdistance = 30,
+                     MaxPeaksPerYear = 3,
+                     MaxTroughsPerYear = 4,
+                     ypeak_min = 1, ...,
+                     IsOnlyPlotbad = FALSE
+    )
+
+    if (IsPlot){    
+        abline(h = 1, col = "red")
+        title(INPUT$titlestr)
+    }
+    return(res)
+}
+
+
+sitename <- "AU-Wom"
+# sitename <- "CH-Cha"
+
+x <- get_input(d_obs, stations, sitename)
+a <- check_season(x, FUN_season = "season_3y", FUN_fit = 'wHANTS', nf = 3)
+```
+
+## Test `FUN_season`
+ - Forest biomes (DBF, EBF, ENF, MF), Jianyang Xia, PNAS, 2015
+ - Nonforest biomes, others
+
+```{r}
+IGBP_forest <- c("DBF", "EBF", "ENF", "MF")
+
+nptperyear <- 365
+file <- sprintf("fluxsite GPP_DT Growing season dividing v0.1.6.pdf")
+CairoPDF(file, width = 10, height = 2*6)
+par(mfrow = c(6, 1), mar = c(2, 3, 2, 1), mgp = c(1.5, 0.6, 0))
+
+# sites <- unique(d_obs$site)
+res   <- list()
+stats <- list()
+for (i in seq_along(sites)){
+    runningId(i)
+    sitename <- sites[i]
+    tryCatch({
+        # check_season(sitename, df_raw, stations)
+        plotdat <- d_obs[site == sitename, .(t = date, y = GPP_DT, w = 1)]
+        sp      <- st[site == sitename, ]
+        FUN_fit <- ifelse(sp$IGBP %in% IGBP_forest, "wHANTS", "wWHIT")
+        maxExtendMonth <- ifelse(sp$IGBP == "EBF", 2, 3)
+        INPUT <- get_input(d_obs, stations, sitename)
+        brks  <- check_season(INPUT, FUN_season = "season_3y", FUN_fit = FUN_fit, 
+                             iters = 3, 
+                             nf = 3, lambda = 1e4, 
+                             maxExtendMonth = maxExtendMonth,
+                             threshold_max = 0.2, threshold_min = 0, 
+                             rytrough_max = 0.6,
+                             IsPlot = T, print = F, plotdat = plotdat)
+        res[[i]] <- brks 
+    })
+}
+
+dev.off()
+names(res) <- sites
+```
+
+## Roughtly dividing sites into two group: single and multiple growing season
+```{r}
+nptperyear <- 365
+# file <- sprintf("fluxsite GPP_DT Growing season dividing.pdf", nptperyear)
+# CairoPDF(file, width = 10, height = 2*6)
+# par(mfrow = c(6, 1), mar = c(2, 3, 2, 1), mgp = c(1.5, 0.6, 0))
+
+sites <- unique(d_obs$site)
+res   <- list()
+stats <- list()
+for (i in seq_along(sites)){
+    runningId(i)
+    sitename <- sites[i]
+    tryCatch({
+        # check_season(sitename, df_raw, stations)
+        res[[i]] <- check_season(d_obs, stations, sitename, IsPlot = F)
+    })
+}
+# dev.off()
+
+names(res) <- sites
+info <- map(res, "dt") %>% rm_empty() %>% melt_list("site")
+# multiple growing season
+info_mg <- info[, .(nyear = length(unique(year)), nbrk = .N), .(site)] 
+info_mg[, ngPerYear := nbrk/nyear]
+info_mg[, ]
+
+## Roughly, there are 72 sites have multiple growing season.
+sites_mg <- info_mg[ngPerYear >  1]$site
+sites_sg <- info_mg[ngPerYear <= 1]$site
+```
+
+
+
+
+```{r}
+type = 2 # 2 # "sg" # "mg"
+
+if (type == 1) {
+    pattern <- "sg"
+    sites    <- sites_sg
+} else{
+    pattern <- "mg"
+    sites    <- sites_mg
+}
+
+nptperyear <- 365
+file <- sprintf("fluxsite GPP_DT Growing season dividing %s.pdf", pattern)
+CairoPDF(file, width = 10, height = 2*6)
+par(mfrow = c(6, 1), mar = c(2, 3, 2, 1), mgp = c(1.5, 0.6, 0))
+
+
+# sites <- unique(d_obs$site)
+res   <- list()
+stats <- list()
+for (i in seq_along(sites)){
+    runningId(i)
+    sitename <- sites[i]
+    tryCatch({
+        # check_season(sitename, df_raw, stations)
+        plotdat <- d_obs[site == sitename, .(t = date, y = GPP_DT, w = 1)]
+        INPUT <- get_input(d_obs, stations, sitename)
+        brks <- check_season(INPUT, FUN_season = "season_3y", FUN_fit = 'wHANTS', 
+                             nf = 3, IsPlot = T, print = F, plotdat = plotdat)
+        res[[i]] <- brks 
+    })
+}
+dev.off()
+
+names(res) <- sites
+```
+```{r}
+load("Y:/R/phenofit/data/phenofit_MultipleINPUT_flux136.rda")
+
+save(sites_sg, sites_mg, d_obs, file = "GPPobs_check_season.rda")
+save(df, st, sites, INPUT_lst, file = "inst/shiny_flux115.rda")
+
+
+INPUT_lst$MODGPP[site == sitename, .(site, t = date, y = MODGPP, w)] %>% 
+INPUT_lst$MOD13A1[site == sitename, .(site, t = date, y = EVI, w)] %>% do.call(check_input, .) %>% plotdata()
+INPUT_lst$MOD13A1[site == sitename, .(site, t = date, y = NDVI, w)] %>% do.call(check_input, .) %>% plotdata()
+```
+
+
+```{r}
+a[, 2:3] %>% dygraph() %>% 
+    dyOptions(drawPoints = TRUE, pointSize = 5, pointShape = "triangle")
+```
+
