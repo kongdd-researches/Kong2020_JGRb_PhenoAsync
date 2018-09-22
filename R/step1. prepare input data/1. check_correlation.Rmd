@@ -1,0 +1,65 @@
+---
+title: "check correlation of GPPobs and VI"
+author: "Dongdong"
+date: "20 September 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+load('data_test/phenoflux_115.rda')
+load('data_test/ET&GPP&VI_flux115.rda')
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+
+get_scale <- function(df){
+    varnames <- colnames(df)
+    if ("scale" %in% varnames){
+        df <- df[scale == "0m",]
+    }
+    df
+}
+lst <- llply(lst_sm, get_scale)
+```
+
+```{r}
+nday   <- 16
+df_obs <- df[, .(site, date, GPP_DT)] %>% add_dn(nday) %>% 
+    .[, .(GPP_obs = mean(GPP_DT, na.rm = T)), .(site, year, d16)] %>%
+    .[, date := as.Date(sprintf("%d%03d", year, (d16-1)*nday+1), "%Y%j")]
+df_vi <- lst[c("MOD13A1", "MOD13Q1")] %>% melt_list("model") %>% 
+    melt(id.vars = c("site", "date", "t", "year", "doy", "SummaryQA", "model"), c("NDVI", "EVI"))
+
+df_comb <- merge(df_obs, df_vi, by = c("site", "date", "year"))
+
+## rm sites with a low correlation with GPP
+info <- df_comb[, .(r = cor(GPP_obs, value, use = "complete.obs")), 
+                .(site, variable, model)]
+info_bad <- info[r < 0.2, ] %>% dcast(site~variable+model, value.var = "r")
+
+ggplot(info, aes(variable, r)) + geom_boxplot() + 
+    geom_text(data =info[r < 0.2, ], aes(label = site)) + 
+    facet_wrap(~model)
+```
+
+```{r}
+st_97 <- fread("file:///F:/Github/phenology/phenofit/test/phenology_async/data/phenofit_st97.csv")
+sites_rm <- setdiff(st$site, st_97$site)
+
+setdiff(st$site, st_97$site)
+```
+
