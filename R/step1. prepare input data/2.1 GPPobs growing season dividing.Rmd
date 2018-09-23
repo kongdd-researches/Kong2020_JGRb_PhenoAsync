@@ -1,0 +1,159 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+## 1. select available sites first  
+- (1) Site-year with 300 valid daily observations were left.  
+- (2) Days with GPP_NT >= 1 should be more than 100.  
+
+Considering to remove those sites: 
+* Remove bad sites
+US-Tw3 : only 1 year data, 5 growing season in it.
+CH-Fru : has checked NDVI, EVI and GPP_mod, only one growing season.
+AU-Dyu : too many missing values, suggest to remove this site
+AU-Cum : only 1 year data, not seasonality
+AU-GWW : only 1 year data, not seasonality
+AU-Wac : only 1y, and VI is inverse of GPP
+
+GF-Guy : EBF, not seasonality
+AU-Cum : EBF, not seasonality
+AU-Cpr : negative corr with VI
+
+```{r 1. prepare input data}
+rm(list = ls())
+source("test/stable/load_pkgs.R")
+stations <- fread(paste0(dir_flux, "station/flux_166.csv"))
+stations$ID <- 1:nrow(stations)
+# tasks:
+# check multiple growing season regions
+# whether wWHd or wHANTS
+
+# prepare gpp input data, 04 March, 2018
+# Update 12 Sep, 2018
+# 1. fluxsite observations -----------------------------------------------------
+df_raw <- fread(paste0(dir_flux, "fluxsites166_official_dd.csv"))
+df_raw <- merge(df_raw, stations[, .(site, lat, IGBP)])
+# South Hemisphere
+df_raw$date %<>% ymd()
+
+# GPP_NT has 42147 negative values, while GPP_DT has no negative value.
+info_raw <- df_raw[, .(npos  = sum(GPP_DT >= 0, na.rm = T), 
+                       npos2 = sum(GPP_DT >= 1, na.rm = T)), .(site, year)]
+
+nday  <- 300 # 365*0.6 # 365*0.6 # 300
+info1 <- info_raw[year >= 2000 & npos >= nday & npos2 >= 100, ]
+# info2 <- info_raw[N <  nday, ] #too less, all year data set to NA
+
+# merge will drop site-year not in info1
+d_obs1 <- merge(info1, df_raw, by = c("site", "year"))
+
+# d_obs2 <- merge(info2, df_raw, by = c("site", "year"))
+# d_obs2$GPP_NT <- NA
+# d_obs <- rbind(d_obs1, d_obs2)
+
+df <- d_obs1
+df %<>% reorder_name(c("site", "IGBP", "lat","date", "year", "month", 
+                          "growing", "N", "GPP_DT", "GPP_NT", "GPP_vpm"))
+setkeyv(df, c("site", "date"))
+
+sites_rm <- c("GF-Guy", "AU-Cum")
+sites <- unique(df$site) %>% setdiff(sites_rm)
+st <- stations[site %in% sites]
+st$IGBP <- factor(st$IGBP, IGBPnames_006)
+st    <- st[order(IGBP, site)] %>% {.[, ID := 1:.N]}
+sites <- st$site
+
+fprintf("%s sites left ...\n", length(sites))
+```
+
+
+## Test `FUN_season`
+ - Forest biomes (DBF, EBF, ENF, MF), Jianyang Xia, PNAS, 2015; CSH was also 
+ include.
+ - Nonforest biomes, others
+
+20180922
+- modified according to the advice of YaoZhang:
+
+```{r}
+# source('inst/shiny/check_season/global.R')
+sites_part <- st$site # [IGBP == "CRO"]
+sites <- sites_part
+IGBP_forest <- c("DBF", "EBF", "ENF", "MF", "CSH", "GRA")
+IGBP_whit   <- c("CRO")
+
+nptperyear <- 365
+file <- sprintf("fluxsite GPP_DT Growing season dividing v0.2.0.pdf")
+CairoPDF(file, width = 10, height = 2*6)
+par(mfrow = c(6, 1), mar = c(2, 3, 2, 1), mgp = c(1.5, 0.6, 0))
+
+# sites <- unique(d_obs$site)
+res   <- list()
+stats <- list()
+for (i in seq_along(sites)){
+    runningId(i)
+    sitename <- sites[i]
+    tryCatch({
+        # check_season(sitename, df_raw, stations)
+        d   <- df[site == sitename, .(t = date, GPP_DT, GPP_NT, w = 1)] #%T>% plotdata(365)
+        d$y <- rowMeans(d[, .(GPP_DT, GPP_NT)], na.rm = T)
+        d[y < 0, y := 0] # for GPP_NT
+        
+        sp      <- st[site == sitename, ]
+        
+        # parameters for season_3y
+        threshold_max = 0.1
+        nf = 1
+        
+        FUN_fit <- ifelse(sp$IGBP %in% IGBP_whit, "wWHIT", "wHANTS")
+        if (sitename %in% c("AU-Cpr", "AU-Stp", "AU-Rig", "US-SRG", "US-Wkg")) {
+            FUN_fit       <- "wWHIT"
+            threshold_max <- ifelse(cv_coef(d$y)[3] >= 1, 0.1, 0.2) # experience param
+        }
+        if (sitename %in% c("AU-Emr","IT-BCi", "US-ARM")){
+            FUN_fit <- "wHANTS"
+            nf      <- 2
+        }
+        # FUN_fit <- ifelse(sp$IGBP %in% IGBP_forest, "wHANTS", "wWHIT")
+        wFUN <- "wTSM"# "wBisquare"
+        maxExtendMonth <- ifelse(sp$IGBP == "EBF", 2, 2)
+
+        # wFUN <- "wBisquare", "wTSM", threshold_max = 0.1, IGBP = CSH
+        INPUT <- get_input(df, st, sitename)
+        brks  <- check_season(INPUT, FUN_season = "season_3y", FUN_fit = FUN_fit, 
+                             iters = 2, wFUN = wFUN,
+                             nf = nf, lambda = 1e4, 
+                             maxExtendMonth = maxExtendMonth,
+                             threshold_max = threshold_max, threshold_min = 0, 
+                             rytrough_max = 0.5,
+                             IsPlot = T, print = F, plotdat = d)
+        res[[i]] <- brks 
+    })
+}
+
+dev.off()
+names(res) <- sites
+brks_lst <- res
+save(brks_lst, file = "data_test/phenoflux_115_gs.rda")
+```
+
+# 2. mete condition
+```{r}
+df_mete <- df[, .(site, date, GPP=GPP_NT, Rn, Prcp=P, VPD, Tair=TA)] %>% melt(id.vars = c("site", "date"))
+sites <- st$site
+CairoPDF("Figures1_mete.pdf", 9, 7)
+for(i in seq_along(sites)){
+    runningId(i)
+    sitename <- sites[i]
+    str_title <- sprintf("[%03d] %s", i, sitename)
+    p <- ggplot(df_mete[site == sitename], aes(date, value)) + 
+        facet_wrap(~variable, scales = "free_y", ncol = 1) + ggtitle(str_title) + geom_line()
+    ggplotly(p)
+    print(p)
+}
+dev.off()
+```
+# 3. Extract vegetation phenology
+
+
