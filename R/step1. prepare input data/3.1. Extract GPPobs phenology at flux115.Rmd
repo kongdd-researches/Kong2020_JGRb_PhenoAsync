@@ -74,7 +74,7 @@ grid::grid.newpage(); grid::grid.draw(g)# plot to check the curve fitting
 ```{r}
 source("test/phenology_async/R/step1. prepare input data/main_phenofit.R")
 
-debug <- F
+debug <- T
 if (debug){
     sites0   <- c("AU-Stp", "IT-Noe", 'US-Syv', 'US-WCr')
     subfix <- "_part"
