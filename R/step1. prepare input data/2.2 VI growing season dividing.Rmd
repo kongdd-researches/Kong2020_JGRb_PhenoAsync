@@ -35,7 +35,7 @@ st[, `:=`(IGBPname = IGBP, lon = long)]
 
 ```{r}
 df <- lst_sm$MOD13A1
-
+i  <- 1
 ```
 
 ```{r}
@@ -61,37 +61,44 @@ for (i in seq_along(sites)){
         d     <- df[site == sitename & scale == "0m", .(t, date, y = EVI, w, SummaryQA)] #%T>% plotdata(365)
         sp    <- st[site == sitename, ]
         
+        south <- sp$lat < 0 
+        d_new <- add_HeadTail(d, south = south)
+        
         nptperyear <- 23
-        INPUT <- with(d, check_input(t, y, w, nptperyear, maxgap = ceiling(nptperyear/12*1.5)))
-        INPUT$south <- 
+        INPUT <- with(dnew, check_input(t, y, w, nptperyear, maxgap = ceiling(nptperyear/12*1.5)))
+        INPUT$south <- sp$lat < 0
         plotdata(INPUT)
         
         # parameters for season_3y
         threshold_max = 0.1
         nf = 1
         
-        FUN_fit <- ifelse(sp$IGBP %in% IGBP_whit, "wWHIT", "wHANTS")
-        if (sitename %in% c("AU-Cpr", "AU-Stp", "AU-Rig", "US-SRG", "US-Wkg")) {
-            FUN_fit       <- "wWHIT"
-            threshold_max <- ifelse(cv_coef(d$y)[3] >= 1, 0.1, 0.2) # experience param
-        }
-        if (sitename %in% c("AU-Emr","IT-BCi", "US-ARM")){
-            FUN_fit <- "wHANTS"
-            nf      <- 2
-        }
+        FUN_fit       <- "wWHIT"
+        threshold_max <- ifelse(cv_coef(d$y)[3] >= 1, 0.1, 0.2) # experience param
         # FUN_fit <- ifelse(sp$IGBP %in% IGBP_forest, "wHANTS", "wWHIT")
-        wFUN <- "wTSM"# "wBisquare"
+        wFUN <- wTSM# "wBisquare"
         maxExtendMonth <- ifelse(sp$IGBP == "EBF", 2, 2)
 
         # wFUN <- "wBisquare", "wTSM", threshold_max = 0.1, IGBP = CSH
-        INPUT <- get_input(df, st, sitename)
-        brks  <- check_season(INPUT, FUN_season = "season_3y", FUN_fit = FUN_fit, 
-                             iters = 2, wFUN = wFUN,
-                             nf = nf, lambda = 1e4, 
-                             maxExtendMonth = maxExtendMonth,
-                             threshold_max = threshold_max, threshold_min = 0, 
-                             rytrough_max = 0.5,
-                             IsPlot = T, print = F, plotdat = d)
+        # INPUT <- get_input(df, st, sitename)
+        brks2  <- season_3y(INPUT, south = INPUT$south, rFUN = get(FUN_fit),
+                       wFUN = wFUN,
+                     IsPlot = IsPlot,
+                     lambda = 10,
+                     iters = 2,
+                     minpeakdistance = nptperyear/6,
+                     MaxPeaksPerYear = 3,
+                     MaxTroughsPerYear = 4,
+                     ypeak_min = 0.08, 
+                     IsOnlyPlotbad = FALSE
+        ## Get curve fitting
+    )
+
+    if (IsPlot){
+        abline(h = 1, col = "red")
+        title(INPUT$titlestr)
+    }
+         
         res[[i]] <- brks 
     })
 }
