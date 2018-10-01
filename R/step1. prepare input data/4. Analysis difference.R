@@ -64,9 +64,15 @@ xlab <- st[, .N, IGBP] #%>% rbind(data.table(IGBP = "all", N = nrow(st)))
 xlab[, label:=sprintf("%s\n(n=%2d)", IGBP, N)]
 
 lwd <- 0.8
-ggplot(d_gof[RMSE < 80], aes(IGBP, Bias, color = phase)) +
+colors <- scales::hue_pal()(2) %>% rev
+
+
+    # geom_jitter(width = 0.2)
+
+p <- ggplot(d_gof[RMSE < 80], aes(IGBP, Bias, color = phase)) +
     geom_boxplot() +
-    ylab("EVI - GPP") +
+    geom_point(position = position_jitterdodge(jitter.width = 0.3), show.legend = F) +
+    ylab("Phenological metrics of EVI - GPP") +
     scale_x_discrete(breaks = xlab$IGBP, labels = xlab$label) +
     geom_hline(yintercept = 0, color = "blue", linetype = 2, size = lwd) +
     geom_hline(yintercept = c(-15, 15), color = "red", linetype = 2, size = lwd) +
@@ -75,8 +81,11 @@ ggplot(d_gof[RMSE < 80], aes(IGBP, Bias, color = phase)) +
           panel.grid.major = element_line(linetype = 2),
           panel.grid.minor = element_blank(),
           legend.title=element_blank(),
-          axis.text = element_text(color = "black"))
+          axis.text = element_text(color = "black")) +
+    scale_color_manual(values = colors)
 
+p
 
+write_fig(p, "Figure1.2_EVI-GPP.pdf", 11, 7)
 
-st[, .(site, IGBP)][, .N, .(IGBP)]
+# st[, .(site, IGBP)][, .N, .(IGBP)]

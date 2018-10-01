@@ -69,7 +69,8 @@ pls_coef <- function(x, predictors_var = varnames, response_var = "GPP_DT"){
     predictors <- predictors[, I_col]
 
     response  <- x[[response_var]] %>% as.matrix(ncol = 1)
-    l_pls     <- plsreg1(predictors, response, comps = NULL, crosval = TRUE)
+    # ERROR when comps = 1, 20180926
+    l_pls     <- plsreg1(predictors, response, comps = 2, crosval = TRUE)
     coefs     <-  l_pls$std.coefs %>% match_varnames(predictors_var)
 
     # c(coefs, n = nrow(x))
