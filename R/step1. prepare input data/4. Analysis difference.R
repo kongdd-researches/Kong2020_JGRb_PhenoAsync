@@ -1,7 +1,9 @@
 source("test/stable/load_pkgs.R")
 library(Ipaper)
 
-lst_MOD13A1_EVI <- get_sbatch(paste0(dir_flush, 'result/phenoflux115/V0.1.6_MOD13A1_EVI'))
+# lst_MOD13A1_EVI <- get_sbatch(paste0(dir_flush, 'result/phenoflux115/v0.1.6_MOD13A1_EVI'))
+lst_MOD13A1_EVI <- get_sbatch(paste0(dir_flush, 'result/phenoflux115/v0.1.8_MOD09A1_EVIc15'))
+
 lst_GPPobs <- get_sbatch(paste0(dir_flush, 'result/phenoflux115/v0.1.6_GPPobs'))
 
 df_GPPobs      <- map(lst_GPPobs, ~ melt_list(.x$pheno$doy, "meth")) %>%
@@ -38,6 +40,7 @@ ggplot(pdat, aes(index, value)) +
     theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) +
     geom_hline(yintercept = 0, color = "blue", linetype = 2, size = 1) +
     geom_hline(yintercept = c(-15, 15), color = "red", linetype = 2, size = 1)
+
 
 
 ## 2. performance index
@@ -86,6 +89,10 @@ p <- ggplot(d_gof[RMSE < 80], aes(IGBP, Bias, color = phase)) +
 
 p
 
-write_fig(p, "Figure1.2_EVI-GPP.pdf", 11, 7)
+write_fig(p, "Figure1.2_EVI-GPP_(MOD09A1_EVIc15).pdf", 9, 6)
 
 # st[, .(site, IGBP)][, .N, .(IGBP)]
+
+
+
+

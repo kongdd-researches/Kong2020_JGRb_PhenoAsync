@@ -1,0 +1,126 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r global functions}
+library(ggpmisc)
+
+# parameter for loess
+smooth_formula <- y~poly(x, 2)
+span <- 1
+
+#' global variables:
+#' smooth_formula, span
+ggplot_1var <- function(x, varname = "APAR", color = "red"){
+    p <- ggplot(x, aes_string("d16", varname, color = "year")) +
+        # geom_point(color = "transparent") +
+        geom_smooth(method = "loess", formula = smooth_formula, span = span, color = color)+
+        scale_y_continuous(position = "right") + 
+        theme(panel.background = element_rect(fill = "transparent"),
+              axis.ticks.y.right = element_line(color = color),
+              axis.text.y.right = element_text(color = color),
+              axis.title.y.right = element_text(color = color),
+              panel.grid.major = element_blank(), # get rid of major grid
+              panel.grid.minor = element_blank()) # get rid of minor grid
+    p
+}
+```
+
+```{r scale EVI}
+## 1. 
+variable <- "EVI"
+range_org <- getRange(x, variable)[,.(min, max)] %>% as.numeric()
+range_new <- getRange(x, "GPP")[,.(min, max)] %>% as.numeric()
+
+# range_org <- getRange(x, variable)[,.(max(min, 0), max)] %>% as.numeric()
+# range_new <- getRange(x, "GPP")[,.(max(min, 0), max)] %>% as.numeric()
+
+coef <- lm(range_new~range_org) %>% coef()
+coef[1] <- coef[1] - 4
+coef[2] <- coef[2]* 1.15
+
+x[, EVI_z := EVI*coef[2]+coef[1]]
+```
+
+```{r show gpp and evi time-series}
+
+vis_site <- function(x){
+
+}
+p <- ggplot(x, aes(d16, GPP, color = year)) +
+    # geom_point() +
+    geom_smooth(color = "black", formula = smooth_formula, span = span)
+    # geom_point(aes(y = EVI_z), color = "green") +
+    # geom_smooth(aes(y = EVI_z), color = "green") +
+    # scale_y_continuous(sec.axis = sec_axis(~(.-coef[1])/coef[2], name = "EVI"))
+# print(p)
+
+p_EVI  <- ggplot_1var(x, "EVI" , "green")
+p_APAR <- ggplot_1var(x, "APAR", "red")
+p_Rs   <- ggplot_1var(x, "Rs"  , "purple")
+p_T    <- ggplot_1var(x, "T", "yellow")
+p_VPD  <- ggplot_1var(x, "VPD", "darkorange1")
+p_prcp <- ggplot_1var(x, "Prcp", "blue")
+
+color = "purple"
+
+# p_all <- ggplot_multiAxis(p, p_apar)
+p1 <- reduce(list(p, p_EVI, p_APAR, p_Rs ), ggplot_multiAxis, show = F)
+p2 <- reduce(list(p, p_EVI, p_T, p_VPD, p_prcp), ggplot_multiAxis, show = F)
+
+fontsize <- 14
+titlestr <- st[site == sitename, ] %$% 
+    sprintf("[%03d,%s] %s, lat=%.2f, nyear=%.1f", ID, IGBP, site, lat, nrow(x)/23)
+title <- textGrob(titlestr, gp=gpar(fontsize=fontsize, fontface = "bold"))
+
+# grid.draw(a)
+
+p_series <- arrangeGrob(p1, p2, ncol = 1, top = title)
+# grid.newpage()
+# plot(p_series)
+grid.newpage();grid.draw(p_series)
+# ggplot_build(p)$layout$panel_scales_y[[1]]$range$range
+```
+
+
+
+```{r dgpp ~ factors, fig.width=9}
+## 2.
+delta <- dx_z %>% melt(c("site", "date", "year", "yd16", "d16", "GPP"))
+
+formula <- y ~ x
+p_mete <- ggplot(delta[d16 > 10], aes(value, GPP)) +
+    geom_point() +
+    facet_wrap(~variable, scales = "free") + 
+    geom_smooth(method = "lm", se=T, formula = formula) +
+    stat_poly_eq(formula = formula,
+                eq.with.lhs = "italic(hat(y))~`=`~", 
+                rr.digits = 2,
+                aes(label = paste(..eq.label.., ..rr.label.., sep = "~"), color = "red"), 
+                parse = TRUE) + 
+    ggtitle("dGPP ~ dx")
+print(p_mete)
+
+cor_mat  <- cor(dx_z[, ..varnames] %>% na.omit())
+pcor_mat <- pcor(dx_z[, ..varnames] %>% na.omit())
+pcor_mat <- pcor(dx_z[, .(EVI, T, Rs, VPD, APAR, GPP)] %>% na.omit()) %$% {
+    estimate[p.value >= 0.1] <- NA
+    estimate
+} 
+```
+图像显示，GPP的变化主要受APAR的控制；需要知道Tair，LST和Tsoil有无显著差别。
+
+```{r}
+
+a <- 1
+add2 <- function(){
+    a <<- a + 1
+}
+add2(); a
+# cvpt <- current.vpTree()
+# names(cvpt$children$layout$children)
+# showViewport(cvpt$children$layout, leaves = T, newpage = T)
+
+```
+
