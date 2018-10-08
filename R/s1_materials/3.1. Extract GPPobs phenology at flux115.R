@@ -1,10 +1,10 @@
 source('inst/shiny/check_season/global.R')
 source("test/stable/load_pkgs.R")
-# source("test/phenology_async/R/step1. prepare input data/main_phenofit.R")
+# source("test/phenology_async/R/s1_materials/main_phenofit.R")
 load("data/phenoflux_115_gs.rda")
 
 st[, `:=`(IGBPname = IGBP, lon = long)]
-# source("test/phenology_async/R/step1. prepare input data/main_phenofit.R")
+# source("test/phenology_async/R/s1_materials/main_phenofit.R")
 
 debug <- F
 if (debug){

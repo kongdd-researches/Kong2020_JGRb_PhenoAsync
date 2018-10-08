@@ -95,8 +95,9 @@ get_acf <- function(x){
 }
 
 #' add previous time step GPP as a new variable
+#' @param x Data.table with the column of ydn and GPP
 addPredictor_tn <- function(x){
-    I0 <- x$yd16
+    I0 <- x$ydn
     I_1  <- match(I0 - 1, I0)
     I_2  <- match(I0 - 2, I0)
     I_3  <- match(I0 - 3, I0)

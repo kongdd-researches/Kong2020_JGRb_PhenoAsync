@@ -1,8 +1,8 @@
 library(grid)
 library(gridExtra)
 library(ggpmisc)
-# source('test/phenology_async/R/step1. prepare input data/5.2 GPP_Elasticity.R')
-source('test/phenology_async/R/step1. prepare input data/main_async.R')
+# source('test/phenology_async/R/s1_materials/5.2 GPP_Elasticity.R')
+source('test/phenology_async/R/main_async.R')
 predictors <- c("EVI", "NDVI", "Rs", "T", "Prcp", "VPD", "APAR", "epsilon_eco", "epsilon_chl")#[-6]#[-c(1, 2)]
 
 # parameter for loess

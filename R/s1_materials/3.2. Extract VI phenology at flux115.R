@@ -1,11 +1,13 @@
 source('inst/shiny/check_season/global.R')
 source("test/stable/load_pkgs.R")
-# source("test/phenology_async/R/step1. prepare input data/main_phenofit.R")
+# source("test/phenology_async/R/s1_materials/main_phenofit.R")
 load("data/phenoflux_115_gs.rda")
+
 df <- readRDS("data_test/MOD09A1_VI_flux212.RDS")
 df <- df[scale == "0m", .(site, t, date, y = EVI2, EVI, EVI2, NDVI, LSWI, w, StateQA, QC_flag)]
 # df$SummaryQA %<>% factor(qc_values, qc_levels)
 
+## tidy MOD09A1
 # 1.1 make sure values in a reasonable range
 df[ y > 1 | y < -0.1, y := NA]
 # 1.2 remove outliers: abs(y - mean) > 3sd

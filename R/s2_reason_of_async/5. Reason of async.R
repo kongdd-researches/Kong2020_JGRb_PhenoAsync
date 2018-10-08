@@ -1,4 +1,4 @@
-source('test/phenology_async/R/step1. prepare input data/5.0 Reason of async (INPUT).R')
+source('test/phenology_async/R/s2_reason_of_async/d_reason_of_async(INPUT).R')
 
 ## 1.2 rm bad points
 
