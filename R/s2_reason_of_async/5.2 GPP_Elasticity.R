@@ -1,4 +1,5 @@
-source('test/phenology_async/R/s2_reason_of_async/d_reason_of_async(INPUT).R')
+# source('test/phenology_async/R/s2_reason_of_async/d_reason_of_async(INPUT).R')
+load("data_test/flux115_async_input.rda")
 
 ## Modified to apply in site*dn
 
