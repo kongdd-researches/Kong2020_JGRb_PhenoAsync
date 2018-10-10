@@ -1,8 +1,10 @@
 source("test/stable/load_pkgs.R")
 library(Ipaper)
 
-# lst_MOD13A1_EVI <- get_sbatch(paste0(dir_flush, 'result/phenoflux115/v0.1.6_MOD13A1_EVI'))
-lst_MOD13A1_EVI <- get_sbatch(paste0(dir_flush, 'result/phenoflux115/v0.1.8_MOD09A1_EVIc15'))
+prefixs <- c("v0.1.6_MOD13A1_EVI", "v0.1.8_MOD09A1_EVI2", "v0.1.8_MOD09A1_EVIc15")
+prefix  <- prefixs[1]
+# lst_MOD13A1_EVI <- get_sbatch(paste0(dir_flush, 'result/phenoflux115/'))
+lst_MOD13A1_EVI <- get_sbatch(paste0(dir_flush, 'result/phenoflux115/', prefix))
 
 lst_GPPobs <- get_sbatch(paste0(dir_flush, 'result/phenoflux115/v0.1.6_GPPobs'))
 
@@ -29,8 +31,10 @@ metric_autumn <- contain(d_diff, "eos|DD|RD|Senescence|Dormancy")
 
 d$index %<>% factor(c(metric_spring, "DER.pop", metric_autumn))
 d$phase <- "spring"
+d[index == "DER.pop", phase := "pop"]
 d[index %in% metric_autumn, phase := "autumn"]
-d$phase %<>% factor(c("spring", "autumn"))
+
+d$phase %<>% factor(c("spring", "pop", "autumn"))
 
 # d[, value := value + ]
 pdat <- d[abs(value) < 50]
@@ -57,7 +61,8 @@ sites_rm <- info[RMSE >= 60, site]
 
 ## select which site is more significant
 d_gof <- ddply_dt(d, .(GOF(value*0, value)), .(site, phase)) %>%
-    merge(st[, .(site, IGBP, lat)])
+    merge(st[, .(site, IGBP, lat)]) %>%
+    .[order(IGBP), ]
 
 pdat_phase <- d[, .(diff = mean(value, na.rm = T)), .(site, phase)] %>%
     # dcast(site~phase, value.var = "diff") %>%
@@ -67,14 +72,14 @@ xlab <- st[, .N, IGBP] #%>% rbind(data.table(IGBP = "all", N = nrow(st)))
 xlab[, label:=sprintf("%s\n(n=%2d)", IGBP, N)]
 
 lwd <- 0.8
-colors <- scales::hue_pal()(2) %>% rev
+colors <- scales::hue_pal()(3) %>% rev
 
 
     # geom_jitter(width = 0.2)
 
 p <- ggplot(d_gof[RMSE < 80], aes(IGBP, Bias, color = phase)) +
     geom_boxplot() +
-    geom_point(position = position_jitterdodge(jitter.width = 0.3), show.legend = F) +
+    geom_point(position = position_jitterdodge(jitter.width = 0.2), show.legend = F) +
     ylab("Phenological metrics of EVI - GPP") +
     scale_x_discrete(breaks = xlab$IGBP, labels = xlab$label) +
     geom_hline(yintercept = 0, color = "blue", linetype = 2, size = lwd) +
@@ -89,7 +94,7 @@ p <- ggplot(d_gof[RMSE < 80], aes(IGBP, Bias, color = phase)) +
 
 p
 
-write_fig(p, "Figure1.2_EVI-GPP_(MOD09A1_EVIc15).pdf", 9, 6)
+write_fig(p, sprintf("Figure1.2_EVI-GPP_%s.pdf", prefix), 9, 6)
 
 # st[, .(site, IGBP)][, .N, .(IGBP)]
 

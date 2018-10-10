@@ -1,6 +1,6 @@
 source('test/phenology_async/R/s2_reason_of_async/d_reason_of_async(INPUT).R')
 
-## Modified to apply in site*d16
+## Modified to apply in site*dn
 
 ## Global variables
 varnames   <- c("EVI", "NDVI", "T", "Prcp", "Rs", "VPD", "APAR", "GPP", paste0("GPP_t", 1:3))[1:8]
@@ -10,7 +10,8 @@ response   <- "GPP"
 # Elasticity method -------------------------------------------------------
 
 sitename <- "AT-Neu"#"CH-Oe2" #"AT-Neu"
-x <- d[site == sitename] #  & SummaryQA <= 1, .SD, .SDcol = c("site", "date", "yd16", varnames)
+d <- d_mod09a1 # all sites' data
+x <- d[site == sitename] #  & SummaryQA <= 1, .SD, .SDcol = c("site", "date", "ydn", varnames)
 
 #' Get 1th back forward derivate
 #' @param x A data.table, at least with the column of varnames
@@ -49,17 +50,17 @@ Elasticity_GPP <- function(x, predictors){
         res
     }
 
-    res <- dlply(dx_z, .(d16), get_lmcoef, formula)
-    d16 <- as.numeric(names(res))
-    res <- rm_empty(res) %>% transpose() %>% map(~do.call(rbind, .x) %>% cbind(d16, .) %>% data.table)
+    res <- dlply(dx_z, .(dn), get_lmcoef, formula)
+    dn <- as.numeric(names(res))
+    res <- rm_empty(res) %>% transpose() %>% map(~do.call(rbind, .x) %>% cbind(dn, .) %>% data.table)
     res
 
     # res$gof %>% colMeans()
     # pdat <- melt_list(res[1:3], "type") %>%
-    #     melt(id.vars = c("d16", "type")) %>%
-    #     dcast(d16+variable~type, value.var = "value")
+    #     melt(id.vars = c("dn", "type")) %>%
+    #     dcast(dn+variable~type, value.var = "value")
     #
-    # ggplot(pdat, aes(d16, perc_abs)) +
+    # ggplot(pdat, aes(dn, perc_abs)) +
     #     geom_point(aes(color = coef >= 0)) +
     #     geom_line() +
     #     facet_wrap(~variable)
@@ -82,12 +83,12 @@ res <- dlply(d_long, by , Elasticity_GPP, predictors)
 sites_ck     <- sapply(res, length) %>% .[ . == 0] %>% names() %T>% print
 
 df_elastic   <- rm_empty(res) %>% transpose() %>% map(~melt_list(.x, by))
-pdat_elastic <- melt_list(df_elastic[1:4], "type") %>% melt(c(by, "d16", "type")) %>%
+pdat_elastic <- melt_list(df_elastic[1:4], "type") %>% melt(c(by, "dn", "type")) %>%
     spread("type", "value")
 pdat_elastic$IGBP %<>% factor(IGBPnames_006)
 
 
-ggplot(pdat_elastic[pvalue < 0.1], aes(d16, perc_abs)) +
+ggplot(pdat_elastic[pvalue < 0.1], aes(dn, perc_abs)) +
     geom_point(aes(color = coef >= 0, shape = pvalue > 0.1)) +
     # geom_line() +
     # geom_smooth() +
@@ -97,13 +98,13 @@ ggplot(pdat_elastic[pvalue < 0.1], aes(d16, perc_abs)) +
 
 
 
-# # p1 <- ggplot(pdat, aes(d16, perc_abs)) +
+# # p1 <- ggplot(pdat, aes(dn, perc_abs)) +
 #     geom_point(aes(color = coef >= 0)) +
 #     geom_line() +
 #     facet_wrap(~variable, ncol = 1) +
 #     theme(legend.position = "bottom")
 #
-# p2 <- ggplot(pdat, aes(d16, coef)) +
+# p2 <- ggplot(pdat, aes(dn, coef)) +
 #     geom_point(aes(color = coef >= 0)) +
 #     geom_line() +
 #     facet_wrap(~variable, ncol = 1) +
@@ -112,13 +113,13 @@ ggplot(pdat_elastic[pvalue < 0.1], aes(d16, perc_abs)) +
 # library(gridExtra)
 # grid.arrange(p1, p2, ncol = 2)
 #
-# d_avg <- x[, .SD, .SDcols = c("year", "d16", varnames[-2], "APAR")] %>% melt(c("year", "d16"))
+# d_avg <- x[, .SD, .SDcols = c("year", "dn", varnames[-2], "APAR")] %>% melt(c("year", "dn"))
 #
-# p_evi <- ggplot(x, aes(d16, EVI, color = year)) +
+# p_evi <- ggplot(x, aes(dn, EVI, color = year)) +
 #     geom_point() + geom_smooth()
 #
 # # p_gpp <-
-#     ggplot(d_avg, aes(d16, value, color = year)) +
+#     ggplot(d_avg, aes(dn, value, color = year)) +
 #     geom_point() + geom_smooth(formula = y ~ x^2) +
 #     facet_wrap(~variable, ncol = 1, scales = "free_y")
 #

@@ -2,14 +2,10 @@ source('inst/shiny/check_season/global.R')
 source("test/stable/load_pkgs.R")
 source('test/phenology_async/R/main_async.R')
 
-load("data/phenoflux_115_gs.rda")
+load("data/phenoflux_115_gs.rda") # st
+# kongdd/plyr (v1.8.4.9001)
 
-
-# df <- lst_sm$MOD13A1
-
-# df <- df[scale == "0m", .(site, t, date, y = EVI, w, SummaryQA)]
-# df$SummaryQA %<>% factor(qc_values, qc_levels)
-
+############################### AGGREGATE GPP_EC ###############################
 st[, `:=`(IGBPname = IGBP, lon = long)]
 
 data <- df[, .(site, date, Rn, Rs = SW_IN, VPD, Prcp = P, T = TA, GPP_DT, GPP_NT)] %>%
@@ -17,33 +13,64 @@ data <- df[, .(site, date, Rn, Rs = SW_IN, VPD, Prcp = P, T = TA, GPP_DT, GPP_NT
 data$GPP <- rowMeans(as.matrix(data[, .(GPP_DT, GPP_NT)]), na.rm = T)
 
 vars <- c("GPP_NT", "GPP")
-data[, (vars) := lapply(.SD, fix_neg), .SDcols = vars]
+data[, (vars) := lapply(.SD, clamp_min), .SDcols = vars] # clamp_min to 0 
 
 ## 1. merge EVI and GPP
 vars_com <- c("site", "date", "year", "doy", "d16", "d8")
 vars <- setdiff(colnames(data), vars_com)
-data_d16 <- data[, lapply(.SD, mean, na.rm = T), .(site, year, d16), .SDcols = vars]
-data_d16[, date := as.Date(sprintf("%d%03d", year, (d16-1)*16+1), "%Y%j")]
-data_d16 <- merge(st[, .(site, IGBP)], data_d16, by = "site")
 
-data_d16 <- data[, lapply(.SD, mean, na.rm = T),
-                .(site, year, d16), .SDcols = vars] %>%
-    merge(st[, .(site, IGBP)], ., by = "site") %>%
-    .[, `:=`(date = as.Date(sprintf("%d%03d", year, (d16-1)*16+1), "%Y%j"),
-             ydn  = (year - 2000)*23 + d16)] #d8, d16 ID order
+aggregate_dn <- function(data, nday = 16){
+    nptperyear <- ceiling(365/nday)
+    byname     <- c("site", "year", paste0("d", nday))
 
+    res <- data[, lapply(.SD, mean, na.rm = T), byname, .SDcols = vars]
+    colnames(res)[3] <- "dn"
 
-data_d8 <- data[, lapply(.SD, mean, na.rm = T),
-                .(site, year, d8), .SDcols = vars] %>%
-    merge(st[, .(site, IGBP)], ., by = "site") %>%
-    .[, `:=`(date = as.Date(sprintf("%d%03d", year, (d8-1)*8+1), "%Y%j"),
-             ydn  = (year - 2000)*46 + d8)]
+    merge(st[, .(site, IGBP)], res, by = "site") %>%
+        .[, `:=`(date = as.Date(sprintf("%d%03d", year, (dn-1)*nday+1), "%Y%j"),
+                 ydn  = (year - 2000)*nptperyear + dn)] %>% #dn ID order
+        ddply(.(site), addPredictor_tn) %>%
+        reorder_name(c("site", "IGBP", "date", "year", "d16", "d8", "ydn"))
+}
 
+data_d8  <- aggregate_dn(data, nday = 8)
+data_d16 <- aggregate_dn(data, nday = 16)
 
-
+############################ LOAD SATELLITE DATA ###############################
+## 2.1 MOD13A1
 d_mod13a1 <- lst_sm$MOD13A1[scale == "0m", .(site, date, NDVI, EVI, SummaryQA)]
 d_mod13a1 <- merge(data_d16, d_mod13a1, by = c("site", "date")) # no negative after fix_neg
 
-d <- ddply(d, .(site), addPredictor_tn) %>% data.table() %>%
-    reorder_name(c("site", "IGBP", "date", "year", "d16", "yd16"))
-d[, APAR := Rs*0.45*(EVI - 0.1)] # Zhang Yao, 2017, sci data
+d_mod13a1[, APAR := Rs*0.45*1.25*(EVI - 0.1)] # Zhang Yao, 2017, sci data
+
+## 2.2 MOD09A1
+## 2.2.1 tidy MOD09A1
+d_mod09a1 <- readRDS("data_test/flux212_MOD09A1_VI.RDS")
+d_mod09a1 <- d_mod09a1[scale == "0m", .(site, t, date, year, EVI, EVI2, NDVI, LSWI, w, StateQA, QC_flag)]
+
+d_mod09a1[QC_flag %in% c("cloud", "snow"), EVI := EVI2] # fix bright EVI
+# (a) make sure values in a reasonable range
+d_mod09a1[ EVI > 1 | EVI < -0.1, EVI := NA]
+# (b) remove outliers: abs(y - mean) > 3sd
+d_mod09a1[!is.na(EVI), `:=`(mean = mean(EVI), sd = sd(EVI)), .(site)]
+d_mod09a1[abs(EVI - mean) >= 3*sd & QC_flag != "good", EVI := NA_real_, .(site)]
+d_mod09a1[, c("mean", "sd") := NULL]
+
+# with(, plot(EVI2, y)); grid(); abline(a = 0, b=1, col="red")
+
+## Wscaler
+LWSI_max <- d_mod09a1[!(QC_flag %in% c('snow', "cloud")), 
+    .(LSWI_max = max(LSWI, na.rm = T)), .(site, year)]
+LWSI_max[, LSWI_max := zoo::rollapply(LSWI_max, 5, nth_max, partial = T),
+          .(site)] # 5 year second maximum moving
+
+d_mod09a1 <- merge(d_mod09a1, LWSI_max)
+d_mod09a1[, Wscalar := (1 + LSWI) / (1 + LSWI_max)]
+## Tscalar
+d_mod09a1 <- merge(data_d8, d_mod09a1, by = c("site", "date", "year"))
+d_mod09a1[, Tscalar := cal_Tscalar(T, IGBP), .(IGBP)]
+
+# make sure Tscalar and Wscaler in the range of 0-1
+vars_scalar <- c('Wscalar', 'Tscalar')
+d_mod09a1[, (vars_scalar) := lapply(.SD, clamp), .SDcols = vars_scalar]
+d_mod09a1[, APAR := Rs*0.45*1.25*(EVI - 0.1)] # Zhang Yao, 2017, sci data

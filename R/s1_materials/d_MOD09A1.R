@@ -5,15 +5,8 @@ show_description <- function(d){
     cat(attr(d, "description"))
 }
 
-fix_null <- function(x, default = NA){
-    I <- sapply(x, is.null)
-    x[I] <- default
-    x
-}
-
 indir <- "D:/Document/GoogleDrive/phenofit/phenology_async/data"
 files <- dir(indir, pattern = 'MOD.*', full.names = T)
-
 
 ## 1. check whether csv and json are some
 test_consist <- function(){
@@ -62,7 +55,7 @@ attr(df, "description") <- Description
 # LWSI_year[, LSWI_max := zoo::rollapply(LSWI_max, 5, nth_max, partial = T),
 #           .(site, scale)] # yearly max into 5 year second maximum moving
 
-saveRDS(df, file = "data_test/MOD09A1_VI_flux212.RDS")
+saveRDS(df, file = "data_test/flux212_MOD09A1_VI.RDS")
 
 # NSWI: 0.06% missing for MOD09A1
 

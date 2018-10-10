@@ -1,16 +1,31 @@
 library(plsdepot) # install_github('kongdd/plsdepot')
 
-# x <- na.omit(x)
-# x <- d[IGBP == "GRA" & d16 == 10]
-
 ## Global variables
 varnames <- c("EVI", "NDVI", "T", "Prcp", "Rs", "VPD", "GPP", paste0("GPP_t", 1:3))[1:7]
 # formula  <- varnames %>% paste(collapse = "+") %>% {as.formula(paste("GPP~", .))}
 
-fix_neg <- function(x){
-    x[x < 0] <- 0
-    x
+# ============================ GPP_vpm theory ==================================
+# In the order of IGBPname_006
+# https://github.com/zhangyaonju/Global_GPP_VPM_NCEP_C3C4/blob/master/GPP_C6_for_cattle.py
+epsilon_C3 <- 0.078 # g C m-2 day -1 /W m-2
+epsilon_C4 <- c(rep(0, 8), rep(epsilon_C3*1.5, 4), 0, epsilon_C3*1.5)
+
+cal_Tscalar <- function(T, IGBP){
+    IGBPname <- c("ENF", "EBF", "DNF", "DBF", "MF" , "CSH",
+                "OSH", "WSA", "SAV", "GRA", "WET", "CRO",
+                "URB", "CNV")
+    Tmin <- c(-1, -2, -1, -1, -1, -1, 1, -1, 1, 0, -1, -1, 0, 0)
+    Tmax <- c(40, 48, 40, 40, 48, 48, 48, 48, 48, 48, 40, 48, 48, 48)
+    Topt <- c(20, 28, 20, 20, 19, 25, 31, 24, 30, 27, 20, 30, 27, 27)
+
+    I <- match(IGBP[1], IGBPname)
+    Tscalar <- (T-Tmax[I])*(T-Tmin[I]) / ( (T-Tmax[I])*(T-Tmin[I]) - (T - Topt[I])^2 )
+    Tscalar
 }
+# param <- data.table(IGBPname, Tmin, Tmax, Topt)
+# Tscalar <- (T-Tmax)*(T-Tmin) / ( (T-Tmax)*(T-Tmin) - (T - Topt)^2 )
+# Wscaler <- (1 + LSWI) / (1 + LSWI_max)
+# ==============================================================================
 
 getRange <- function(d, variable, by = .(IGBP)){
     if (is.quoted(by)) by <- names(by)
@@ -177,8 +192,8 @@ GPP_D1 <- function(x, predictors){
     varnames <- c(predictors, "GPP")
     ## 1. dx cal should be by site
     x <- data.table(x)
-    headvars <- c("site", "date", "year", "yd16", "d16")
-    I_t0 <- x$yd16
+    headvars <- c("site", "date", "year", "ydn", "dn")
+    I_t0 <- x$ydn
     I_t1 <- match(I_t0 - 1, I_t0) # previous time step
 
     # back forward derivate
@@ -207,7 +222,7 @@ check_sensitivity <- function(x, predictors){
     ## 0. prepare plot data
     dx_z <- GPP_D1(x, predictors) # only suit for by site
 
-    p <- ggplot(x, aes(d16, GPP, color = year)) +
+    p <- ggplot(x, aes(dn, GPP, color = year)) +
         # geom_point() +
         geom_smooth(method = "loess", formula = smooth_formula, span = span, color = "black")
 
@@ -216,13 +231,16 @@ check_sensitivity <- function(x, predictors){
     p_Rs   <- ggplot_1var(x, "Rs"  , "purple")
     p_T    <- ggplot_1var(x, "T"   , "yellow")
     p_VPD  <- ggplot_1var(x, "VPD" , "darkorange1")
-    p_prcp <- ggplot_1var(x, "Prcp", "blue")
+    p_prcp <- ggplot_1var(x, "Prcp", "skyblue")
     p_epsilon_eco <- ggplot_1var(x, "epsilon_eco", "darkorange1")
     p_epsilon_chl <- ggplot_1var(x, "epsilon_chl", "yellow")
     
+    p_Wscalar <- ggplot_1var(x, "Wscalar", "blue")
+    p_Tscalar <- ggplot_1var(x, "Tscalar", "yellow4")
+    
     # p_all <- ggplot_multiAxis(p, p_apar)
     p1 <- reduce(list(p, p_EVI, p_APAR, p_Rs, p_epsilon_eco, p_epsilon_chl), ggplot_multiAxis, show = F)
-    p2 <- reduce(list(p, p_EVI, p_T, p_VPD, p_prcp), ggplot_multiAxis, show = F)
+    p2 <- reduce(list(p, p_EVI, p_T, p_VPD, p_prcp, p_Wscalar, p_Tscalar), ggplot_multiAxis, show = F)
 
     fontsize <- 14
     titlestr <- st[site == sitename, ] %$%
@@ -237,10 +255,10 @@ check_sensitivity <- function(x, predictors){
     # ggplot_build(p)$layout$panel_scales_y[[1]]$range$range
 
     ## 2. mete forcing
-    delta <- dx_z %>% melt(c("site", "date", "year", "yd16", "d16", "GPP"))
+    delta <- dx_z %>% melt(c("site", "date", "year", "ydn", "dn", "GPP"))
 
     formula <- y ~ x
-    p_mete <- ggplot(delta[d16 > 10], aes(value, GPP)) +
+    p_mete <- ggplot(delta[dn > 10], aes(value, GPP)) +
         geom_point() +
         facet_wrap(~variable, scales = "free", ncol = 2) +
         geom_smooth(method = "lm", se=T, formula = formula) +

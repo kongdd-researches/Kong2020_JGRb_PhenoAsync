@@ -2,7 +2,7 @@ source('test/phenology_async/R/s2_reason_of_async/d_reason_of_async(INPUT).R')
 
 ## 1.2 rm bad points
 
-d <- d[SummaryQA <= 0 & EVI > 0]
+d <- d_mod13a1[SummaryQA <= 0 & EVI > 0]
 info <- d[, .N, .(d16, IGBP)][order(N)]
 d    <- merge(d, info[N >= 10])
 
