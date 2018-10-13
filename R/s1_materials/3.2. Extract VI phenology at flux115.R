@@ -3,7 +3,7 @@ source("test/stable/load_pkgs.R")
 # source("test/phenology_async/R/s1_materials/main_phenofit.R")
 load("data/phenoflux_115_gs.rda")
 
-df <- readRDS("data_test/MOD09A1_VI_flux212.RDS")
+df <- readRDS("data_test/flux212_MOD09A1_VI.RDS")
 df <- df[scale == "0m", .(site, t, date, y = EVI2, EVI, EVI2, NDVI, LSWI, w, StateQA, QC_flag)]
 # df$SummaryQA %<>% factor(qc_values, qc_levels)
 
@@ -48,7 +48,7 @@ getVI_phenofit <- function(sitename, df, prefix_fig = 'phenofit_v0.1.6'){
     ## version v2: GPPobs brks
     sp <- st[site == sitename, ]
     if (sp$IGBP %in% c("CRO", "GRA")){
-        maxExtendMonth = 1
+        maxExtendMonth = 1.5
     } else {
         maxExtendMonth = 2
     }
@@ -62,7 +62,7 @@ getVI_phenofit <- function(sitename, df, prefix_fig = 'phenofit_v0.1.6'){
     return(fit)
 }
 
-prefix <- "v0.1.8_MOD09A1_EVIc15"
+prefix <- "v0.1.9_MOD09A1_EVIc15"
 
 sites %<>% set_names(sites)
 sitename <- sites[1]
@@ -73,7 +73,7 @@ fits   <- par_sbatch(sites, getVI_phenofit,
     Save = T, outdir = outdir, prefix_fig = paste0('phenoflux_', prefix))
 
 ## 2. combine figures
-phenofit::merge_pdf(sprintf('phenoflux_%s_1.pdf', prefix), indir = 'Figure/', prefix, del = F)
+phenofit::merge_pdf(sprintf('phenoflux_%s.pdf', prefix), indir = 'Figure/', prefix, del = F)
 
 # x <- fit$fits$AG$`2002_1`
 #

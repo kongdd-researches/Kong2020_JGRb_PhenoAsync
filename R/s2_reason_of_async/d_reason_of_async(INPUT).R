@@ -4,6 +4,7 @@ source('test/phenology_async/R/main_async.R')
 
 load("data/phenoflux_115_gs.rda") # st
 # kongdd/plyr (v1.8.4.9001)
+## Only '0m' scale used here.
 
 aggregate_dn <- function(data, nday = 16){
     nptperyear <- ceiling(365/nday)
@@ -41,7 +42,8 @@ cal_LSWImax <- function(x){
 ############################### AGGREGATE GPP_EC ###############################
 st[, `:=`(IGBPname = IGBP, lon = long)]
 
-data <- df[, .(site, date, Rn, Rs = SW_IN, VPD, Prcp = P, T = TA, GPP_DT, GPP_NT)] %>%
+data <- df[, .(site, date, Rn, Rs = SW_IN, PPFD_IN, VPD, VPD_trans = 1/sqrt(VPD),
+               Prcp = P, T = TA, GPP_DT, GPP_NT)] %>%
     add_dn(days = c(8, 16))
 data$GPP <- rowMeans(as.matrix(data[, .(GPP_DT, GPP_NT)]), na.rm = T)
 
@@ -85,7 +87,7 @@ pheno_T <- readRDS('data_test/flux212_MYD11A2_T_phenology_5d_10d.RDS')
 
 df1 <- merge(d_mod09a1[, .(site, date, year2, LSWI, QC_flag)],
     pheno_T[, .(site, year2, sos_date, eos_date)], by = c("site", "year2"))
-d <- df1[site == sitename]
+# d <- df1[site == sitename]
 
 d_LSWImax <- ddply(df1, .(site), cal_LSWImax)
 d_LSWImax[LSWI_max < 0.1, LSWI_max := 0.1]
@@ -103,5 +105,16 @@ d_mod09a1[, (vars_scalar) := lapply(.SD, clamp), .SDcols = vars_scalar]
 
 # add APAR
 d_mod09a1[, APAR := Rs*0.45*1.25*(EVI - 0.1)] # Zhang Yao, 2017, sci data
+
+d_mod09a1[, `:=`(GPPsim  = pmax(0, 0.078*1.25*(EVI-0.1)*Rs*Tscalar*Wscalar))]
+d_mod09a1[, `:=`(GPPsim2 = pmax(0, 0.078*1.25*(EVI-0.1)*PPFD_IN*Tscalar*Wscalar))]
+
+d_mod09a1[, as.list(GOF(GPP, GPPsim)), .(IGBP)]
+d_mod09a1[, as.list(GOF(GPP, GPPsim2)), .(IGBP)]
+
+d_vpm <- fread("file:///F:/Github/data/flux/fluxnet212/flux212_GPP_vpm(zhang2017).csv")
+d_vpm$date %<>% ymd()
+d_mod09a1 <- merge(d_mod09a1, d_vpm[, .(site, date, GPP_vpm)], by = c("site", "date"))
+# d_mod09a1[, as.list(GOF(GPP, GPP_vpm)), .(IGBP)]
 
 save(d_mod13a1, d_mod09a1, st, file = "data_test/flux115_async_input.rda")

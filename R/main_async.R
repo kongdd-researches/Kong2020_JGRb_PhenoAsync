@@ -218,7 +218,7 @@ figureNo <- 0
 
 # global variables:
 # st, info_async
-check_sensitivity <- function(x, predictors){
+check_sensitivity <- function(x, predictors, nptperyear = 46){
     ## 0. prepare plot data
     dx_z <- GPP_D1(x, predictors) # only suit for by site
 
@@ -244,7 +244,7 @@ check_sensitivity <- function(x, predictors){
 
     fontsize <- 14
     titlestr <- st[site == sitename, ] %$%
-        sprintf("[%03d,%s] %s, lat=%.2f, nyear=%.1f", ID, IGBP, site, lat, nrow(x)/23)
+        sprintf("[%03d,%s] %s, lat=%.2f, nyear=%.1f", ID, IGBP, site, lat, nrow(x)/nptperyear)
     biasstr  <- with(info_async[site == sitename], sprintf("bias: sos=%.1f,eos=%.1f", spring, autumn))
     titlestr <- paste(titlestr, biasstr, sep = "  ")
 

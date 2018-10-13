@@ -6,6 +6,21 @@ source('test/phenology_async/R/main_async.R')
 predictors <- c("EVI", "NDVI", "Rs", "T", "Prcp", "VPD", "APAR",
                 "Wscalar", "Tscalar", "epsilon_eco", "epsilon_chl")#[-6]#[-c(1, 2)]
 
+sitename <- "AT-Neu"#"CH-Oe2" #"AT-Neu"
+d <- d_mod09a1 # all sites' data
+x <- d[site == sitename] #  & SummaryQA <= 1, .SD, .SDcol = c("site", "date", "ydn", varnames)
+
+## 2. filter sites with more than 5 year data
+info <- d[, .(n = length(unique(year))), .(site)][n >= 5][order(-n)]
+sites_long <- st[site %in% info$site]$site
+
+#
+info_async <- read.xlsx("table1.over_decouple.xlsx") %>% data.table()
+info_async_long <- info_async[site %in% sites_long]
+
+d_long <- d[site %in% sites_long]
+
+
 # parameter for loess
 smooth_formula <- y~poly(x, 2)
 span <- 1
@@ -31,7 +46,7 @@ ggplot_1var <- function(x, varname = "APAR", color = "red"){
 # check elastic -----------------------------------------------------------
 
 
-CairoPDF("Figures2_check_elastic_v3.pdf", 8.5, 12)
+CairoPDF("Figures2_check_elastic_v4.pdf", 8.5, 12)
 
 for (i in seq_along(sites_long)){
 # for (i in 1:10){
