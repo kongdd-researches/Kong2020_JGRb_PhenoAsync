@@ -216,31 +216,48 @@ GPP_D1 <- function(x, predictors){
 ########################### ELASTICITY FUNCTIONS ###############################
 figureNo <- 0
 
+# parameter for loess
+smooth_formula <- y~poly(x, 2)
+span <- 1
+
+ggplot_1var <- function(x, varname = "APAR", color = "red"){
+    p <- ggplot(x, aes_string("dn", varname, color = "year")) +
+        # geom_point(color = "transparent") +
+        geom_smooth(method = "loess", formula = smooth_formula, span = span,
+                    color = color)+ #fill = color,
+        scale_y_continuous(position = "right") +
+        theme(panel.background = element_rect(fill = "transparent"),
+              axis.ticks.y.right = element_line(color = color),
+              axis.text.y.right = element_text(color = color),
+              axis.title.y.right = element_text(color = color),
+              panel.grid.major = element_blank(), # get rid of major grid
+              panel.grid.minor = element_blank()) # get rid of minor grid
+    p
+}
+
 # global variables:
 # st, info_async
-check_sensitivity <- function(x, predictors, nptperyear = 46){
+check_sensitivity <- function(x, predictors, nptperyear = 46,
+    grp1 = c("EVI", "APAR", "Rs", "epsilon_eco", "epsilon_chl", "GPPsim"),
+    col1 = c("green", "red", "purple", "darkorange1", "yellow2", "darkgreen"),
+    grp2 = c("EVI", "T", "VPD", "VPD_trans", "Prcp", "Wscalar", "Tscalar"),
+    col2 = c("green", "yellow2", "darkorange1", "purple", "skyblue", "blue", "yellow4")
+    )
+{
     ## 0. prepare plot data
     dx_z <- GPP_D1(x, predictors) # only suit for by site
 
     p <- ggplot(x, aes(dn, GPP, color = year)) +
         # geom_point() +
-        geom_smooth(method = "loess", formula = smooth_formula, span = span, color = "black")
+        geom_smooth(method = "loess", formula = smooth_formula, span = span, color = "black") %>% list(.)
 
-    p_EVI  <- ggplot_1var(x, "EVI" , "green")
-    p_APAR <- ggplot_1var(x, "APAR", "red")
-    p_Rs   <- ggplot_1var(x, "Rs"  , "purple")
-    p_T    <- ggplot_1var(x, "T"   , "yellow")
-    p_VPD  <- ggplot_1var(x, "VPD" , "darkorange1")
-    p_prcp <- ggplot_1var(x, "Prcp", "skyblue")
-    p_epsilon_eco <- ggplot_1var(x, "epsilon_eco", "darkorange1")
-    p_epsilon_chl <- ggplot_1var(x, "epsilon_chl", "yellow")
-    
-    p_Wscalar <- ggplot_1var(x, "Wscalar", "blue")
-    p_Tscalar <- ggplot_1var(x, "Tscalar", "yellow4")
-    
+    FUN_plot <- function(varname, color) list(ggplot_1var(x, varname, color))
+    ps_1 <- mapply(FUN_plot, grp1, col1) %>% c(list(p), .)
+    ps_2 <- mapply(FUN_plot, grp2, col2) %>% c(list(p), .)
+
     # p_all <- ggplot_multiAxis(p, p_apar)
-    p1 <- reduce(list(p, p_EVI, p_APAR, p_Rs, p_epsilon_eco, p_epsilon_chl), ggplot_multiAxis, show = F)
-    p2 <- reduce(list(p, p_EVI, p_T, p_VPD, p_prcp, p_Wscalar, p_Tscalar), ggplot_multiAxis, show = F)
+    p1 <- reduce(ps_1, ggplot_multiAxis, show = F)
+    p2 <- reduce(ps_2, ggplot_multiAxis, show = F)
 
     fontsize <- 14
     titlestr <- st[site == sitename, ] %$%
@@ -280,3 +297,6 @@ check_sensitivity <- function(x, predictors, nptperyear = 46){
 
 # plot(pls1_one, "observations")
 # l <- lm(GPP ~ Rn + VPD + Prcp + T + EVI, x) #%>% plot()
+
+
+
