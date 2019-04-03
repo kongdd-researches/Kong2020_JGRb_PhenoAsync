@@ -8,10 +8,13 @@ This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute
 Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
 
 ```{r load data}
+dir_prj <- "G:/Github/phenology/phenofit"
+setwd(dir_prj)
+
 source('inst/shiny/check_season/global.R')
 source("test/stable/load_pkgs.R")
 source("test/phenology_async/R/s1_materials/main_phenofit.R")
-load("data_test/phenoflux_115_gs.rda")
+load("data_test/phenoflux115_gs.rda")
 
 ```
 

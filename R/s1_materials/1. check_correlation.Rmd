@@ -16,12 +16,15 @@ This is an R Markdown document. Markdown is a simple formatting syntax for autho
 When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
 
 ```{r cars}
-load('data_test/phenoflux_115.rda')
-load('data_test/ET&GPP&VI_flux115.rda')
+load('../data/flux/phenoflux115.rda')
+load('../data/flux/phenoflux115_ET&GPP&VI.rda')
+
+library(data.table)
+library(plyr)
+library(tidyverse)
 ```
 
-## Including Plots
-
+## Including Plots   
 You can also embed plots, for example:
 
 ```{r pressure, echo=FALSE}
@@ -36,6 +39,7 @@ get_scale <- function(df){
 lst <- llply(lst_sm, get_scale)
 ```
 
+## Check and prepare to remove sites
 ```{r}
 nday   <- 16
 df_obs <- df[, .(site, date, GPP_DT)] %>% add_dn(nday) %>% 
@@ -57,9 +61,8 @@ ggplot(info, aes(variable, r)) + geom_boxplot() +
 ```
 
 ```{r}
-st_97 <- fread("file:///F:/Github/phenology/phenofit/test/phenology_async/data/phenofit_st97.csv")
+st_97 <- fread("../data/flux/st_flux97.csv")
 sites_rm <- setdiff(st$site, st_97$site)
 
 setdiff(st$site, st_97$site)
 ```
-

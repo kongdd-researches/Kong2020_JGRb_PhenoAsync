@@ -1,7 +1,9 @@
-source("R/stat_density_contourf.R")
-source('R/pkg_vis.R')
 library(ggExtra)
 library(grid)
+library(plyr)
+source("R/stat_density_contourf.R")
+source('R/pkg_vis.R')
+source('F:/phenology/phenology/phenofit/test/load_pkgs.R')
 
 # 4 Figures main function: only for averaged curve fitting methods
 p_boxplot <- function(type = "SOS", real = "TRS1",
@@ -71,6 +73,9 @@ df_lst_nometh <- llply(df_lst, function(df_sim){
     return(df)
 })
 
+writelist_ToXlsx(list(GPP_obs = df_obs_nometh), "fluxsite97_GPPobs_Phenology.xlsx")
+writelist_ToXlsx(df_list, "fluxsite97_Remote Sening Products_Phenology.xlsx")
+
 ## debug
 df_obs  <- df_obs_nometh
 df_list <- df_lst_nometh[c("GPP[mod]", "GPP[vpm]", "MOD13A1_EVI", "MOD13Q1_EVI" )]
@@ -115,8 +120,6 @@ ps_avg  <- mlply(pars, p_boxplot, df_list = df_list, .progress = "text") %>% set
 data     <- map(ps, "stat")
 data_avg <- map(ps_avg, "stat")
 # 2:GPP_obs
-
-
 
 ## 2. density contourf plot of GPP_avg and EVI_avg
 # GPP_avg: TRS1.SOS, TRS1.EOS

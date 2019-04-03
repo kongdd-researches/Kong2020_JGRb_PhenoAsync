@@ -5,8 +5,12 @@ output: html_notebook
 
 ```{r load pkgs and data, message=FALSE, warning=FALSE}
 rm(list = ls())
-source('../stable/load_pkgs.R')
-source('../stable/ggplot/geom_boxplot_no_outlier.R')
+# source('../stable/load_pkgs.R')
+# source('../stable/ggplot/geom_boxplot_no_outlier.R')
+library(tidyverse)
+library(data.table)
+library(magrittr)
+library(phenofit)
 
 source('R/s1_MCD12Q2.R')
 source('R/main_Figs.R', encoding = "utf-8")

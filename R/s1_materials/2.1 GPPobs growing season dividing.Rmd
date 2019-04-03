@@ -22,9 +22,9 @@ AU-Cpr : negative corr with VI
 
 ```{r 1. prepare input data}
 rm(list = ls())
-source("test/stable/load_pkgs.R")
-stations <- fread(paste0(dir_flux, "station/flux_166.csv"))
-stations$ID <- 1:nrow(stations)
+source("../phenofit/test/stable/load_pkgs.R")
+stations <- fread(paste0(dir_flux, "station/st_flux166.csv"))
+
 # tasks:
 # check multiple growing season regions
 # whether wWHd or wHANTS
@@ -33,7 +33,7 @@ stations$ID <- 1:nrow(stations)
 # Update 12 Sep, 2018
 # 1. fluxsite observations -----------------------------------------------------
 df_raw <- fread(paste0(dir_flux, "fluxsites166_official_dd.csv"))
-df_raw <- merge(df_raw, stations[, .(site, lat, IGBP)])
+df_raw <- merge(df_raw, stations[, .(site, lat, IGBPname)])
 # South Hemisphere
 df_raw$date %<>% ymd()
 

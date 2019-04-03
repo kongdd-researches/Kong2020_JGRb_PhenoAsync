@@ -1,6 +1,8 @@
 # main functions
 # source("test/05_insync/stat_density_contourf.R")
 source("R/stat_prop.R")
+library(Ipaper)
+
 fontsize = 14
 
 brks <- c(0.8, 0.5, 0.2)
@@ -89,4 +91,4 @@ p_lgd <- ggplot(data.frame(x = 1:100, y = 1:100), aes(x, y)) +
         legend.text = element_text(size = fontsize),
         legend.key.width = unit(2,"cm")) +
     guides(colour = guide_legend(NULL, nrow = 1))
-lgd <- g_legend(p_lgd)
+lgd <- ggplot_legend(p_lgd)

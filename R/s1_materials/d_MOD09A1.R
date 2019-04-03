@@ -73,3 +73,17 @@ saveRDS(df, file = "data_test/flux212_MOD09A1_VI.RDS")
 
 # Too many missing values, not used!
 # NSWI: 41.7% missing for MYD09A1
+
+df <- df[scale == "0m", .(site, t, date, y = EVI2, EVI, EVI2, NDVI, LSWI, w, StateQA, QC_flag)]
+# df$SummaryQA %<>% factor(qc_values, qc_levels)
+
+## tidy MOD09A1
+# 1.1 make sure values in a reasonable range
+df[ y > 1 | y < -0.1, y := NA]
+# 1.2 remove outliers: abs(y - mean) > 3sd
+df[!is.na(y), `:=`(mean = mean(y), sd = sd(y)), .(site)]
+df[abs(y - mean) >= 3*sd & QC_flag != "good", y := NA_real_, .(site)]
+df[, c("mean", "sd") := NULL]
+
+df[QC_flag %in% c("cloud", "snow"), EVI := EVI2] # fix bright EVI
+# with(, plot(EVI2, y)); grid(); abline(a = 0, b=1, col="red")
