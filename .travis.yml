@@ -1,0 +1,26 @@
+# R for travis: see documentation at https://docs.travis-ci.com/user/languages/r
+
+language: R
+cache: packages
+latex: false
+
+matrix:
+  include:
+    - r: release
+    # - r: devel
+    # - os: osx
+    #   fortran: false
+
+warnings_are_errors: false
+
+r_packages:
+  - covr
+
+# before_install:
+#   - if [ "${TRAVIS_OS_NAME}" == "osx" ]; then 
+#       brew install llvm;
+#       export PATH="/usr/local/opt/llvm/bin:$PATH";
+#     fi
+  
+after_success:
+  - Rscript -e 'covr::codecov()'

@@ -8,3 +8,8 @@
 *.html
 temp/
 data/
+
+# src
+*.o
+*.dll
+*.so
