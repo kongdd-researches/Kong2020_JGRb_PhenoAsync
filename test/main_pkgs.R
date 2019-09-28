@@ -20,5 +20,9 @@ suppressWarnings({
     ## load data
     # library(sp2)
     library(foreach)
-    library(iterator)
+    library(iterators)
 })
+
+st_166 <- fread("E:/Research/phenology/DATA/flux/station/st_flux166.csv")
+st_212 <- fread("E:/Research/phenology/DATA/flux/station/st_flux212.txt")
+

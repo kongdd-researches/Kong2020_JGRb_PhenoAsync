@@ -125,6 +125,3 @@ MEAN_rmse <- function(df_sim){
     info_all <- ddply(ds, .(site, index), function(d){ GOF2(d$RE)})
     return(info_all)
 }
-
-
-
