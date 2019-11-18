@@ -4,16 +4,16 @@
 \alias{tidy_daily}
 \title{Tidy FLUXNET daily-scale dataset.}
 \usage{
-tidy_daily(d, lat, perc_valid = 0.8)
+tidy_daily(dt, lat, perc_valid = 0.8)
 }
 \arguments{
-\item{d}{Data.table of fluxnet tier1 daily observations. Fluxnet daily file is
-in the format of \code{FLX_{site}_FLUXNET2015_SUBSET_DD_{year_start}-{year_end}_2-3.csv}.}
-
 \item{lat}{Double, latitude of this site.}
 
 \item{perc_valid}{Double, in the range of 0-1. If the percentage of measured and
 good quality gap-filled data is less than \code{perc_valid}, NA value will be replaced.}
+
+\item{d}{Data.table of fluxnet tier1 daily observations. Fluxnet daily file is
+in the format of \code{FLX_{site}_FLUXNET2015_SUBSET_DD_{year_start}-{year_end}_2-3.csv}.}
 }
 \description{
 Tidy FLUXNET daily-scale dataset.

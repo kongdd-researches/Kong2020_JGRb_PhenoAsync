@@ -106,6 +106,6 @@ for (i in seq_along(sites)){
 dev.off()
 names(res) <- sites
 brks_lst <- res
-save(brks_lst, file = "data_test/phenoflux_115_gs.rda")
+# save(brks_lst, file = "data_test/phenoflux_115_gs.rda")
 ```
 

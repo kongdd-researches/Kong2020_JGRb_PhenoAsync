@@ -26,3 +26,4 @@ suppressWarnings({
 st_166 <- fread("E:/Research/phenology/DATA/flux/station/st_flux166.csv")
 st_212 <- fread("E:/Research/phenology/DATA/flux/station/st_flux212.txt")
 
+file_GPP_north = "INPUT/df_north.RDS"

@@ -93,4 +93,3 @@ fits <- llply(sites0, get_phenofit, df, st, brks_lst, sites, wFUN = 'wTSM',
 dev.off()
 # fit <- get_phenofit(i, df, st, brks_lst, sites, 'wTSM')
 ```
-

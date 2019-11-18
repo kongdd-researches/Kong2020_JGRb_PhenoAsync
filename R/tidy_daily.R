@@ -1,15 +1,15 @@
 #' Tidy FLUXNET daily-scale dataset.
-#' 
-#' @param d Data.table of fluxnet tier1 daily observations. Fluxnet daily file is 
+#'
+#' @param d Data.table of fluxnet tier1 daily observations. Fluxnet daily file is
 #' in the format of `FLX_{site}_FLUXNET2015_SUBSET_DD_{year_start}-{year_end}_2-3.csv`.
 #' @param lat Double, latitude of this site.
-#' @param perc_valid Double, in the range of 0-1. If the percentage of measured and 
+#' @param perc_valid Double, in the range of 0-1. If the percentage of measured and
 #' good quality gap-filled data is less than `perc_valid`, NA value will be replaced.
-#' 
+#'
 #' @importFrom lubridate ymd
 #' @export
-tidy_daily <- function(d, lat, perc_valid = 0.8){
-    date <- ymd(as.character(d$TIMESTAMP))
+tidy_daily <- function(dt, lat, perc_valid = 0.8){
+    date <- ymd(as.character(dt$TIMESTAMP))
     n    <- length(date)
 
     # add newdate to make sure its complete year for North and South Hemisphere
@@ -40,7 +40,7 @@ tidy_daily <- function(d, lat, perc_valid = 0.8){
 
     # 2. select valid obs
     # df <- suppressMessages(read.csv(unz(file, file_csv)))
-    Id_na <- which(is.na(match(vars_all, colnames(d))))
+    Id_na <- which(is.na(match(vars_all, colnames(dt))))
     # df[, vars_all[Id_na]] <- NA #this step must be data.frame variables
     if (length(Id_na) > 0) dt[, (vars_all[Id_na]) := NA]
 

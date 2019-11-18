@@ -13,3 +13,5 @@ data/
 *.o
 *.dll
 *.so
+
+*.RDS
