@@ -15,3 +15,5 @@ data/
 *.so
 
 *.RDS
+*.rda
+*.json

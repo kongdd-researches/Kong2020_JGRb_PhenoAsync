@@ -4,7 +4,9 @@
 \alias{divide_seasons}
 \title{divide_seasons}
 \usage{
-divide_seasons(d, sp, nptperyear = 23, lambda = 50, .movmean = TRUE)
+divide_seasons(d, sp, nptperyear = 23, iters = 2, lambda = 100,
+  wFUN = wTSM, r_max = 0.2, r_min = 0, r_minPeakHeight = 0.05,
+  calendarYear = FALSE, .movmean = TRUE, .v_curve = FALSE, ...)
 }
 \arguments{
 \item{d}{data.frame of vegetation index}

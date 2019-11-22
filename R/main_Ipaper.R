@@ -26,3 +26,5 @@ check_file <- function(file, outdir){
     if (tag < 1) outfile <- ""
     return(outfile)
 }
+
+SumatraPDF = Ipaper:::cmd_func("SumatraPDF.exe")

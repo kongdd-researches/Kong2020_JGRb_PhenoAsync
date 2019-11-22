@@ -13,6 +13,7 @@ LinkingTo: Rcpp, RcppArmadillo
 Depends:
     R (>= 3.1)
 Imports: Rcpp, 
+    phenofit,
     tibble, dplyr, purrr, stringr, tidyr, ggplot2, 
     data.table, magrittr, lubridate, fasttime, 
     spam, 

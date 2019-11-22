@@ -35,7 +35,7 @@ info     = df[, .(ngpp_nt = sum(!is.na(GPP_NT)),
                   max = max(GPP_DT, na.rm = TRUE)), .(site, year)]
 
 info_left = info[ngpp_dt >= 365 * 0.7 & max >= 2, .(site, year)] # 8 site-year removed
-df_north = st_166[lat > 0, .(site)] %>% merge(info_left) %>%
+df_north  = st_166[lat > 0, .(site)] %>% merge(info_left) %>%
     merge(df, ., by = c("site", "year")) # North Hemisphere， 136 site left (116 north)
 
 # original 1301 site-year
