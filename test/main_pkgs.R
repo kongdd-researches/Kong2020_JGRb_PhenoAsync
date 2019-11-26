@@ -21,6 +21,7 @@ suppressWarnings({
     # library(sp2)
     library(foreach)
     library(iterators)
+    library(glue)
 })
 
 st_166 <- fread("E:/Research/phenology/DATA/flux/station/st_flux166.csv")

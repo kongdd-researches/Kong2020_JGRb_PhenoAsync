@@ -15,7 +15,6 @@ initialw_5l <- function(df){
     df
 }
 
-
 stations <- fread(paste0(dir_flux, "station/flux_166.csv"))
 stations$ID <- 1:nrow(stations)
 # tasks:
@@ -69,8 +68,6 @@ save(df, st, sites, file = "data_test/phenoflux_115.rda")
 # save("d_obs", file = "Y:/R/phenofit/data/phenofit_INPUT_flux136_obs.rda")
 
 # 1. test growing season dividing -----------------------------------------
-
-
 
 
 ## rm(list = ls())

@@ -60,7 +60,7 @@ divide_seasons <- function(d, sp, nptperyear = 23,
     maxExtendMonth <- ifelse(sp$IGBP == "EBF", 2, 2)
 
     # wFUN <- "wBisquare", "wTSM", threshold_max = 0.1, IGBP = CSH
-    # INPUT <- get_input(df, st, sitename)
+    # INPUT <- get_input(df, st, sitename)    
     brks2  <- season_mov(INPUT,
         rFUN = get(FUN_fit),
         wFUN = wFUN,

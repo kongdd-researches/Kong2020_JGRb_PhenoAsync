@@ -17,3 +17,4 @@ data/
 *.RDS
 *.rda
 *.json
+log.txt
