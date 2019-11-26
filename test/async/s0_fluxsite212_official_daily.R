@@ -1,4 +1,3 @@
-# source("R/FLUXNET/Main.R")
 source("test/main_pkgs.R")
 
 # FLUNET daily observations are

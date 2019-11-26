@@ -1,13 +1,13 @@
 # source("test/main_phenofit.R")
-#' @importFrom phenofit check_season curvefits get_pheno get_fitting get_GOF plot_phenofit
+#' @importFrom phenofit check_season curvefits get_pheno get_fitting get_GOF 
+#' plot_phenofit
 #' @export
 tidy_seasons <- function(l, rtrough_max = 0.6, r_min = 0.1, ypeak_min = 1, show = TRUE) {
     INPUT <- l$INPUT
     brks <- l$brks
     titlestr <- l$titlestr
 
-    year_grps <- names(brks)
-
+    # year_grps <- names(brks)
     lst_dt <- foreach(dt = brks$dt) %do% {
         dt <- data.frame(dt) %>% data.table()
         check_season(dt, rtrough_max = rtrough_max, r_min = r_min)

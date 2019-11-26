@@ -43,6 +43,7 @@ df_north = readRDS(file_GPP_north)
     # sites with mixed of vegetation types are not inclued .
 
     sites_single <- setdiff(sites, sites_multi)
+    # sites <- c(sites_single, sites_multi, sites_rm)
     # sites_no_continue <- c("BE-Bra", "BE-Vie", "CA-Man", "CH-Cha", "CH-Dav",
     #     "CH-Fru", "CN-Din", "DE-Akm", "DE-Kli", "FR-Gri", "FR-LBr", "IT-BCi", "IT-CA1",
     #     "IT-Col", "IT-Cpz", "IT-Noe", "IT-Ren", "IT-Ro1", "IT-Ro2", "IT-SRo", "JP-SMF",

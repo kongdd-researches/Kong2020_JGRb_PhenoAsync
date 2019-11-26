@@ -2,8 +2,11 @@
 
 export(check_file)
 export(divide_seasons)
+export(gee_data.table)
+export(gee_var_len)
 export(main_phenofit)
 export(mean_perc)
+export(phenofit_site)
 export(remove_tier2_years)
 export(sum_perc)
 export(tidy_daily)

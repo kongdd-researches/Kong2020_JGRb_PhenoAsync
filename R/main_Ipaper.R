@@ -1,14 +1,14 @@
 # FUNCTIONS moved to `Ipaper` in the future.
 
 #' check_file
-#' 
-#' @param file 
-#' 
+#'
+#' @param file
+#'
 #' @return A integer indicating file status
 #' - `0`  : file  already exist
-#' - `-1` : file isn't exist, and can't open it 
+#' - `-1` : file isn't exist, and can't open it
 #' - `1`  : ok
-#' 
+#'
 #' @keywords internal
 #' @export
 check_file <- function(file, outdir){
@@ -28,3 +28,19 @@ check_file <- function(file, outdir){
 }
 
 SumatraPDF = Ipaper:::cmd_func("SumatraPDF.exe")
+
+merge_pdf <- function(outfile = "RPlot.pdf", indir = 'Figure', pattern = "*.pdf", del = FALSE){
+    files <- dir(indir, pattern, full.names = TRUE) #%>% gsub("/", "\\\\", .)
+    order <- str_extract(basename(files), "(?<=\\[)\\d*(?=.*\\])") %>% as.numeric() %>% order()
+    if (all(is.finite(order))) files = files[order]
+
+    str_files = paste(files, collapse = "' '") %>% paste0("'", ., "'")
+    # str_files = paste(files, collapse = " ")
+    cmd <- sprintf("pdfmerge -o %s %s", outfile, str_files)
+    # print(cmd)
+
+    app = ifelse(.Platform$OS.type == "windows", "powershell", NULL)
+    status = shell(cmd, app, wait = TRUE, ignore.stderr = FALSE)
+    # print(status)
+    if (del) file.remove(files)
+}

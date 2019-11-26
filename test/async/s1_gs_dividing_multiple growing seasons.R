@@ -29,7 +29,7 @@ lst_pheno2 = main_phenofit(lst_brks[86:length(lst_brks)], TRS = c(0.1, 0.2, 0.5,
                           show = TRUE, outfile = glue("Figure/gpp_phenofit_pheno_{version}2.pdf"))
 
 save(lst_brks.single, lst_brks.multi, lst_brks, lst_pheno,
-     sites_multi, sites_single, file = glue("Figure/gpp_phenofit_st109.rda"))
+     sites_multi, sites_single, file = file_brks)
 
 ## visualization
 # write_fig(g, "Figure1_phenofit_curve_fitting.pdf", 10, 6)

@@ -1,0 +1,92 @@
+source("test/main_pkgs.R")
+
+file = "INPUT/fluxnet/st212_MCD15A3H_0m_buffer.csv"
+df = fread(file, drop = 1:2) %>%
+    .[date <= "2015-12-31", .(site, group, t = date, y = Lai/10, QC = FparExtra_QC, FparLai_QC)] # , FparExtra_QC
+df[, c("QC_flag", "w") := qc_FparLai(QC)]
+df[, w2 := qc_5l(FparLai_QC)]
+df$t %<>% ymd()
+# d = df[site == "AR-SLu" & group == 5,]
+
+
+load(file_brks)
+sites      = names(lst_brks)[1:95] # sites_rm not included
+grps_sites = seq_along(sites) %>% set_names(sites)
+# sites = c(sites_single, sites_multi)
+# grps_sites = 66
+# grps_sites = c(10, 29, 30, 34, 43, 54)
+
+InitCluster(12)
+lst_LAI = foreach(i = grps_sites) %dopar% {
+    runningId(i)
+    sitename = sites[i]
+    brks = lst_brks[[sitename]]$brks
+
+    grps = 1:9 %>% set_names(., .)
+    l_site = foreach(j = grps) %do% {
+        title = sprintf("[%02d] %s_%d", i, sitename, j)
+        # wmin  = 0.5
+        d = df[site == sitename & group == j, ]
+        wmid = ifelse(sitename %in% c("DE-Obe", "US-Me2"), 0.1, 0.5)
+        d[, c("QC_flag", "w") := qc_FparLai(QC, wmin = 0.1, wmid = wmid)]
+        # d[QC_flag == "aerosol", w := wmin]
+        if (all(is.na(d$y))) return()
+        tryCatch({
+            l = phenofit_site(d$y, d$t, d$w, d$QC_flag, nptperyear = 92,
+                            brks = NULL,
+                          .check_season = TRUE,
+                          maxExtendMonth = 1, minExtendMonth = 0.5,
+                          verbose = FALSE,
+                          wmin = 0.1,
+                          titlestr = title, show = FALSE)
+            l
+        }, error = function(e){
+            message(sprintf("[02%d]: %s", i, e$message))
+        })
+    }
+    # write_fig(expression({
+    #     l = phenofit_site(d$y, d$t, d$w, d$QC_flag, nptperyear = 92,
+    #                       titlestr = "site", show = TRUE)
+    # }), "a.pdf", 10, 4)
+}
+
+merge_pdf("LAI_phenofit_test.pdf", pattern = "\\[", del = TRUE)
+merge_pdf("LAI_phenofit_v10_st95.pdf", pattern = "\\[", del = TRUE)
+# merge_pdf("LAI_phenofit_gpp_brks_v01_st95.pdf", pattern = "\\[", del = TRUE)
+# dt = l$dt %>% do.call(rbind, .)
+# df_gpp$date %<>% ymd()
+# d_gpp = df_gpp[site == sitename, .(site, t = date, GPP_DT, GPP_NT)]
+
+{
+    j = 5
+    sitename = "CZ-BK2"
+    sitename = "CA-NS5"
+    sitename = "CH-Dav"
+    sitename = "US-KS2"
+    d = df[site == sitename & group == j, ]
+    # d = d[t >= "2014-01-01" & t <= "2015-01-01"]
+    nptperyear = 92
+    INPUT <- check_input(d$t, d$y, d$w, QC_flag = d$QC_flag,
+                         nptperyear = nptperyear, south = FALSE,
+                         maxgap = nptperyear/4, alpha = 0.02, wmin = 0.2)
+    # plot_input(INPUT, show.y0 = TRUE)
+    lg_lambdas = seq(1, 4, 0.1)
+    lambda <- v_curve(INPUT, lg_lambdas)$lambda
+
+    brks <- season_mov(INPUT,
+                       FUN = smooth_wWHIT, wFUN = wTSM,
+                       maxExtendMonth = 3,
+                       lambda = 1e3,
+                       r_min = 0.03,
+                       .check_season = FALSE,
+                       # years.run = 2004,
+                       IsPlot = FALSE, IsPlot.OnlyBad = FALSE, print = FALSE)
+
+    write_fig(expression(plot_season(INPUT, brks)), "check_season.pdf", 10, 4)
+}
+
+{
+    d$y[1:200] %>% plot(type = "b")
+    halfwin = ceiling(nptperyear/36)
+    movmean(d$y, halfwin) %>% lines(col = "blue", type = "b")
+}

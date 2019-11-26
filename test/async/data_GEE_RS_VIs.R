@@ -1,44 +1,23 @@
+source("test/main_pkgs.R")
 
 
-l <- read_json("G:/CSIRO/ET&GPP/fluxnet212/raw-json/phenoflux212_MCD15A3H_006_463m_buffer.geojson")$features
+l <- read_json(path.mnt("/mnt/g/CSIRO/ET&GPP/fluxnet212/raw-json/phenoflux212_MCD15A3H_006_463m_buffer.geojson"))$features
 x <- l[[1]]
 
-
-#' tidy_gee_json
-#'
-#' @examples
-#' \dontrun{
-#' l = read_json("phenoflux212_MCD15A3H_006_463m_buffer.geojson")$features
-#' x = l[[1]]
-#' tidy_gee_json(x)
-#' }
-#' @export
-tidy_gee_json <- function(x, varnames = c("Fpar", "FparLai_QC", "Lai"))
-{
-    x$properties[] %>% map(unlist) %>%
-        c(x$properties[c("site", "date")], .) %>% as.data.table() %>%
-        cbind(Id_near = 1:nrow(.), .)
-}
-
-tidy_gee_json2 <- function(x, varnames = c("Fpar", "FparLai_QC", "Lai"))
-{
-    x$properties[] %>% map(unlist) %>%
-        c(x$properties[c("site", "date")], .) %>%
-        map_int(length)
-        # as.data.table() %>%
-        # cbind(Id_near = 1:nrow(.), .)
-}
-
-load_pkgs <- function(ncluster = 4, pkgs){
-    l_ply(1:ncluster, function(i){
-        for(i in pkgs)
-            library(i, character.only = TRUE)
-    }, .parallel = TRUE)
-}
-ncluster = 4
+ncluster = 8
+InitCluster(ncluster)
 # load_pkgs(ncluster, )
-pkgs = c("purrr", "magrittr")
-lst2 = llply(l[1:6], tidy_gee_json2, .progress = "text",
-             .parallel = TRUE, .paropts = list(.packages = pkgs))
+df = llply(l, gee_var_len, .parallel = TRUE) %>% # .progress = "text",
+    do.call(rbind, .)
 
 lst = llply(l, tidy_gee_json, .progress = "text")
+
+# 检查buffer格点数的连续型
+res = dlply(df, .(site), function(d){
+    c(var_table(d$Lai), var_table(d$Fpar), var_table(d$FparLai_QC))
+})
+
+var_table <- function(x) {
+    r = table(x)
+    r[names(r) != 0]
+}
