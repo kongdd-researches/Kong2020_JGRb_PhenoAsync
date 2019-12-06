@@ -50,8 +50,14 @@ lst_LAI = foreach(i = grps_sites) %dopar% {
     # }), "a.pdf", 10, 4)
 }
 
-merge_pdf("LAI_phenofit_test.pdf", pattern = "\\[", del = TRUE)
-merge_pdf("LAI_phenofit_v10_st95.pdf", pattern = "\\[", del = TRUE)
+{
+    version = 0.3
+    outfile = glue("phenofit_LAI_st95_{version}.pdf")
+    merge_pdf(outfile, pattern = "\\[", del = TRUE)
+    # pdf_acrobat(outfile)
+}
+save(lst_LAI, file = "pheno_LAI_st95.rda")
+
 # merge_pdf("LAI_phenofit_gpp_brks_v01_st95.pdf", pattern = "\\[", del = TRUE)
 # dt = l$dt %>% do.call(rbind, .)
 # df_gpp$date %<>% ymd()

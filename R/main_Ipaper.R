@@ -27,8 +27,7 @@ check_file <- function(file, outdir){
     return(outfile)
 }
 
-SumatraPDF = Ipaper:::cmd_func("SumatraPDF.exe")
-
+# works
 merge_pdf <- function(outfile = "RPlot.pdf", indir = 'Figure', pattern = "*.pdf", del = FALSE){
     files <- dir(indir, pattern, full.names = TRUE) #%>% gsub("/", "\\\\", .)
     order <- str_extract(basename(files), "(?<=\\[)\\d*(?=.*\\])") %>% as.numeric() %>% order()
@@ -39,8 +38,27 @@ merge_pdf <- function(outfile = "RPlot.pdf", indir = 'Figure', pattern = "*.pdf"
     cmd <- sprintf("pdfmerge -o %s %s", outfile, str_files)
     # print(cmd)
 
-    app = ifelse(.Platform$OS.type == "windows", "powershell", NULL)
-    status = shell(cmd, app, wait = TRUE, ignore.stderr = FALSE)
-    # print(status)
+    app = ifelse(.Platform$OS.type == "windows", "powershell", "")
+    if (.Platform$OS.type == "windows") {
+        status = Ipaper:::shell(cmd, shell = app, wait = TRUE, ignore.stderr = FALSE)
+    } else {
+        status = system(cmd, wait = TRUE, ignore.stderr = FALSE)
+    }
+    if (status != 0) {
+        print(status)           
+    }
     if (del) file.remove(files)
+}
+
+
+pdf_SumatraPDF <- SumatraPDF
+
+pdf_acrobat <- function(file) {
+    cmd = sprintf('acrobat /A "zoom=100" "%s"', file)
+    Ipaper:::shell(cmd)
+}
+
+list_files <- function(indir, pattern, del = FALSE) {
+    files = dir(indir, pattern, full.names = TRUE)
+    if(del) file.remove(files) else files
 }

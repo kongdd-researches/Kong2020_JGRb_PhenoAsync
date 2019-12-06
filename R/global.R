@@ -60,3 +60,20 @@ var_no_negative <- c('SW_IN_F','SW_OUT_F','LW_IN_F','LW_OUT_F',
 # 
 # else variables (TA_F, TS_F, NEE) x < -9000 set to be NA 
 ################################################################################
+
+
+# 1.1 https://developers.google.com/earth-engine/datasets/catalog/MODIS_006_MCD12Q1
+IGBPname_006 <- c("ENF", "EBF", "DNF", "DBF", "MF",
+              "CSH", "OSH", "WSA", "SAV", "GRA", "WET",
+              "CRO", "URB", "CNV", "SNOW", "BSV", "water") # 1:17
+IGBPname_006 <- setNames(1:17, IGBPname_006)
+
+# 1.2 https://developers.google.com/earth-engine/datasets/catalog/MODIS_051_MCD12Q1
+IGBPname_005 <- c("water", # 0
+                  "ENF", "EBF", "DNF", "DBF", "MF",
+                  "CSH", "OSH", "WSA", "SAV", "GRA", "WET",
+                  "CRO", "URB", "CNV", "SNOW", "BSV", "NA") # 0:16, 254
+IGBPname_005 <- setNames(c(0:16, 254), IGBPname_005)
+
+list(IGBP005_1 = tbl005_1, IGBP005_9 = tbl005_9, 
+    IGBP006_1 = tbl006_1, IGBP006_9 = tbl006_9)

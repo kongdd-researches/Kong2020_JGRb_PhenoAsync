@@ -26,8 +26,17 @@ gee_var_len <- function(x, varnames = c("Lai", "Fpar", "FparLai_QC"))
 }
 
 ## 重新下载数据，制作3*3 grids
-writeOGR_3by3 <- function(outdir = "INPUT/shp", scale = 500){
-    st = st_212[, .(site, lon, lat, IGBP)]
+#' writeOGR_3by3
+#' 
+#' @param st data.table with the columns at least of `site`, `lon`, and `lat`.
+#' @param scale in the unit of `m`
+#' 
+#' @examples 
+#' st = st_212[, .(site, lon, lat, IGBP)]
+#' writeOGR_3by3(st, 500, "agripheno")
+#' @export
+writeOGR_3by3 <- function(st, scale = 500, prefix = "st212", outdir = "INPUT/shp"){
+    # st = st_212[, .(site, lon, lat, IGBP)]
 
     cellsize = scale/500 * 1/240
 
@@ -37,18 +46,19 @@ writeOGR_3by3 <- function(outdir = "INPUT/shp", scale = 500){
 
     grps = 1:nrow(adj_mat) %>% set_names(., .)
     lst = foreach(i = grps) %do% {
-        st = st_212[, .(site, lon, lat, IGBP)]
+        d = st
         delta_x = adj_mat[i, 1]
         delta_y = adj_mat[i, 2]
 
-        st$lon %<>% add(delta_x)
-        st$lat %<>% add(delta_y)
-        st
+        d$lon %<>% add(delta_x)
+        d$lat %<>% add(delta_y)
+        d
     }
-    df = melt_list(lst, "group")
+
+    df = melt_list(lst, "group")[order(site), ]
     # df
     sp = df2sp(df)
-    outfile = glue("{outdir}/st212-{scale}m-3by3.shp")
+    outfile = glue("{outdir}/{prefix}-{scale}m-3by3.shp")
     rgdal::writeOGR(sp, outfile, "sites", driver = "ESRI Shapefile")
     df
 }

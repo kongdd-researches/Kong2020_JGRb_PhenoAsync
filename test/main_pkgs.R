@@ -28,4 +28,4 @@ st_166 <- fread(path.mnt("E:/Research/phenology/DATA/flux/station/st_flux166.csv
 st_212 <- fread(path.mnt("E:/Research/phenology/DATA/flux/station/st_flux212.csv"))
 
 file_GPP_north = "INPUT/df_north.RDS"
-file_brks      = "Figure/gpp_phenofit_st109.rda"
+file_brks      = "INPUT/pheno_gpp_st109.rda"

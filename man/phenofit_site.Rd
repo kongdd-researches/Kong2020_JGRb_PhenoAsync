@@ -5,10 +5,11 @@
 \title{Extract Vegetation Phenology at site scale}
 \usage{
 phenofit_site(y, t, w, QC_flag, nptperyear = 36, brks = NULL,
-  maxExtendMonth = 1.5, minPercValid = 0, verbose = TRUE,
-  lambda = NULL, lg_lambdas = seq(1, 4, 0.1), methods = c("AG",
-  "Zhang", "Beck", "Elmore"), prefix = "", titlestr = NULL,
-  show = FALSE, ...)
+  wmin = 0.1, maxExtendMonth = 1.5, minExtendMonth = 0.5,
+  minPercValid = 0, verbose = TRUE, lambda = NULL,
+  lg_lambdas = seq(1, 4, 0.1), methods = c("AG", "Zhang", "Beck",
+  "Elmore"), prefix = "", titlestr = NULL, write.fig = TRUE,
+  show = FALSE, use.y0 = FALSE, ...)
 }
 \arguments{
 \item{y}{Numeric vector, vegetation index time-series}
@@ -23,6 +24,28 @@ in the range of \code{c("snow", "cloud", "shadow", "aerosol", "marginal", "good"
 used for visualization in \code{\link[=get_pheno]{get_pheno()}} and \code{\link[=plot_phenofit]{plot_phenofit()}}.}
 
 \item{nptperyear}{Integer, number of images per year.}
+
+\item{brks}{A list object with the elements of 'fit' and 'dt', returned by
+\code{season} or \code{season_mov}, which contains the growing season
+dividing information.}
+
+\item{wmin}{Double, minimum weight of bad points, which could be smaller
+the weight of snow, ice and cloud.}
+
+\item{maxExtendMonth}{Search good or marginal good values in previous and
+subsequent \code{maxExtendMonth} period.}
+
+\item{minExtendMonth}{Extending perid defined by \code{nextend} and
+\code{maxExtendMonth} should be no shorter than \code{minExtendMonth}.
+When all points of the input time-series are good value, then the extending
+period will be too short. In that situation, we can't make sure the connection
+between different growing seasons is smoothing.}
+
+\item{minPercValid}{If the percentage of good and marginal quality points is
+less than \code{minPercValid}, curve fiting result is set to \code{NA}.}
+
+\item{methods}{Fine curve fitting methods, can be one or more of
+\code{c('AG', 'Beck', 'Elmore', 'Gu', 'Klos', 'Zhang')}.}
 
 \item{...}{other parameters to \code{\link[phenofit:curvefits]{phenofit::curvefits()}}}
 }
