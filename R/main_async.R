@@ -1,4 +1,4 @@
-library(plsdepot) # install_github('kongdd/plsdepot')
+# library(plsdepot) # install_github('kongdd/plsdepot')
 
 ## Global variables
 varnames <- c("EVI", "NDVI", "T", "Prcp", "Rs", "VPD", "GPP", paste0("GPP_t", 1:3))[1:7]
@@ -29,7 +29,6 @@ cal_Tscalar <- function(T, IGBP){
 
 getRange <- function(d, variable, by = .(IGBP)){
     if (is.quoted(by)) by <- names(by)
-
     eval(parse(text = sprintf('d[, .(min = min(%s, na.rm = T), max = max(%s, na.rm = T)), by]',
                               variable, variable)))
 }

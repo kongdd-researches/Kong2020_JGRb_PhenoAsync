@@ -1,7 +1,7 @@
 windowsFonts(Times = windowsFont("Times New Roman"),
              Arial = windowsFont("Arial"))
 fontsize <- 14
-mytheme_grey <- theme_grey(base_size = fontsize, base_family = "Arial") +
+mytheme_grey <- theme_grey(base_size = fontsize, base_family = "Times") +
     theme(
         # legend.position = c(0.02, 0.02), legend.justification = c(0, 0),
         # legend.position="bottom",
@@ -16,12 +16,12 @@ mytheme_grey <- theme_grey(base_size = fontsize, base_family = "Arial") +
         legend.text = element_text(size = fontsize, face = "bold"),
         legend.title = element_blank(),
         # panel.grid.minor.x = element_blank(),
-        panel.grid.major = element_line(colour = "white"),
-        panel.grid.minor = element_line(size = 0.2),
+        panel.grid.major = element_line(colour = "white", size = 0.3),
+        panel.grid.minor = element_line(size = 0),
         plot.margin = unit(c(1,3,1,1)*0.2, "cm"))
 
 # theme_grey, theme_gray, theme_light
-mytheme_light  <- theme_light(base_size = fontsize, base_family = "Times") +
+mytheme_light  <- theme_bw(base_size = fontsize, base_family = "Times") +
     theme(
         # legend.position = c(0.02, 0.02), legend.justification = c(0, 0), 
         # legend.position="bottom", 
@@ -35,9 +35,11 @@ mytheme_light  <- theme_light(base_size = fontsize, base_family = "Times") +
         # legend.margin = unit(0.2, "cm"), 
         legend.text  = element_text(size = fontsize, face = "bold"), 
         legend.title = element_blank(), 
-        panel.grid.minor.y = element_blank(), 
+        panel.grid.major = element_line(colour = "white", size = 0.3),
+        panel.grid.minor = element_line(size = 0),
+        # panel.grid.minor.y = element_blank(), 
         # panel.grid.major = element_line(colour = "white"), 
-        panel.grid.minor = element_line(size = 0.2),
+        # panel.grid.minor = element_line(size = 0.2),
         plot.margin = unit(c(1,3,1,1)*0.2, "cm"))
 theme_set(mytheme_light)
 
@@ -124,4 +126,28 @@ MEAN_rmse <- function(df_sim){
     ds <- ds[!is.na(RE), ]
     info_all <- ddply(ds, .(site, index), function(d){ GOF2(d$RE)})
     return(info_all)
+}
+
+stat_sd <- function(x, ...){
+    x <- x[!is.na(x)]
+    y  <- mean(x)
+    y2 <- median(x)
+    sd <- sd(x)
+    c(y = y, y2 = y2, ymin = y-sd, ymax = y+sd, sd = sd)
+}
+
+stat_sd_label <- function(x) {
+    x <- x[!is.na(x)]
+    y  <- mean(x)
+    sd <- sd(x)
+    label <- sprintf("%.1f±%3.1f", y, sd)
+    y2 <- median(x)
+    # browser()
+    data.frame(y = y2, label = label)
+}
+
+# melt GOF performance index: e.g. NSE, R2, RMSE
+melt2 <- function(d, variable.name = "variable", value.name = "value"){
+    id.vars = c("meth", "site", "index", "type_VI", "type_period") %>% intersect(names(d))
+    melt(d, id.vars, variable.name = variable.name, value.name = value.name)
 }

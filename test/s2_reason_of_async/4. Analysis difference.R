@@ -75,8 +75,7 @@ lwd <- 0.8
 colors <- scales::hue_pal()(3) %>% rev
 
 
-    # geom_jitter(width = 0.2)
-
+# geom_jitter(width = 0.2)
 p <- ggplot(d_gof[RMSE < 80], aes(IGBP, Bias, color = phase)) +
     geom_boxplot() +
     geom_point(position = position_jitterdodge(jitter.width = 0.2), show.legend = F) +

@@ -44,21 +44,21 @@ vars_QC[24:27] <- vars_QC[23] # RECO, GPP share the same QC with NEE
 vars_all <- c(vars_val,vars_QC) #unique
 
 # NA VALUES ---------------------------------------------------------------
-# 
+#
 # variables x < 0 set to be NA, values can't be negative
 var_no_negative <- c('SW_IN_F','SW_OUT_F','LW_IN_F','LW_OUT_F',
     'PA_F','PPFD_IN',
     'P_F','VPD_F','WS_F','WD','USTAR','CO2_F_MDS','SWC_F_MDS_1',
     'RECO_DT_VUT_REF','RECO_NT_VUT_REF')
 
-# vars_0na <- paste(c('SW_', 'LW_', 'PPFD_', 'PA_'), 
+# vars_0na <- paste(c('SW_', 'LW_', 'PPFD_', 'PA_'),
 #                   collapse = "|") %>% {vars_val[grep(., vars_val)]} #, 'GPP_'
 # variables x < 0 set to be NA, except vars_0na variables
 # fixed 17 Dec' 2017
 # vars_noNeg <- vars_val[-grep("TA_F|TS_F|NEE|G_F_MDS|GPP|LE|H|NETRAD", vars_val)] %>% setdiff(vars_0na)
 # all variables: vars_noNeg + vars_0na + "TA_F|TS_F|NEE|G_F_MDS"
-# 
-# else variables (TA_F, TS_F, NEE) x < -9000 set to be NA 
+#
+# else variables (TA_F, TS_F, NEE) x < -9000 set to be NA
 ################################################################################
 
 
@@ -74,6 +74,3 @@ IGBPname_005 <- c("water", # 0
                   "CSH", "OSH", "WSA", "SAV", "GRA", "WET",
                   "CRO", "URB", "CNV", "SNOW", "BSV", "NA") # 0:16, 254
 IGBPname_005 <- setNames(c(0:16, 254), IGBPname_005)
-
-list(IGBP005_1 = tbl005_1, IGBP005_9 = tbl005_9, 
-    IGBP006_1 = tbl006_1, IGBP006_9 = tbl006_9)

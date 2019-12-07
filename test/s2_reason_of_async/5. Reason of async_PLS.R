@@ -71,7 +71,6 @@ dev.off()
 # file.show(file)
 # GPPobs figure
 
-
 ## Overall
 a <- d[, .(GPP = mean(GPP), EVI = mean(EVI, na.rm = T)),.(d16)]
 # par(mfrow = c(2, 1))

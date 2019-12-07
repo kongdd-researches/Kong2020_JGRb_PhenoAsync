@@ -63,17 +63,6 @@ df0 <- df[scale == "0m"]
 df0 <- ddply(df0, .(site), add_Head) # add 199907-200206 in head
 df0[, year2 := year + ((month(date)>=7)-1)*(lat<0)]
 
-check_tpheno <- function(){
-    sitename <- "CA-NS1"
-    d <- df0[site == sitename]
-
-    info <- d[, Pheno_thermal(LST_Night_1km, date, trs = c(5, 10)), .(year2)]
-
-    plot(LST_Night_1km~date, d, type = "l"); grid()
-    points(sos_val~sos_date, info, col = "blue")
-    points(eos_val~eos_date, info, col = "red")    
-}
-
 # source('test/phenology_async/R/main_thermal.R')
 ## all sites
 pheno_T_mod11a2 <- df0[, Pheno_thermal(LST_Night_1km, date, trs = c(5, 10)), .(site, scale, year2)]

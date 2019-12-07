@@ -1,0 +1,291 @@
+---
+title: "PhenoAsync"
+author: "Dongdong Kong"
+date: "2019/12/6"
+output:
+  pdf_document:
+    number_sections: yes
+    dev: cairo_pdf
+    keep_tex: yes
+    fig_height: 4
+    fig_width: 9
+    includes:
+      header-includes: 
+        \usepackage{xeCJK}
+        \setCJKmainfont{Microsoft YaHei}
+        \setCJKmonofont{msyh.ttc}
+    latex_engine: xelatex
+  word_document: 
+    default
+  html_document:
+    dev: svg
+CJKmainfont: Microsoft YaHei
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+source("test/main_pkgs.R")
+```
+
+## 加载数据
+
+```{r}
+load("INPUT/pheno_EVI_st95.rda")
+load("INPUT/pheno_NDVI_st95.rda")
+load("INPUT/pheno_LAI_st95.rda")
+load("INPUT/pheno_gpp_st109.rda")
+
+names_VI = c("NDVI", "EVI", "LAI") %>% set_names(., .)
+sites = names(lst_LAI)
+st <- st_212[site %in% sites, .(site, lon, lat, IGBP, LC)]
+
+melt_pheno <- function(lst) {
+    res <- foreach(l = lst, i = icount()) %do% {
+        # print(i)
+        temp <- map(l, "pheno") %>% rm_empty()
+        if (!is_empty(temp)) {
+            Ipaper::melt_list(temp, "group")
+        } else NULL
+    } %>% rm_empty()
+    Ipaper::melt_list(res, "site")
+}
+
+## MAIN SCRIPTS ----------------------------------------------------------------
+sitename = sites[1]
+df_gpp = map(lst_pheno[sites], "doy") %>% melt_tree(c("site", "meth"))
+
+lst_VI = list(EVI = lst_EVI, NDVI = lst_NDVI, LAI = lst_LAI)
+df_VI = map(lst_VI, melt_pheno) %>% Ipaper::melt_list("type_VI")
+
+# r <- lst_VI %>% map_depth(3, "pheno") %>% melt_tree(c("type_VI", "site", "group"))
+# r <- lst_NDVI %>% map_depth(2, "pheno") %>% melt_tree(c("site", "group"))
+# r <- lst_EVI %>% map_depth(2, "pheno") %>% melt_tree(c("site", "group"))
+# r <- lst_LAI %>% map_depth(2, "pheno") %>% melt_tree(c("site", "group"))
+# map(lst_VI, melt_pheno)
+
+## 每年仅挑取最大GSL的season, GSL = TRS5.EOS - TRS5.SOS
+filter_primary <- function(df){
+    df[, GSL := TRS5.eos - TRS5.sos]
+    groups = .(type_VI, site, meth, group, origin) %>% names() %>% intersect(names(df))
+    I_sel <- df[, order(-GSL), groups]$V1 == 1 & df$GSL > 30
+    df[I_sel, ]
+}
+
+df_VI_prim  <- filter_primary(df_VI)
+df_gpp_prim <- filter_primary(df_gpp)
+```
+
+## 1.1 准备输入数据
+```{r}
+df = merge(
+    melt(df_VI_prim, c("type_VI", "group", "site", "flag", "origin", "meth"), value.name = "y_sim"),
+    melt(df_gpp_prim, c("site", "flag", "origin", "meth"), value.name = "y_obs")
+    # all.x = TRUE
+)[, diff := y_sim - y_obs]
+df_gsl = merge(
+    get_gsl(df_VI_prim, value.name = "y_sim"), 
+    get_gsl(df_gpp_prim, value.name = "y_obs")
+) %>% plyr::mutate(diff = y_sim - y_obs)
+df_gsl$type_VI %<>% factor(names_VI)
+
+per_bad = sum(abs(df$diff) >= 60, na.rm = TRUE)/nrow(df)
+per_bad
+```
+
+Even trough we have dealed with growing season dividing very carefully, there are still 5.5% phenological metrics has a absolute error higher than 90d. If absolute difference of $y_{sim}$ and $y_{obs}$ is high that 90d (about 3 month), it might be introduced by the error of growing season dividing. Hence, those phenological metrics are excluded when calculating the goodness performance.
+
+## 2.1 不同VI, 不同curve fitting methods的表现 （数据准备）
+```{r, echo=TRUE}
+metric_spring <- contain(df_gpp, "sos|UD|SD|Greenup|Maturity")
+metric_autumn <- contain(df_gpp, "eos|DD|RD|Senescence|Dormancy")
+
+df$type_period = "others"
+df[variable %in% metric_spring, type_period := "Green-up period"]
+df[variable %in% metric_autumn, type_period := "Withering period"]
+
+include.r = FALSE
+d = df[abs(diff) < 60, as.list(GOF(y_obs,y_sim, include.r = include.r)), 
+       .(type_VI, meth, site, variable, type_period)]
+
+# 不同植被指数
+d_vi = df[abs(diff) < 60, as.list(GOF(y_obs,y_sim, include.r = include.r)), .(type_VI, type_period, site)]
+
+# 不同Curve fitting methods
+d_meth = df[abs(diff) < 60, as.list(GOF(y_obs,y_sim, include.r = include.r)), .(meth, type_period, site)]
+names(d_vi)[1] = "x"
+names(d_meth)[1] = "x"
+
+d_comp <- list("Curve fitting methods" = d_meth, "Remote sensing vegetation indexes" = d_vi) %>% melt_list("type_comp")
+```
+
+## 2.2 不同VI, 不同curve fitting methods的表现 （数据准备）
+```{r}
+source("test/main_vis.R")
+d_fig1 = d_comp %>% melt(c("x", "type_period", "type_comp", "site"), variable.name = "index")
+d_gof  = d_fig1[type_period != "others", as.list(stat_sd(value)), 
+               .(x, type_period, type_comp, index)][, label := sprintf("%.1f±%3.1f", y, sd)]
+d_lab = expand.grid(type_comp = unique(d_gof$type_comp), type_period = unique(d_gof$type_period))
+d_lab$label = sprintf("(%s)", letters[1:nrow(d_lab)])
+
+indexNames = c("RMSE", "MAE", "Bias")
+temp <- foreach(indexName = indexNames, i = icount()) %do% {
+    runningId(i)
+    d_i     = d_fig1[type_period != "others" & index == indexName]
+    d_gof_i = d_gof[type_period != "others" & index == indexName]
+    p <- ggplot(d_i, aes(x, value)) + 
+        stat_summary(fun.data = box_qtl, geom = "errorbar", width = 0.5) +
+        geom_boxplot2(notch = TRUE, outlier.shape = NA, coef = 0, width = 0.8) + 
+        geom_text(data = d_gof_i, aes(x, y2, label = label), vjust = -0.8) + 
+        geom_text(data = d_lab, aes(-Inf, Inf, label = label), hjust = -0.5, vjust = 1.8, 
+                  size = 6, fontface = 2, family = "Times") + 
+        theme(panel.grid.major = element_blank(),
+              strip.background = element_rect(colour = "black", size = 0.1),
+              panel.background = element_rect(fill = "white", colour = "grey", size = 0.1)) + 
+        facet_grid(type_period~type_comp, scales = "free_x") +
+        labs(x = NULL, y = glue("{indexName} (days)"))
+        # scale_y_continuous(limits = c(15, 55))
+    outfile = glue("Figure1_methods_products {indexName}.pdf")
+    write_fig(p, outfile, 10, 6)
+}
+```
+
+## 3.1 绘制物候期分布
+```{r}
+d = df[abs(diff) < 60, .(DOY = mean(y_obs, na.rm = TRUE)), .(type_period, variable, site)]
+metrics_all = c("Greenup", "TRS1.sos", "UD", "TRS2.sos", "DER.sos", "TRS5.sos", "TRS6.sos", "TRS8.sos", "SD", "Maturity", 
+    "Senescence", "DD", "TRS8.eos", "TRS6.eos", "TRS5.eos", "DER.eos", "TRS2.eos", "RD", "TRS1.eos", "Dormancy")
+colors_period <- hue_pal()(2) %>% rev()
+
+d$variable %<>% factor(metrics_all)
+d <- d[!is.na(variable), ]
+
+stat_hline <- function(x) {
+    x <- stats::na.omit(x)
+    c(yintercept = median(x))
+}
+
+p <- ggplot(d, aes(variable, DOY, fill = type_period)) + 
+    stat_summary(fun.data = box_qtl, geom = "errorbar", width = 0.5) +
+    geom_boxplot2(notch = FALSE, outlier.shape = NA, coef = 0, width = 0.8) + 
+    theme(legend.position = c(0.02, 0.998), 
+          legend.justification = c(0, 1),
+          panel.grid.major.x = element_line(size = 0.2), 
+          panel.grid.major.y = element_blank(),
+          axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) + 
+    labs(x = NULL, y = "Day of year (DOY)") + 
+    scale_fill_manual(values = colors_period)
+outfile = glue("Figure2_time distribution of phenological metrics.pdf")
+write_fig(p, outfile, 10, 6)
+```
+
+## 3.2 绘制不同阶段的差异（phenological metrics）
+
+```{r, echo = FALSE}
+d = df[abs(diff) < 60 & meth %in% c("Elmore", "Beck"), 
+       as.list(GOF(y_obs,y_sim, include.r = FALSE)), .(type_VI, type_period, variable, site)]
+d$variable %<>% factor(metrics_all)
+d <- d[!is.na(variable), ]
+d$type_VI %<>% factor(names_VI)
+d_melt <- melt(d, c("type_VI", "type_period", "variable", "site"), variable.name = "index") %>% 
+    .[index %in% c("RMSE", "Bias", "MAE"),] %>% merge(st[, .(site, IGBP, LC)])
+
+d_mean <- d_melt[, median(value, na.rm = TRUE), .(variable, index, type_period, type_VI)][, .(y = mean(V1)), .(type_period, type_VI, index)]
+n <- nrow(d_mean)/2
+d_1 = d_mean[type_period == "Green-up period"] %>% cbind(x = rep(c(0.4, 10.4), each = n))
+d_2 = d_mean[type_period == "Withering period"] %>% cbind(x = rep(c(10.6, 20.4), each = n))
+
+{
+    p2 <- ggplot(d_melt[type_period != "others"], aes(variable, value, fill = type_period)) + 
+        stat_summary(fun.data = box_qtl, geom = "errorbar", width = 0.5) +
+        geom_boxplot2(notch = FALSE, outlier.shape = NA, coef = 0, width = 0.8, size = 0.5) +
+        geom_line(data = d_1, aes(x, y, fill = NULL), color = "blue", size = 1.1, linetype = 1) +
+        geom_line(data = d_2, aes(x, y, fill = NULL), color = "red", size = 1.1, linetype = 1) + 
+        geom_text(data = d_1[1:n,], aes(x, y, label = round(y, 1), fill = NULL), hjust = -0.1, vjust = -0.35, 
+                  color = "blue", fontface = 2, family = "times", size = 5) + 
+        geom_text(data = d_2[(n+1):(2*n),], aes(x, y, label = round(y, 1), fill = NULL), hjust = 1.1, vjust = -0.35, 
+                  color = "red", fontface = 2, family = "times", size = 5) + 
+        # stat_summary(fun.data = stat_hline, geom = "hline", size = 0.5) + 
+            theme(legend.position = c(0.492, 1.03), 
+              legend.justification = c(0, 1),
+              # legend = unit(1, "cm"),
+              legend.box.background = element_blank(),
+              legend.background = element_blank(),
+              panel.grid.major = element_blank(), 
+              axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) + 
+        guides(fill = guide_legend(nrow = 1)) + 
+        labs(x = NULL, y = NULL) + 
+        scale_fill_manual(values = colors_period) + 
+        facet_grid(index~type_VI, scales = "free")
+        # geom_hline(yintercept = 25, color = "red", size = 1.2, linetype = 2)
+    outfile = glue("Figure2_RMSE of different period.pdf")
+    write_fig(p2, outfile, 12, 7)
+}
+```
+
+## 3.3 GSL的gof
+```{r}
+gof_gsl <- df_gsl[abs(diff) < 90 & meth %in% c("Beck", "Elmore"), 
+                  as.list(GOF(y_obs, y_sim, include.r = FALSE)), .(meth, site, index, type_VI)]
+info = melt2(gof_gsl)
+{
+    # nrow(df_gsl[abs(diff) > 90, ]) / nrow(df_gsl)
+    p <- ggplot(info[variable %in% c("RMSE", "Bias", "MAE")], aes(index, value, fill = index)) + 
+        geom_hline(data = data.frame(variable = factor("RMSE", levels(info$variable)), 
+                                     yintercept = 30), aes(yintercept = yintercept), color = "grey", size = 0.5) +
+        stat_summary(fun.data = box_qtl, geom = "errorbar", width = 0.5) +
+        geom_boxplot2(notch = FALSE, outlier.shape = NA, coef = 0) + 
+        # stat_summary(fun.data = stat_sd_label, aes(label = ..label..), geom = "text", vjust = -1, size = 3.5) + 
+        theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5), 
+              legend.position = "none") + 
+        facet_grid(variable~type_VI, scale = "free") + 
+        labs(x = NULL, y = NULL) +
+        geom_hline(data = data.frame(variable = factor("Bias", levels(info$variable)), 
+                                     yintercept = 0), aes(yintercept = yintercept), color = "blue")
+    write_fig(p, "RMSE of growing season length.pdf", 10, 7)
+}
+```
+
+## 3.4 different land covers
+```{r}
+temp = foreach(indexName = names_VI, i = icount()) %do% { 
+    runningId(i)
+    p <- ggplot(d_melt[type_VI == indexName & index %in% indexNames], 
+                aes(variable, value, fill = type_period)) + 
+        geom_hline(data = data.frame(index = factor("RMSE", levels(info$variable)), 
+                                     yintercept = 20), aes(yintercept = yintercept), color = "grey", size = 0.5) +
+        stat_summary(fun.data = box_qtl, geom = "errorbar", width = 0.5) + 
+        geom_boxplot2(outlier.shape = NA, coef = 0, size = 0.5) +
+        theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5), 
+                  legend.position = "none") + 
+        facet_grid(index~LC, scale = "free") + 
+        labs(x = NULL, y = NULL) + 
+        geom_hline(data = data.frame(index = "Bias", yintercept = 0), 
+                   aes(yintercept = yintercept), color = "blue") + 
+        geom_hline(data = data.frame(index = "Bias", yintercept = c(-1, 1)*15), 
+                   aes(yintercept = yintercept), color = "red", linetype = 2) + 
+        geom_hline(data = data.frame(index = "MAE", yintercept = c(1)*15), 
+                   aes(yintercept = yintercept), color = "red", linetype = 2)
+    outfile = glue("gof_landcover_{indexName}.pdf")
+    write_fig(p, outfile, 18, 9)
+}
+```
+## 测试SIF与EVI的异步情况
+
+方差分析
+```{r}
+names_lc = levels(st$LC)
+
+info <- foreach(indexName = indexNames %>% set_names(., .)) %do% {
+    d <- foreach(name_VI = names_VI) %do% {
+        temp <- foreach(lc = names_lc) %do% {
+            d = d_melt[type_VI == name_VI & LC == lc]
+            m <- aov( value ~ type_period , d)
+            TukeyHSD(m)[[1]]
+        }
+        x = do.call(rbind, temp)
+        cbind(rownames(x), LC = names_lc, data.table(x))
+    } %>% Ipaper::melt_list("type_VI")
+    d
+}
+```
+

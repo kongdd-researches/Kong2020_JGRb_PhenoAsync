@@ -9,22 +9,6 @@ library(ggpmisc)
 # parameter for loess
 smooth_formula <- y~poly(x, 2)
 span <- 1
-
-#' global variables:
-#' smooth_formula, span
-ggplot_1var <- function(x, varname = "APAR", color = "red"){
-    p <- ggplot(x, aes_string("d16", varname, color = "year")) +
-        # geom_point(color = "transparent") +
-        geom_smooth(method = "loess", formula = smooth_formula, span = span, color = color)+
-        scale_y_continuous(position = "right") + 
-        theme(panel.background = element_rect(fill = "transparent"),
-              axis.ticks.y.right = element_line(color = color),
-              axis.text.y.right = element_text(color = color),
-              axis.title.y.right = element_text(color = color),
-              panel.grid.major = element_blank(), # get rid of major grid
-              panel.grid.minor = element_blank()) # get rid of minor grid
-    p
-}
 ```
 
 ```{r scale EVI}
@@ -44,10 +28,6 @@ x[, EVI_z := EVI*coef[2]+coef[1]]
 ```
 
 ```{r show gpp and evi time-series}
-
-vis_site <- function(x){
-
-}
 p <- ggplot(x, aes(d16, GPP, color = year)) +
     # geom_point() +
     geom_smooth(color = "black", formula = smooth_formula, span = span)
@@ -109,6 +89,7 @@ pcor_mat <- pcor(dx_z[, .(EVI, T, Rs, VPD, APAR, GPP)] %>% na.omit()) %$% {
     estimate
 } 
 ```
+
 图像显示，GPP的变化主要受APAR的控制；需要知道Tair，LST和Tsoil有无显著差别。
 
 ```{r}
@@ -121,6 +102,4 @@ add2(); a
 # cvpt <- current.vpTree()
 # names(cvpt$children$layout$children)
 # showViewport(cvpt$children$layout, leaves = T, newpage = T)
-
 ```
-

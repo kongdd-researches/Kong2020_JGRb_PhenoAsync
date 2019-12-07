@@ -76,25 +76,12 @@ lda_analysis <- function(sitename){
 }
 
 
-
-
-
-
-
-
-
-
-
 # EVI has a long plateau period
-
-
 d_stat <- x[, .(Prcp = sum(Prcp)*8,
     Rs = mean(Rs, na.rm = TRUE),
     T  = mean(T , na.rm = TRUE)), .(year2)]
 vars <- colnames(d_stat)[-1]
 d_stat[, (sprintf("%s_flag", vars)) := lapply(.SD, stat_mete), .SDcols = vars]; d_stat
-
-
 
 dp_diff <- d_diff[site == sitename & meth == "ELMORE", .SD, .SDcols = c(1:8)[-7]] %>% spread(index, value)
 dp_diff %<>% plyr::mutate(year2 = as.numeric(substr(flag, 1, 4)))
@@ -121,6 +108,3 @@ merge(dp_doy, d_stat, by = "year2")[stat != "normal"][order(type, year2)] # stat
 
 
 vars_com <- c("site", "type", "flag", "origin", "meth", "IGBP", "year2", "Prcp", "stat")
-
-
-
