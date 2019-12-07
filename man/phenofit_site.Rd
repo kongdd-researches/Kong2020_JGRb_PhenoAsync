@@ -4,12 +4,37 @@
 \alias{phenofit_site}
 \title{Extract Vegetation Phenology at site scale}
 \usage{
-phenofit_site(y, t, w, QC_flag, nptperyear = 36, brks = NULL,
-  wmin = 0.1, maxExtendMonth = 1.5, minExtendMonth = 0.5,
-  minPercValid = 0, verbose = TRUE, lambda = NULL,
-  lg_lambdas = seq(1, 4, 0.1), methods = c("AG", "Zhang", "Beck",
-  "Elmore"), prefix = "", titlestr = NULL, write.fig = TRUE,
-  show = FALSE, use.y0 = FALSE, ...)
+phenofit_site(
+  y,
+  t,
+  w,
+  QC_flag,
+  nptperyear = 36,
+  brks = NULL,
+  wFUN = wTSM,
+  fineFit = TRUE,
+  TRS = c(0.1, 0.2, 0.5, 0.6, 0.8),
+  maxExtendMonth = 1.5,
+  minExtendMonth = 0.5,
+  minPercValid = 0,
+  south = FALSE,
+  verbose = TRUE,
+  lambda = NULL,
+  lg_lambdas = seq(1, 4, 0.1),
+  methods = c("AG", "Zhang", "Beck", "Elmore"),
+  prefix = "",
+  titlestr = NULL,
+  IsPlot.brks = FALSE,
+  write.fig = TRUE,
+  show = FALSE,
+  ymin = 0.1,
+  wmin = 0.1,
+  wsnow = 0.8,
+  use.y0 = FALSE,
+  alpha = 0.02,
+  cex = 1.5,
+  ...
+)
 }
 \arguments{
 \item{y}{Numeric vector, vegetation index time-series}
@@ -21,7 +46,7 @@ weights of all \code{NA} values will be \code{wmin}, the others will be 1.0.}
 
 \item{QC_flag}{Factor (optional) returned by \code{qcFUN}, levels should be
 in the range of \code{c("snow", "cloud", "shadow", "aerosol", "marginal", "good")}, others will be categoried into \code{others}. \code{QC_flag} is
-used for visualization in \code{\link[=get_pheno]{get_pheno()}} and \code{\link[=plot_phenofit]{plot_phenofit()}}.}
+used for visualization in \code{\link[phenofit:get_pheno]{get_pheno()}} and \code{\link[phenofit:plot_phenofit]{plot_phenofit()}}.}
 
 \item{nptperyear}{Integer, number of images per year.}
 
@@ -29,8 +54,8 @@ used for visualization in \code{\link[=get_pheno]{get_pheno()}} and \code{\link[
 \code{season} or \code{season_mov}, which contains the growing season
 dividing information.}
 
-\item{wmin}{Double, minimum weight of bad points, which could be smaller
-the weight of snow, ice and cloud.}
+\item{wFUN}{weights updating function, can be one of \code{\link[phenofit:wTSM]{wTSM()}},
+\code{\link[phenofit:wChen]{wChen()}}, \code{\link[phenofit:wBisquare]{wBisquare()}} and \code{\link[phenofit:wSELF]{wSELF()}}.}
 
 \item{maxExtendMonth}{Search good or marginal good values in previous and
 subsequent \code{maxExtendMonth} period.}
@@ -44,8 +69,21 @@ between different growing seasons is smoothing.}
 \item{minPercValid}{If the percentage of good and marginal quality points is
 less than \code{minPercValid}, curve fiting result is set to \code{NA}.}
 
+\item{south}{Boolean. In south hemisphere, growing year is 1 July to the
+following year 31 June; In north hemisphere, growing year is 1 Jan to 31 Dec.}
+
 \item{methods}{Fine curve fitting methods, can be one or more of
 \code{c('AG', 'Beck', 'Elmore', 'Gu', 'Klos', 'Zhang')}.}
+
+\item{ymin}{If specified, \code{ylu[1]} is constrained greater than ymin. This
+value is critical for bare, snow/ice land, where vegetation amplitude is quite
+small. Generally, you can set ymin=0.08 for NDVI, ymin=0.05 for EVI,
+ymin=0.5 gC m-2 s-1 for GPP.}
+
+\item{wmin}{Double, minimum weight of bad points, which could be smaller
+the weight of snow, ice and cloud.}
+
+\item{alpha}{Double value in \code{[0,1]}, quantile prob of ylu_min.}
 
 \item{...}{other parameters to \code{\link[phenofit:curvefits]{phenofit::curvefits()}}}
 }

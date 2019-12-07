@@ -63,14 +63,14 @@ var_no_negative <- c('SW_IN_F','SW_OUT_F','LW_IN_F','LW_OUT_F',
 
 
 # 1.1 https://developers.google.com/earth-engine/datasets/catalog/MODIS_006_MCD12Q1
-IGBPname_006 <- c("ENF", "EBF", "DNF", "DBF", "MF",
+IGBPnames_006 <- c("ENF", "EBF", "DNF", "DBF", "MF",
               "CSH", "OSH", "WSA", "SAV", "GRA", "WET",
               "CRO", "URB", "CNV", "SNOW", "BSV", "water") # 1:17
-IGBPname_006 <- setNames(1:17, IGBPname_006)
+IGBPcodes_006 <- setNames(1:17, IGBPnames_006)
 
 # 1.2 https://developers.google.com/earth-engine/datasets/catalog/MODIS_051_MCD12Q1
-IGBPname_005 <- c("water", # 0
+IGBPnames_005 <- c("water", # 0
                   "ENF", "EBF", "DNF", "DBF", "MF",
                   "CSH", "OSH", "WSA", "SAV", "GRA", "WET",
                   "CRO", "URB", "CNV", "SNOW", "BSV", "NA") # 0:16, 254
-IGBPname_005 <- setNames(c(0:16, 254), IGBPname_005)
+IGBPcodes_005 <- setNames(c(0:16, 254), IGBPnames_005)

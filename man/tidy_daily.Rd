@@ -13,7 +13,7 @@ tidy_daily(dt, lat, perc_valid = 0.8)
 good quality gap-filled data is less than \code{perc_valid}, NA value will be replaced.}
 
 \item{d}{Data.table of fluxnet tier1 daily observations. Fluxnet daily file is
-in the format of \code{FLX_{site}_FLUXNET2015_SUBSET_DD_{year_start}-{year_end}_2-3.csv}.}
+in the format of \verb{FLX_\{site\}_FLUXNET2015_SUBSET_DD_\{year_start\}-\{year_end\}_2-3.csv}.}
 }
 \description{
 Tidy FLUXNET daily-scale dataset.

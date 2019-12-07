@@ -1,5 +1,5 @@
 # test/async_tries/5.2 GPP_Elasticity.R
-# 
+#
 #' Get 1th back forward derivate
 #' @param x A data.table, at least with the column of varnames
 Elasticity_GPP <- function(x, predictors){
@@ -29,19 +29,17 @@ Elasticity_GPP <- function(x, predictors){
         # # Because, pls only use part information.
         # l_pls <- mvr(GPP~EVI+Rs+T+Prcp+VPD, data = dx)
 
-        df_fit <- data.table(yobs=dx_z$GPP, ypred=predict(l_lm, dx_z))
+        df_fit <- data.table(yobs = dx_z$GPP, ypred = predict(l_lm, dx_z))
         # plot(ypred~yobs, df_fit); grid(); abline(a = 0, b = 1, col = "red")
-
         gof <- with(df_fit, GOF(yobs, ypred))
         res <- listk(coef, pvalue, perc_abs, perc, gof)
         res
     }
 
     res <- dlply(dx_z, .(dn), get_lmcoef, formula)
-    dn <- as.numeric(names(res))
-    res <- rm_empty(res) %>% transpose() %>% map(~do.call(rbind, .x) %>% cbind(dn, .) %>% data.table)
-    res
-
+    dn  <- as.numeric(names(res))
+    ans <- rm_empty(res) %>% purrr::transpose() %>% map(~do.call(rbind, .x) %>% cbind(dn, .) %>% data.table)
+    ans
     # res$gof %>% colMeans()
     # pdat <- melt_list(res[1:3], "type") %>%
     #     melt(id.vars = c("dn", "type")) %>%

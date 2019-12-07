@@ -7,20 +7,23 @@
 #' @export
 phenofit_site <- function(y, t, w, QC_flag, nptperyear = 36,
     brks = NULL,
-    wFUN = wTSM, 
-    fineFit = TRUE, 
-    TRS = c(0.1, 0.2, 0.5, 0.6, 0.8), 
+    wFUN = wTSM,
+    fineFit = TRUE,
+    TRS = c(0.1, 0.2, 0.5, 0.6, 0.8),
     maxExtendMonth = 1.5, minExtendMonth = 0.5,
     minPercValid = 0,
+    south   = FALSE,
     verbose = TRUE,
-    lambda = NULL, lg_lambdas = seq(1, 4, 0.1),
+    lambda  = NULL, lg_lambdas = seq(1, 4, 0.1),
     methods = c("AG", "Zhang", "Beck", "Elmore"),
-    prefix = "", titlestr = NULL,
+    prefix  = "", titlestr = NULL,
     IsPlot.brks = FALSE,
     write.fig = TRUE, show = FALSE,
     ymin = 0.1, wmin = 0.1,
     wsnow = 0.8,
-    use.y0 = FALSE, ...)
+    use.y0 = FALSE, 
+    alpha = 0.02,
+    cex = 1.5, ...)
 {
     # Parameters
     # lambda   <- 5    # non-parameter Whittaker, only suit for 16-day. Other time-scale should assign a lambda.
@@ -30,9 +33,9 @@ phenofit_site <- function(y, t, w, QC_flag, nptperyear = 36,
      #wTSM #wBisquare # Weights updating function, could be one of `wTSM`, 'wBisquare', `wChen` and `wSELF`.
 
     ## 2.1 load site data
-    south      = FALSE
+    # south    = FALSE
     print      = FALSE # whether print progress
-      # for brks
+    # for brks
 
     ## 2.2 Check input data
     d <- data.table(y, t, date = t, w, QC_flag)
@@ -40,15 +43,15 @@ phenofit_site <- function(y, t, w, QC_flag, nptperyear = 36,
     dnew  <- add_HeadTail(d, south, nptperyear = nptperyear) # add additional one year in head and tail
     INPUT <- check_input(dnew$t, dnew$y, dnew$w, dnew$QC_flag,
                          nptperyear, south,
-                         maxgap = nptperyear/4, alpha = 0.02,
+                         maxgap = nptperyear/4, alpha = alpha,
                          ymin = ymin, wmin = wmin, wsnow = wsnow)
 
     ## 2.3 Divide growing seasons
-    if (is.null(lambda)) lambda <- v_curve(INPUT, lg_lambdas)$lambda
+    # if (is.null(lambda)) lambda <- v_curve(INPUT, lg_lambdas)$lambda
     # print(lambda)
         brks2 <- season_mov(INPUT,
                        FUN = smooth_wWHIT, wFUN = wFUN,
-                       maxExtendMonth = 3, 
+                       maxExtendMonth = 3,
                        # minExtendMonth = minExtendMonth,
                        wmin = wmin,
                        IsOptim_lambda = TRUE,
@@ -85,7 +88,8 @@ phenofit_site <- function(y, t, w, QC_flag, nptperyear = 36,
             file_pdf = glue("Figure/{prefix}{titlestr}.pdf")
             check_dir(dirname(file_pdf))
 
-            g <- plot_phenofit(d_fit, brks2, titlestr)
+            d_obs = INPUT[c("t", "y", "QC_flag")] %>% as.data.table()
+            g <- plot_phenofit(d_fit, brks2, d_obs, title = titlestr, cex = 1.5)
             # grid::grid.newpage(); grid::grid.draw(g)# plot to check the curve fitting
             write_fig(g, file_pdf, 11, 6, show = show)
         }
@@ -94,7 +98,6 @@ phenofit_site <- function(y, t, w, QC_flag, nptperyear = 36,
         l_pheno <- get_pheno(fit, TRS = TRS, IsPlot = F) #%>% map(~melt_list(., "meth"))
         pheno <- l_pheno$doy %>% melt_list("meth")
     }
-   
     list(brks = brks2, fit = d_fit, pheno = pheno)
 }
 

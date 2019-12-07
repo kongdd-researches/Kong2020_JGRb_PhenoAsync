@@ -34,15 +34,15 @@ colors <- scales::hue_pal()(2) %>% rev
 # geom_jitter(width = 0.2)
 
 ggplot(d_temp, aes(IGBP, value, color = phase)) + geom_boxplot() +
-        geom_point(position = position_jitterdodge(jitter.width = 0.3), show.legend = F) +
-        ylab("Phenological metrics of EVI - GPP") +
-        # scale_x_discrete(breaks = xlab$IGBP, labels = xlab$label) +
-        geom_hline(yintercept = 0, color = "blue", linetype = 2, size = lwd) +
-        geom_hline(yintercept = c(-15, 15), color = "red", linetype = 2, size = lwd) +
-        theme_light(base_size = fontsize, base_family = "Arial") +
-        theme(legend.position = c(1-0.01, 0.01), legend.justification = c(1, 0),
-              panel.grid.major = element_line(linetype = 2),
-              panel.grid.minor = element_blank(),
-              legend.title=element_blank(),
-              axis.text = element_text(color = "black")) +
-        scale_color_manual(values = colors)
+    geom_point(position = position_jitterdodge(jitter.width = 0.3), show.legend = F) +
+    ylab("Phenological metrics of EVI - GPP") +
+    # scale_x_discrete(breaks = xlab$IGBP, labels = xlab$label) +
+    geom_hline(yintercept = 0, color = "blue", linetype = 2, size = lwd) +
+    geom_hline(yintercept = c(-15, 15), color = "red", linetype = 2, size = lwd) +
+    theme_light(base_size = fontsize, base_family = "Arial") +
+    theme(legend.position = c(1-0.01, 0.01), legend.justification = c(1, 0),
+          panel.grid.major = element_line(linetype = 2),
+          panel.grid.minor = element_blank(),
+          legend.title=element_blank(),
+          axis.text = element_text(color = "black")) +
+    scale_color_manual(values = colors)

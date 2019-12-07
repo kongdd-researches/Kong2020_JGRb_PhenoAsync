@@ -99,8 +99,6 @@ plot(z)
 ggplot(a, aes(phase, value, color = Prcp_flag)) + geom_boxplot()
 
 
-
-
 dp_doy <- df_p[site == sitename & meth == "ELMORE", 1:9] %>% spread(index, value)
 dp_doy %<>% plyr::mutate(year2 = as.numeric(substr(flag, 1, 4)))
 

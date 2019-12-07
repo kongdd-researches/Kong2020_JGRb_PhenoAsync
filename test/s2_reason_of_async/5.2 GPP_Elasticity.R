@@ -1,6 +1,6 @@
 # source('test/phenology_async/R/s2_reason_of_async/d_reason_of_async(INPUT).R')
 # Modified to apply in site*dn
-load("data_test/flux115_async_input.rda")
+load("E:/Research/phenology/DATA/flux/flux115_async_input.rda")
 
 ## Global variables
 varnames   <- c("EVI", "NDVI", "T", "Prcp", "Rs", "VPD", "APAR", "GPP", paste0("GPP_t", 1:3))[1:8]
@@ -17,30 +17,26 @@ x <- d[site == sitename] #  & SummaryQA <= 1, .SD, .SDcol = c("site", "date", "y
 info <- d[, .(n = length(unique(year))), .(site)][n >= 5][order(-n)]
 sites_long <- st[site %in% info$site]$site
 
-#
-info_async <- read.xlsx("table1.over_decouple.xlsx") %>% data.table()
-info_async_long <- info_async[site %in% sites_long]
-
-d_long <- d[site %in% sites_long]
-
+# info_async <- read.xlsx("table1.over_decouple.xlsx") %>% data.table()
+# info_async_long <- info_async[site %in% sites_long]
 by     <- c("IGBP") # site
+d_long <- d[site %in% sites_long]
 res <- dlply(d_long, by , Elasticity_GPP, predictors)
-sites_ck     <- sapply(res, length) %>% .[ . == 0] %>% names() %T>% print
 
+sites_ck     <- sapply(res, length) %>% .[ . == 0] %>% names() %T>% print
 df_elastic   <- rm_empty(res) %>% transpose() %>% map(~melt_list(.x, by))
 pdat_elastic <- melt_list(df_elastic[1:4], "type") %>% melt(c(by, "dn", "type")) %>%
     spread("type", "value")
 pdat_elastic$IGBP %<>% factor(IGBPnames_006)
 
-
-ggplot(pdat_elastic[pvalue < 0.1], aes(dn, perc_abs)) +
+p <- ggplot(pdat_elastic[pvalue < 0.1], aes(dn, perc_abs)) +
     geom_point(aes(color = coef >= 0, shape = pvalue > 0.1)) +
     # geom_line() +
     # geom_smooth() +
     facet_grid(sprintf("%s~variable", by) %>% as.formula()) +
     theme(legend.position = "bottom") +
     scale_y_continuous(limits = c(0, 1))
-
+write_fig(p, "elastic_coef.pdf", 10, 7)
 
 
 # # p1 <- ggplot(pdat, aes(dn, perc_abs)) +
@@ -67,5 +63,4 @@ ggplot(pdat_elastic[pvalue < 0.1], aes(dn, perc_abs)) +
 #     ggplot(d_avg, aes(dn, value, color = year)) +
 #     geom_point() + geom_smooth(formula = y ~ x^2) +
 #     facet_wrap(~variable, ncol = 1, scales = "free_y")
-#
 # grid.arrange(p_evi, p_gpp, ncol = 1)

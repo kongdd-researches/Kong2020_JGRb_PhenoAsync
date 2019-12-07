@@ -62,3 +62,43 @@ writeOGR_3by3 <- function(st, scale = 500, prefix = "st212", outdir = "INPUT/shp
     rgdal::writeOGR(sp, outfile, "sites", driver = "ESRI Shapefile")
     df
 }
+
+show_description <- function(d){
+    cat(attr(d, "description"))
+}
+
+
+#' @export
+RS_EVI <- function(nir, red, blue){
+    2.5*(nir - red) / (nir + 6*red - 7.5*blue + 1)
+}
+
+#' @references https://en.wikipedia.org/wiki/Enhanced_vegetation_index
+#' @export
+RS_EVI2 <- function(nir, red){
+    # // L is a canopy background adjustment factor.
+    2.5*(nir-red) / (nir+red*2.4+1)
+}
+
+RS_NDVI <- function(nir, red){
+    # // L is a canopy background adjustment factor.
+    (nir-red)/(nir+red)
+}
+
+# Land Surface Water Index
+#' @export
+RS_LSWI <- function(nir, swir){
+    (nir - swir) / (nir + swir)
+}
+
+#' @export
+check_EVI <- function(df){
+    df[QC_flag %in% c("cloud", "snow"), EVI := EVI2] # fix bright EVI
+    # (a) make sure values in a reasonable range
+    df[ EVI > 1 | EVI < -0.1, EVI := NA]
+    # (b) remove outliers: abs(y - mean) > 3sd
+    df[!is.na(EVI), `:=`(mean = mean(EVI), sd = sd(EVI)), .(site)]
+    df[abs(EVI - mean) >= 3*sd & QC_flag != "good", EVI := NA_real_, .(site)]
+    df[, c("mean", "sd") := NULL]
+    df
+}

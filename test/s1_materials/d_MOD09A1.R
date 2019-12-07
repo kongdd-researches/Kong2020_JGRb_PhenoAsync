@@ -1,10 +1,6 @@
 ## cal VI from MOD09A1
 #  Dongdong Kong, 20181007
 
-show_description <- function(d){
-    cat(attr(d, "description"))
-}
-
 indir <- "D:/Document/GoogleDrive/phenofit/phenology_async/data"
 files <- dir(indir, pattern = 'MOD.*', full.names = T)
 

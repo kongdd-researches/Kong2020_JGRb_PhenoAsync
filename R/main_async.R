@@ -10,18 +10,6 @@ varnames <- c("EVI", "NDVI", "T", "Prcp", "Rs", "VPD", "GPP", paste0("GPP_t", 1:
 epsilon_C3 <- 0.078 # g C m-2 day -1 /W m-2
 epsilon_C4 <- c(rep(0, 8), rep(epsilon_C3*1.5, 4), 0, epsilon_C3*1.5)
 
-cal_Tscalar <- function(T, IGBP){
-    IGBPname <- c("ENF", "EBF", "DNF", "DBF", "MF" , "CSH",
-                "OSH", "WSA", "SAV", "GRA", "WET", "CRO",
-                "URB", "CNV")
-    Tmin <- c(-1, -2, -1, -1, -1, -1, 1, -1, 1, 0, -1, -1, 0, 0)
-    Tmax <- c(40, 48, 40, 40, 48, 48, 48, 48, 48, 48, 40, 48, 48, 48)
-    Topt <- c(20, 28, 20, 20, 19, 25, 31, 24, 30, 27, 20, 30, 27, 27)
-
-    I <- match(IGBP[1], IGBPname)
-    Tscalar <- (T-Tmax[I])*(T-Tmin[I]) / ( (T-Tmax[I])*(T-Tmin[I]) - (T - Topt[I])^2 )
-    Tscalar
-}
 # param <- data.table(IGBPname, Tmin, Tmax, Topt)
 # Tscalar <- (T-Tmax)*(T-Tmin) / ( (T-Tmax)*(T-Tmin) - (T - Topt)^2 )
 # Wscaler <- (1 + LSWI) / (1 + LSWI_max)
@@ -108,20 +96,6 @@ get_acf <- function(x){
     acf(x, lag.max = 10, plot = F, na.action = na.pass)$acf[,,1][-1]
 }
 
-#' add previous time step GPP as a new variable
-#' @param x Data.table with the column of ydn and GPP
-addPredictor_tn <- function(x){
-    I0 <- x$ydn
-    I_1  <- match(I0 - 1, I0)
-    I_2  <- match(I0 - 2, I0)
-    I_3  <- match(I0 - 3, I0)
-
-    x$GPP_t1 <- x$GPP[I_1]
-    x$GPP_t2 <- x$GPP[I_2]
-    x$GPP_t3 <- x$GPP[I_3]
-    x
-}
-
 ## 2. Test the difference of `pls` and 'lm'
 test <- function(){
     par(mfrow = c(2, 1))
@@ -147,7 +121,9 @@ test <- function(){
 
 ## visualization
 
-#' @param p2 should have axis.tick.y.right and axis.title.y.left
+#' ggplot_multiAxis
+#' @param p1,p2 should have axis.tick.y.right and axis.title.y.left
+#' @export
 ggplot_multiAxis <- function(p1, p2, show = TRUE){
     # intersperse a copy of the bottom axes
     g1 <- p1
