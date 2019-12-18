@@ -128,24 +128,6 @@ MEAN_rmse <- function(df_sim){
     return(info_all)
 }
 
-stat_sd <- function(x, ...){
-    x <- x[!is.na(x)]
-    y  <- mean(x)
-    y2 <- median(x)
-    sd <- sd(x)
-    c(y = y, y2 = y2, ymin = y-sd, ymax = y+sd, sd = sd)
-}
-
-stat_sd_label <- function(x) {
-    x <- x[!is.na(x)]
-    y  <- mean(x)
-    sd <- sd(x)
-    label <- sprintf("%.1f±%3.1f", y, sd)
-    y2 <- median(x)
-    # browser()
-    data.frame(y = y2, label = label)
-}
-
 # melt GOF performance index: e.g. NSE, R2, RMSE
 melt2 <- function(d, variable.name = "variable", value.name = "value"){
     id.vars = c("meth", "site", "index", "type_VI", "type_period") %>% intersect(names(d))

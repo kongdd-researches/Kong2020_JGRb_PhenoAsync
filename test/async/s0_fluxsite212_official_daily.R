@@ -24,7 +24,6 @@ df <- melt_list(lst2, 'site')
 df$YYYY <- year(df$date)
 
 # also need to remove leapyear 2-29; why?
-file_official_dd = 'data/fluxsites166_official_dd.csv'
 fwrite(df, file_official_dd)
 
 ## 1. select sites

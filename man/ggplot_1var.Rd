@@ -5,9 +5,20 @@
 \title{global variables:
 smooth_formula, span}
 \usage{
-ggplot_1var(x, varname = "APAR", color = "red")
+ggplot_1var(
+  x,
+  varname = "APAR",
+  color = "red",
+  alpha = 0.3,
+  span = 0.75,
+  ylab = NULL,
+  labels = waiver()
+)
 }
 \description{
 global variables:
 smooth_formula, span
+}
+\examples{
+ggplot_1var
 }

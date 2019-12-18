@@ -19,5 +19,8 @@ data/
 *.json
 log.txt
 
+*.docx
+*.tex
+
 INPUT/shp
 INPUT/

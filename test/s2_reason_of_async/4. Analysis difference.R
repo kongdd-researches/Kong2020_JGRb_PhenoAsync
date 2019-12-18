@@ -45,8 +45,6 @@ ggplot(pdat, aes(index, value)) +
     geom_hline(yintercept = 0, color = "blue", linetype = 2, size = 1) +
     geom_hline(yintercept = c(-15, 15), color = "red", linetype = 2, size = 1)
 
-
-
 ## 2. performance index
 d_pheno <- map(pheno, ~melt(.x, id.vars = c("flag", "origin", "meth", "site"), variable.name = "index")) %>%
     melt_list("model") %>%

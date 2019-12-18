@@ -1,4 +1,3 @@
-
 ## multiple growing season sites
 # c("BE-Lon", "CH-Oe2", "CZ-BK2", "DE-Geb", "DE-Kli", "DE-RuS", "FR-Gri", "IT-Ro1", "IT-Ro2")
 get_gsl <- function(d, 

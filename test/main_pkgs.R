@@ -22,6 +22,7 @@ suppressWarnings({
     library(foreach)
     library(iterators)
     library(glue)
+    library(rfluxnet)
 })
 
 # IGBP  N
@@ -47,8 +48,14 @@ classify_lc <- function(st){
     st    
 }
 
-st_166 <- fread(path.mnt("E:/Research/phenology/DATA/flux/station/st_flux166.csv"))
+st_166 <- st_flux166
 st_212 <- fread(path.mnt("E:/Research/phenology/DATA/flux/station/st_flux212.csv")) %>% classify_lc()
 
-file_GPP_north = "INPUT/df_north.RDS"
-file_brks      = "INPUT/pheno_gpp_st109.rda"
+file_official_dd = 'E:/github/hydro/rfluxnet/OUTPUT/fluxsites166_SUBSET_official_daily.csv'
+file_FULLSET_dd  = "E:/github/hydro/rfluxnet/OUTPUT/fluxsites166_FULLSET_8-day_v20191216 (80%).csv"
+file_GPP_north   = "INPUT/df_north.RDS"
+file_brks        = "INPUT/pheno_gpp_st109.rda"
+
+# MODIS DATA
+file_MYD11A2       <- "INPUT/fluxnet212/flux212_MYD11A2_Tnight.RDS"
+file_MYD11A2_pheno <- "INPUT/fluxnet212/flux212_MYD11A2_T_phenology_5d_10d.RDS"

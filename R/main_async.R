@@ -121,46 +121,6 @@ test <- function(){
 
 ## visualization
 
-#' ggplot_multiAxis
-#' @param p1,p2 should have axis.tick.y.right and axis.title.y.left
-#' @export
-ggplot_multiAxis <- function(p1, p2, show = TRUE){
-    # intersperse a copy of the bottom axes
-    g1 <- p1
-    g2 <- p2
-    if (!("gtable" %in% class(p1)))  g1 <- ggplotGrob(p1)
-    if (!("gtable" %in% class(p2)))  g2 <- ggplotGrob(p2)
-
-    g1_grob_names <- map_chr(g1$grob, "name")
-    g2_grob_names <- map_chr(g2$grob, "name")
-
-    I_panel1 <- g1$grobs %>%  {grep("panel", g1_grob_names)}
-    panel2   <- g2$grobs %>%  {.[[grep("panel", g2_grob_names)]]}
-    g1$grobs[[I_panel1]] %<>% addGrob(panel2)
-
-    ## 2. find ylab-r position
-    I_yr1  <- g1$layout %$% {r[grep("ylab-r", name)]} %>% unique()
-    I_yr2  <- g2$layout %$% {r[grep("axis-r|ylab-r", name)]} %>% unique() # get `axis-r` and `ylab-r`
-
-    all <- gtable:::cbind.gtable(
-        g1[, seq(max(I_yr1))],
-        g2[, I_yr2],
-        g1[, seq(max(I_yr1)+1, ncol(g1))],
-        size = "first")
-
-    if (show){
-        grid.newpage()
-        grid.draw(all)
-    }
-    all
-
-    # layout   <- g$layout %>% mutate(vp = sprintf("%s.%d-%d-%d-%d", name, t, r, b, l)) %>% data.table()
-    # vp_panel <- layout[name == "panel", vp]
-
-    # ## 2. overlap the new panel
-    # downViewport(vp_panel)
-    # grid.draw(panel)
-}
 
 
 GPP_D1 <- function(x, predictors){
@@ -168,6 +128,7 @@ GPP_D1 <- function(x, predictors){
     ## 1. dx cal should be by site
     x <- data.table(x)
     headvars <- c("site", "date", "year", "ydn", "dn")
+
     I_t0 <- x$ydn
     I_t1 <- match(I_t0 - 1, I_t0) # previous time step
 
@@ -193,35 +154,38 @@ figureNo <- 0
 
 # global variables:
 # st, info_async
+#' @examples
+#' check_sensitivity(x, predictors)
 check_sensitivity <- function(x, predictors){
     ## 0. prepare plot data
     dx_z <- GPP_D1(x, predictors) # only suit for by site
-
     p <- ggplot(x, aes(dn, GPP, color = year)) +
         # geom_point() +
-        geom_smooth(method = "loess", formula = smooth_formula, span = span, color = "black")
+        geom_smooth(method = "loess",
+            # formula = smooth_formula, span = span,
+            color = "black")
 
     p_EVI  <- ggplot_1var(x, "EVI" , "green")
     p_APAR <- ggplot_1var(x, "APAR", "red")
     p_Rs   <- ggplot_1var(x, "Rs"  , "purple")
-    p_T    <- ggplot_1var(x, "T"   , "yellow")
+    p_T    <- ggplot_1var(x, "TS"   , "yellow")
     p_VPD  <- ggplot_1var(x, "VPD" , "darkorange1")
     p_prcp <- ggplot_1var(x, "Prcp", "skyblue")
     p_epsilon_eco <- ggplot_1var(x, "epsilon_eco", "darkorange1")
     p_epsilon_chl <- ggplot_1var(x, "epsilon_chl", "yellow")
-    
+
     p_Wscalar <- ggplot_1var(x, "Wscalar", "blue")
     p_Tscalar <- ggplot_1var(x, "Tscalar", "yellow4")
-    
+    # browser()
     # p_all <- ggplot_multiAxis(p, p_apar)
     p1 <- reduce(list(p, p_EVI, p_APAR, p_Rs, p_epsilon_eco, p_epsilon_chl), ggplot_multiAxis, show = F)
     p2 <- reduce(list(p, p_EVI, p_T, p_VPD, p_prcp, p_Wscalar, p_Tscalar), ggplot_multiAxis, show = F)
 
     fontsize <- 14
     titlestr <- st[site == sitename, ] %$%
-        sprintf("[%03d,%s] %s, lat=%.2f, nyear=%.1f", ID, IGBP, site, lat, nrow(x)/23)
-    biasstr  <- with(info_async[site == sitename], sprintf("bias: sos=%.1f,eos=%.1f", spring, autumn))
-    titlestr <- paste(titlestr, biasstr, sep = "  ")
+        sprintf("[%s] %s, lat=%.2f, nyear=%.1f", IGBP, site, lat, nrow(x)/23)
+    # biasstr  <- with(info_async[site == sitename], sprintf("bias: sos=%.1f,eos=%.1f", spring, autumn))
+    # titlestr <- paste(titlestr, biasstr, sep = "  ")
 
     title <- textGrob(titlestr, gp=gpar(fontsize=fontsize, fontface = "bold"))
 
@@ -255,3 +219,70 @@ check_sensitivity <- function(x, predictors){
 
 # plot(pls1_one, "observations")
 # l <- lm(GPP ~ Rn + VPD + Prcp + T + EVI, x) #%>% plot()
+
+#' @examples
+#' predictors <- c("EVI", "Rs", "TA", "Prcp", "VPD", "APAR")#[-6]#[-c(1, 2)]
+#' check_sensitivity(x, predictors)
+check_sensitivity_async <- function(x, predictors){
+    ## 0. prepare plot data
+    dx_z <- GPP_D1(x, predictors) # only suit for by site
+
+    p <- ggplot(x, aes(dn, GPP, color = year)) +
+        # geom_point() +
+        geom_smooth(method = "loess",
+            # formula = smooth_formula, span = span,
+            color = "black")
+
+    p_GPPsim  <- ggplot_1var(x, "GPP_sim" , "grey60")
+    p_EVI  <- ggplot_1var(x, "EVI" , "green")
+    p_APAR <- ggplot_1var(x, "APAR", "red")
+    p_Rs   <- ggplot_1var(x, "Rs"  , "purple")
+    p_T    <- ggplot_1var(x, "TS"   , "yellow")
+    p_VPD  <- ggplot_1var(x, "VPD" , "darkorange1")
+    p_prcp <- ggplot_1var(x, "Prcp", "skyblue")
+    p_epsilon_eco <- ggplot_1var(x, "epsilon_eco", "darkorange1")
+    p_epsilon_chl <- ggplot_1var(x, "epsilon_chl", "yellow")
+
+    p_Wscalar <- ggplot_1var(x, "Wscalar", "blue")
+    p_Tscalar <- ggplot_1var(x, "Tscalar", "yellow4")
+    # browser()
+    # p_all <- ggplot_multiAxis(p, p_apar)
+    # p_epsilon_eco, p_epsilon_chl
+    p1 <- reduce(list(p, p_EVI, p_APAR, p_Rs, p_VPD), ggplot_multiAxis, show = F)
+    p2 <- reduce(list(p, p_EVI, p_T, p_prcp, p_Wscalar, p_Tscalar), ggplot_multiAxis, show = F)
+
+    fontsize <- 14
+    titlestr <- st[site == sitename, ] %$%
+        sprintf("[%s] %s, lat=%.2f, nyear=%.1f", IGBP, site, lat, nrow(x)/23)
+    # biasstr  <- with(info_async[site == sitename], sprintf("bias: sos=%.1f,eos=%.1f", spring, autumn))
+    # titlestr <- paste(titlestr, biasstr, sep = "  ")
+
+    title <- textGrob(titlestr, gp=gpar(fontsize=fontsize, fontface = "bold"))
+
+    p_series <- arrangeGrob(p1, p2, ncol = 1, top = title)
+    # grid.newpage();grid.draw(p_series)
+    # ggplot_build(p)$layout$panel_scales_y[[1]]$range$range
+
+    ## 2. mete forcing
+    delta <- dx_z %>% melt(c("site", "date", "year", "ydn", "dn", "GPP"))
+
+    formula <- y ~ x
+    p_mete <- ggplot(delta[dn > 10], aes(value, GPP)) +
+        geom_point() +
+        facet_wrap(~variable, scales = "free", ncol = 2) +
+        geom_smooth(method = "lm", se=T, formula = formula) +
+        stat_poly_eq(formula = formula,
+                    eq.with.lhs = "italic(hat(y))~`=`~",
+                    rr.digits = 2,
+                    aes(label = paste(..eq.label.., ..rr.label.., sep = "~"), color = "red"),
+                    parse = TRUE) +
+        ggtitle("dGPP ~ dx")
+    # print(p_mete)
+
+    # avoid empty figure in first page
+    if (!(exists("figureNo") & figureNo == 0)){
+        grid.newpage()
+    }
+    if (exists("figureNo")) figureNo <<- figureNo + 1
+    arrangeGrob(p_series, p_mete) %>% grid.draw()
+}

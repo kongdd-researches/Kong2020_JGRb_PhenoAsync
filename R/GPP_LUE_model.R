@@ -21,22 +21,39 @@ aggregate_dn <- function(data, nday = 16, st){
 
     res <- data[, lapply(.SD, mean, na.rm = T), byname, .SDcols = vars]
     colnames(res)[3] <- "dn"
+    # cal Tscalar at here
+    res <- merge(st[, .(site, IGBP, lat)], res, by = "site")
+    res[, Tscalar := cal_Tscalar(TA, IGBP), .(IGBP)]
 
-    if (!missing(st)) {
-        res <- merge(st[, .(site, IGBP, lat)], res, by = "site")
-    }
     res <- plyr::mutate(res,
-        date  = as.Date(sprintf("%d%03d", year, (dn-1)*nday+1), "%Y%j"),
-        year2 = as.integer(year + ((month(date)>=7)-1)*(lat<0)),
+        date  = as.Date(sprintf("%d%03d", year, (dn - 1)*nday + 1), "%Y%j"),
+        year2 = as.integer(year + ((month(date) >= 7) - 1)*(lat < 0)),
         ydn   = (year - 2000)*nptperyear + dn) %>% #dn ID order
         ddply(.(site), addPredictor_tn) %>%
         reorder_name(c("site", "IGBP", "date", "year", "year2", "d16", "d8", "ydn"))
     res
 }
 
+#' nth_max
+#'
+#' The nth maximum value
+#' @examples
+#' x <- c(12.45,34,4,0,-234,45.6,4)
+#' nth_max(x)
+nth_max <- function(x, n = 2){
+    len <- length(x)
+    if (sum(!is.na(x)) <= n){
+        min(x, na.rm = T)
+    } else {
+        sort(x, decreasing = T)[n]
+    }
+    # i   <- len-n+1
+    # sort(x, partial=i, na.last=T)[i]
+}
+
 #' cal_LSWImax
 #' works for site
-cal_LSWImax <- function(x){
+LUE_LSWImax <- function(x){
     site = x$site[1]
 
     tryCatch({
@@ -51,7 +68,16 @@ cal_LSWImax <- function(x){
     })
 }
 
-cal_Tscalar <- function(T, IGBP){
+#' Light use efficiency GPP model
+#' @name LUE
+NULL
+
+#' @description
+#' `LUE_Tscalar`: Air temperature constrain
+#'
+#' @rdname LUE
+#' @export
+LUE_Tscalar <- function(T, IGBP){
     IGBPname <- c("ENF", "EBF", "DNF", "DBF", "MF" , "CSH",
                 "OSH", "WSA", "SAV", "GRA", "WET", "CRO",
                 "URB", "CNV")
@@ -61,26 +87,28 @@ cal_Tscalar <- function(T, IGBP){
 
     I <- match(IGBP[1], IGBPname)
     Tscalar <- (T-Tmax[I])*(T-Tmin[I]) / ( (T-Tmax[I])*(T-Tmin[I]) - (T - Topt[I])^2 )
-    Tscalar
+    clamp(Tscalar, lims = c(0, 1))
 }
 
-#' cal_Wscalar
-#' 
+#' @description
+#' `LUE_Wscalar`: Water constrain
+#'
 #' @param d_mod09a1 data.frame with the columns of `site, date, year2, LSWI, QC_flag`
 #' @param pheno_T data.frame with the columsn of `site, year2, sos_date, eos_date`.
-#' 
+#'
+#' @rdname LUE
 #' @export
-cal_Wscalar <- function(d_mod09a1, pheno_T) {
-    df1 <- merge(d_mod09a1[, .(site, date, year2, LSWI, QC_flag)],
-    pheno_T[, .(site, year2, sos_date, eos_date)], by = c("site", "year2"))
+LUE_Wscalar <- function(df, pheno_T) {
+    df1 <- merge(df[, .(site, group, date, year2, LSWI, QC_flag)],
+        pheno_T[, .(site, group, year2, sos_date, eos_date)], by = c("site", "group", "year2"))
     # d <- df1[site == sitename]
 
-    d_LSWImax <- ddply(df1, .(site), cal_LSWImax)
+    d_LSWImax <- ddply(df1, .(site, group), cal_LSWImax)
     d_LSWImax[LSWI_max < 0.1, LSWI_max := 0.1]
 
-    d_mod09a1 <- merge(d_mod09a1, d_LSWImax, by = c("site", "year2")) %>% 
-        mutate(Wscalar = (1 + LSWI) / (1 + LSWI_max))
-    d_mod09a1
+    res <- merge(df, d_LSWImax, by = c("site", "group", "year2"), all.x = TRUE) %>%
+        mutate(Wscalar = clamp((1 + LSWI) / (1 + LSWI_max), lims = c(0, 1)))
+    res
 }
 
 # aggregate daily to 8-day, 16-day

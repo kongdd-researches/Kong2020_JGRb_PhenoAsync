@@ -9,11 +9,9 @@ Description:
 License: GPL-2 | file LICENSE
 Encoding: UTF-8
 LazyData: true
-LinkingTo: Rcpp, RcppArmadillo
 Depends:
     R (>= 3.1)
-Imports: Rcpp, 
-    phenofit,
+Imports: phenofit,
     tibble, dplyr, purrr, stringr, tidyr, ggplot2, 
     data.table, magrittr, lubridate, fasttime, 
     spam, 
