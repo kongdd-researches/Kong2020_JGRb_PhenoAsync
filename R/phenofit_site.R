@@ -9,7 +9,7 @@ phenofit_site <- function(y, t, w, QC_flag, nptperyear = 36,
     brks = NULL,
     wFUN = wTSM,
     fineFit = TRUE,
-    TRS = c(0.1, 0.2, 0.5, 0.6, 0.8),
+    TRS = c(0.1, 0.2, 0.5, 0.6, 0.8, 0.9),
     maxExtendMonth = 1.5, minExtendMonth = 0.5,
     minPercValid = 0,
     south   = FALSE,
@@ -98,7 +98,7 @@ phenofit_site <- function(y, t, w, QC_flag, nptperyear = 36,
         l_pheno <- get_pheno(fit, TRS = TRS, IsPlot = F) #%>% map(~melt_list(., "meth"))
         pheno <- l_pheno$doy %>% melt_list("meth")
     }
-    list(brks = brks2, fit = d_fit, pheno = pheno)
+    list(brks = brks2, fit = fit, dfit = d_fit, pheno = pheno)
 }
 
 

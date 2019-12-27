@@ -24,6 +24,8 @@ CJKmainfont: Microsoft YaHei
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+root = rprojroot::find_rstudio_root_file()
+knitr::opts_knit$set(root.dir = root)
 source("test/main_pkgs.R")
 ```
 
