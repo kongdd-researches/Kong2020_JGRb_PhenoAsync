@@ -41,17 +41,6 @@ names_VI = c("NDVI", "EVI", "LAI") %>% set_names(., .)
 sites = names(lst_LAI)
 st <- st_212[site %in% sites, .(site, lon, lat, IGBP, LC)]
 
-melt_pheno <- function(lst) {
-    res <- foreach(l = lst, i = icount()) %do% {
-        # print(i)
-        temp <- map(l, "pheno") %>% rm_empty()
-        if (!is_empty(temp)) {
-            Ipaper::melt_list(temp, "group")
-        } else NULL
-    } %>% rm_empty()
-    Ipaper::melt_list(res, "site")
-}
-
 ## MAIN SCRIPTS ----------------------------------------------------------------
 sitename = sites[1]
 df_gpp = map(lst_pheno[sites], "doy") %>% melt_tree(c("site", "meth"))
@@ -64,14 +53,6 @@ df_VI = map(lst_VI, melt_pheno) %>% Ipaper::melt_list("type_VI")
 # r <- lst_EVI %>% map_depth(2, "pheno") %>% melt_tree(c("site", "group"))
 # r <- lst_LAI %>% map_depth(2, "pheno") %>% melt_tree(c("site", "group"))
 # map(lst_VI, melt_pheno)
-
-## 每年仅挑取最大GSL的season, GSL = TRS5.EOS - TRS5.SOS
-filter_primary <- function(df){
-    df[, GSL := TRS5.eos - TRS5.sos]
-    groups = .(type_VI, site, meth, group, origin) %>% names() %>% intersect(names(df))
-    I_sel <- df[, order(-GSL), groups]$V1 == 1 & df$GSL > 30
-    df[I_sel, ]
-}
 
 df_VI_prim  <- filter_primary(df_VI)
 df_gpp_prim <- filter_primary(df_gpp)

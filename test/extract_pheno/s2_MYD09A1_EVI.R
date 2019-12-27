@@ -1,50 +1,19 @@
 source("test/main_pkgs.R")
 
-# FOR MOD09A1
-# // 620-670nm, RED, sur_refl_b01
-# // 841-876nm, NIR, sur_refl_b02
-# // 459-479nm, BLUE, sur_refl_b03
-# // 1628-1652nm, SWIR, sur_refl_b06
-file_MOD09A1 <- "INPUT/st212_MOD09A1_9grids.RDS"
-
-if (!file.exists(file_MOD09A1)) {
-    # https://developers.google.com/earth-engine/datasets/catalog/MODIS_006_MOD09A1
-    file = "INPUT/fluxnet/st212_MOD09A1_0m_buffer.csv"
-    df = fread(file, drop = 1) %>%
-        .[, .(group, site, date = as.Date(date), DayOfYear,
-              red = sur_refl_b01/1e4, nir = sur_refl_b02/1e4, blue = sur_refl_b03/1e4, swir = sur_refl_b06/1e4,
-              QC = StateQA, RelativeAzimuth, SolarZenith, ViewZenith)] %>%
-        plyr::mutate(
-            t    = getRealDate(date, DayOfYear),
-            EVI  = RS_EVI(nir, red, blue),
-            EVI2 = RS_EVI2(nir, red),
-            NDVI = RS_NDVI(nir, red),
-            LSWI = RS_LSWI(nir, swir)
-        )
-    # .[date <= "2015-12-31", .(site, group, t = date, y = Lai/10, QC = FparExtra_QC, FparLai_QC)] # , FparExtra_QC
-    df[, c("QC_flag", "w") := qc_StateQA(QC)]
-    df %<>% merge(st_212[, .(site, lat)]) %>% plyr::mutate(
-        year  = year(date),
-        year2 = year + ((month(date) >= 7) - 1)*(lat < 0)) %>%
-        reorder_name(c("site", "group", "date", "t", "DayOfYear", "year", "year2"))
-    df2 <- check_EVI(df)
-    # d = df[site == "AR-SLu" & group == 5,]
-    saveRDS(df2, file_MOD09A1)
-} else {
-    df = readRDS(file_MOD09A1)
-}
+satellite = "MYD09A1"
+df = tidy_modis_09A1(satellite)
 
 ## 2. phenofit -----------------------------------------------------------------
 
 sites = st_166$site %>% set_names(., .)
 grps_sites = sites %>% set_names(seq_along(.), .)
-# grps_sites = df_bad[, set_names(ID, site)]
+grps_sites = df_bad[, set_names(ID, site)]
 
 lambda0    = 15
 nptperyear = 46
 
 InitCluster(12)
-lst_NDVI = foreach(i = grps_sites, icount()) %dopar% {
+lst_EVI = foreach(i = grps_sites, icount()) %dopar% {
     runningId(i)
     sitename = sites[i]
     # brks = lst_brks[[sitename]]$brks
@@ -53,7 +22,7 @@ lst_NDVI = foreach(i = grps_sites, icount()) %dopar% {
     l_site = foreach(j = grps, icount()) %do% {
         title = sprintf("[%02d] %s_%d", i, sitename, j)
         # wmin  = 0.5
-        d = df[site == sitename & group == j, .(t, y = NDVI, QC, QC_flag, w)]
+        d = df[site == sitename & group == j, .(t, y = EVI, QC, QC_flag, w)]
         south = st_212[site == sitename, lat] < 0
         # wmid = ifelse(sitename %in% c("DE-Obe", "US-Me2"), 0.1, 0.5)
         # d[, c("QC_flag", "w") := qc_summary(QC, wmin = 0.1, wmid = wmid)]
@@ -68,7 +37,7 @@ lst_NDVI = foreach(i = grps_sites, icount()) %dopar% {
         lambda <- tryCatch({
             l_lambda = v_curve(d[!is.na(y)], lg_lambdas = seq(1, 3, 0.1), IsPlot = FALSE)
             ans = l_lambda$lambda
-            if (ans > 500) ans <- ans/3*2
+            if (ans > 500) ans <- ans*2/3
             ans
         }, error = function(e) lambda0)
         # return(lambda)
@@ -78,21 +47,17 @@ lst_NDVI = foreach(i = grps_sites, icount()) %dopar% {
             minExtendMonth = 0
         } #else lambda = lambda0
         # lambda = NULL
-        alpha = 0.02
-        if (sitename %in% c("NL-Loo", "IT-La2", "AU-Rob", "BR-Sa3", "CN-Din", "GF-Guy")) alpha = 0.1
         tryCatch({
             l = phenofit_site(d$y, d$t, d$w, d$QC_flag, nptperyear = nptperyear,
                               brks = NULL,
                               wFUN = wTSM,
                               .check_season = TRUE,
-                              rm.closed = FALSE,
+                              rm.closed = TRUE,
                               lambda = lambda,
                               maxExtendMonth = maxExtendMonth, minExtendMonth = minExtendMonth,
                               south = south,
                               verbose = FALSE,
-                              # years.run = 2005:2017,
                               ymin = 0.1, wmin = 0.1, wsnow = 0.8,
-                              alpha = alpha,
                               write.fig = TRUE,
                               titlestr = title, show = FALSE)
             l
@@ -102,26 +67,28 @@ lst_NDVI = foreach(i = grps_sites, icount()) %dopar% {
     }
 }
 
-{
-    file_gof = "INPUT/gof_MOD09A1_NDVI_st166_phenofit.csv"
-    df_gof = map(lst_EVI %>% rm_empty, function(l){
-        if (!is.null(l$`1`)) {
-            l$`1`$fit[, GOF(y, ziter2, include.r = TRUE)]
-        } else NULL
-    }) %>% do.call(rbind, .) %>%
-        {cbind(site = rownames(.), ID = match(rownames(.), sites), data.table(.))}
-    fwrite(df_gof, file_gof)
-    df_gof = fread(file_gof)
-    df_bad <- df_gof[NSE < 0.5, ]
-}
+# 133: NO-Blv, SNO
+# 168: US-Me1
+# {
+#     file_gof = "INPUT/gof_MOD09A1_EVI_st166_phenofit.csv"
+#     df_gof = map(lst_EVI %>% rm_empty, function(l){
+#         if (!is.null(l$`1`)) {
+#             l$`1`$fit[, GOF(y, ziter2, include.r = TRUE)]
+#         } else NULL
+#     }) %>% do.call(rbind, .) %>%
+#         {cbind(site = rownames(.), ID = match(rownames(.), sites), data.table(.))}
+#     fwrite(df_gof, file_gof)
+#     df_gof = fread(file_gof)
+#     df_bad <- df_gof[NSE < 0.5, ]
+# }
 
 {
-    version = 0.4
-    outfile = glue("phenofit_MOD09A1_NDVI_{version}.pdf")
-    merge_pdf(outfile, pattern = "\\[", del = TRUE)
+    version = 0.5
+    outfile = glue("Figures_phenofit/phenofit_{satellite}_EVI_{version}.pdf")
+    merge_pdf(outfile, pattern = "\\[", del = FALSE)
     pdf_acrobat(outfile)
 }
-save(lst_NDVI, file = "INPUT/pheno_MOD09A1_NDVI_st166.rda")
+save(lst_EVI, file = glue("pheno_{satellite}_EVI_st166.rda"))
 
 # merge_pdf("EVI_phenofit_test.pdf", pattern = , del = TRUE)
 # merge_pdf("EVI_phenofit_v10_st95.pdf", pattern = "\\[", del = TRUE)
@@ -164,4 +131,3 @@ save(lst_NDVI, file = "INPUT/pheno_MOD09A1_NDVI_st166.rda")
     halfwin = ceiling(nptperyear/36)
     movmean(d$y, halfwin) %>% lines(col = "blue", type = "b")
 }
-

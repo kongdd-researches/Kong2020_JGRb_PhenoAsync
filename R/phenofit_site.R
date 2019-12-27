@@ -21,7 +21,7 @@ phenofit_site <- function(y, t, w, QC_flag, nptperyear = 36,
     write.fig = TRUE, show = FALSE,
     ymin = 0.1, wmin = 0.1,
     wsnow = 0.8,
-    use.y0 = FALSE, 
+    use.y0 = FALSE,
     alpha = 0.02,
     cex = 1.5, ...)
 {
@@ -63,7 +63,7 @@ phenofit_site <- function(y, t, w, QC_flag, nptperyear = 36,
     # plot_season(INPUT, brks2)
     # brks
 
-    d_fit <- pheno <- NULL
+    dfit <- pheno <- NULL
     if (fineFit) {
         ## 2.4 Curve fitting
         fit  <- curvefits(INPUT, brks2,
@@ -80,25 +80,25 @@ phenofit_site <- function(y, t, w, QC_flag, nptperyear = 36,
 
         ## check the curve fitting parameters
         l_param <- get_param(fit)
-        d_fit   <- get_fitting(fit)
+        dfit   <- get_fitting(fit)
         # d_gof   <- get_GOF(fit)
-
+        
         ## visualization
         if (write.fig) {
             file_pdf = glue("Figure/{prefix}{titlestr}.pdf")
             check_dir(dirname(file_pdf))
-
+        
             d_obs = INPUT[c("t", "y", "QC_flag")] %>% as.data.table()
-            g <- plot_phenofit(d_fit, brks2, d_obs, title = titlestr, cex = 1.5)
+            g <- plot_phenofit(dfit, brks2, d_obs, title = titlestr, cex = 1.5)
             # grid::grid.newpage(); grid::grid.draw(g)# plot to check the curve fitting
             write_fig(g, file_pdf, 11, 6, show = show)
         }
-
+        
         ## 2.5 Extract phenology
         l_pheno <- get_pheno(fit, TRS = TRS, IsPlot = F) #%>% map(~melt_list(., "meth"))
         pheno <- l_pheno$doy %>% melt_list("meth")
     }
-    list(brks = brks2, fit = fit, dfit = d_fit, pheno = pheno)
+    list(brks = brks2, fit = fit, dfit = dfit, pheno = pheno)
 }
 
 

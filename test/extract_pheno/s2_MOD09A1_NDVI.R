@@ -1,40 +1,29 @@
 source("test/main_pkgs.R")
 
-file_gof <- "gof_NDVI_st95_phenofit.csv"
-file     =  "INPUT/fluxnet/st212_MOD13A1_0m_buffer.csv"
-df = fread(file, drop = 1:2) %>%
-    .[date <= "2015-12-31", .(site, group, t = ymd(date),
-                              NDVI = NDVI/1e4, EVI = EVI/1e4,
-                              QC = SummaryQA)] # , FparExtra_QC
-df[, c("QC_flag", "w") := qc_summary(QC)]
+satellite = "MOD09A1"
+df = tidy_modis_09A1(satellite)
 
-load(file_brks)
-sites      = names(lst_brks)[1:95] # sites_rm not included
-grps_sites = seq_along(sites) %>% set_names(sites)
-# sites = c(sites_single, sites_multi)
-# grps_sites = 66
-# grps_sites = c(10, 29, 30, 34, 43, 54)
+## 2. phenofit -----------------------------------------------------------------
 
-## UNDEBUG
-# df_gof = fread(file_gof)
-# grps_sites <- df_gof[NSE  < 0.7, set_names(ID, site)]
-# # "IT-La2", "SD-Dem", "CZ-BK2", "DE-Gri", "CA-Qfo", "CH-Dav", "DE-Obe"
-# d_match    <- match2(c("DK-Sor", "FR-Fon", "CN-Qia", "DE-Tha", "RU-Fyo", "DE-SfN"), names(grps_sites))
-# grps_sites <- grps_sites[-d_match$I_y]
-# grps_sites <- df_gof[NSE >= 0.7, set_names(ID, site)]
+sites = st_166$site %>% set_names(., .)
+grps_sites = sites %>% set_names(seq_along(.), .)
+# grps_sites = df_bad[, set_names(ID, site)]
 
-# list_files("Figure/20190403/", "*.pdf")
+lambda0    = 15
+nptperyear = 46
+
 InitCluster(12)
 lst_NDVI = foreach(i = grps_sites, icount()) %dopar% {
     runningId(i)
     sitename = sites[i]
-    brks = lst_brks[[sitename]]$brks
+    # brks = lst_brks[[sitename]]$brks
 
     grps = 1:9 %>% set_names(., .)
     l_site = foreach(j = grps, icount()) %do% {
         title = sprintf("[%02d] %s_%d", i, sitename, j)
         # wmin  = 0.5
         d = df[site == sitename & group == j, .(t, y = NDVI, QC, QC_flag, w)]
+        south = st_212[site == sitename, lat] < 0
         # wmid = ifelse(sitename %in% c("DE-Obe", "US-Me2"), 0.1, 0.5)
         # d[, c("QC_flag", "w") := qc_summary(QC, wmin = 0.1, wmid = wmid)]
         if (sitename == "US-Me2") {
@@ -42,34 +31,39 @@ lst_NDVI = foreach(i = grps_sites, icount()) %dopar% {
         }
         # if (all(is.na(d$y))) return()
         minExtendMonth = 0.5
-        maxExtendMonth = 2
+        maxExtendMonth = 1
         if (sitename %in% c("US-Prr", "FI-Sod", "CA-NS2")) maxExtendMonth = 5 # long winter
-        if (sitename %in% c("DE-Gri", "DE-RuR")) maxExtendMonth = 0
-
         # only optim lambda when lambda_opt < 2
         lambda <- tryCatch({
-            l_lambda = v_curve(d, lg_lambdas = seq(-1, 2, 0.1), IsPlot = FALSE)
-            l_lambda$lambda
-        }, error = function(e) 5)
-        if (lambda < 2) {
+            l_lambda = v_curve(d[!is.na(y)], lg_lambdas = seq(1, 3, 0.1), IsPlot = FALSE)
+            ans = l_lambda$lambda
+            if (ans > 500) ans <- ans/3*2
+            ans
+        }, error = function(e) lambda0)
+        # return(lambda)
+        if (lambda < 150) {
             message(sprintf("%s: lambda = %f", sitename, lambda))
             maxExtendMonth = 0.5
             minExtendMonth = 0
-        } else lambda = 5
-
+        } #else lambda = lambda0
+        # lambda = NULL
+        alpha = 0.02
+        if (sitename %in% c("NL-Loo", "IT-La2", "AU-Rob", "BR-Sa3", "CN-Din", "GF-Guy")) alpha = 0.1
         tryCatch({
-            l = phenofit_site(d$y, d$t, d$w, d$QC_flag, nptperyear = 23,
-                            brks = NULL,
-                            wFUN = wTSM,
-                            fineFit = TRUE,
-                          .check_season = TRUE,
-                          lambda = lambda,
-                          maxExtendMonth = maxExtendMonth, minExtendMonth = minExtendMonth,
-                          verbose = FALSE,
-                          ymin = 0.1, wmin = 0.1, wsnow = 0.3,
-                          IsPlot.brks = FALSE, show = FALSE,
-                          write.fig = FALSE,
-                          titlestr = title)
+            l = phenofit_site(d$y, d$t, d$w, d$QC_flag, nptperyear = nptperyear,
+                              brks = NULL,
+                              wFUN = wTSM,
+                              .check_season = TRUE,
+                              rm.closed = FALSE,
+                              lambda = lambda,
+                              maxExtendMonth = maxExtendMonth, minExtendMonth = minExtendMonth,
+                              south = south,
+                              verbose = FALSE,
+                              # years.run = 2005:2017,
+                              ymin = 0.1, wmin = 0.1, wsnow = 0.8,
+                              alpha = alpha,
+                              write.fig = TRUE,
+                              titlestr = title, show = FALSE)
             l
         }, error = function(e){
             message(sprintf("[02%d]: %s", i, e$message))
@@ -78,25 +72,25 @@ lst_NDVI = foreach(i = grps_sites, icount()) %dopar% {
 }
 
 {
-    version = 0.3
-    outfile = glue("NDVI_{version}.pdf")
-    merge_pdf(outfile, pattern = "\\[", del = TRUE)
-    # pdf_acrobat(outfile)
-}
-save(lst_NDVI, file = "pheno_NDVI_st95.rda")
-
-{
-    df_gof = map(lst_NDVI %>% rm_empty, function(l){
+    file_gof = "INPUT/gof_MOD09A1_NDVI_st166_phenofit.csv"
+    df_gof = map(lst_EVI %>% rm_empty, function(l){
         if (!is.null(l$`1`)) {
             l$`1`$fit[, GOF(y, ziter2, include.r = TRUE)]
         } else NULL
     }) %>% do.call(rbind, .) %>%
         {cbind(site = rownames(.), ID = match(rownames(.), sites), data.table(.))}
     fwrite(df_gof, file_gof)
-    # df_gof = fread(file_gof)
-    df_bad <- df_gof[NSE < 0.7, ]
+    df_gof = fread(file_gof)
+    df_bad <- df_gof[NSE < 0.5, ]
 }
 
+{
+    version = 0.4
+    outfile = glue("phenofit_MOD09A1_NDVI_{version}.pdf")
+    merge_pdf(outfile, pattern = "\\[", del = TRUE)
+    pdf_acrobat(outfile)
+}
+save(lst_NDVI, file = "INPUT/pheno_MOD09A1_NDVI_st166.rda")
 
 # merge_pdf("EVI_phenofit_test.pdf", pattern = , del = TRUE)
 # merge_pdf("EVI_phenofit_v10_st95.pdf", pattern = "\\[", del = TRUE)
@@ -107,16 +101,14 @@ save(lst_NDVI, file = "pheno_NDVI_st95.rda")
 # Sys.setenv(PATH = paste0("/opt/bin:/opt/anaconda3/bin:", Sys.getenv("PATH")))
 
 {
-    j = 1
+    j = 5
     sitename = "CZ-BK2"
     sitename = "CA-NS5"
     sitename = "CH-Dav"
     sitename = "US-KS2"
-    sitename = "DE-Seh"
-    # d = df[site == sitename & group == j, ]
-    d = df[site == sitename & group == j, .(t, y = NDVI, QC, QC_flag, w)]
+    d = df[site == sitename & group == j, ]
     # d = d[t >= "2014-01-01" & t <= "2015-01-01"]
-    nptperyear = 23
+    nptperyear = 92
     INPUT <- check_input(d$t, d$y, d$w, QC_flag = d$QC_flag,
                          nptperyear = nptperyear, south = FALSE,
                          maxgap = nptperyear/4, alpha = 0.02, wmin = 0.2)
@@ -127,7 +119,7 @@ save(lst_NDVI, file = "pheno_NDVI_st95.rda")
     brks <- season_mov(INPUT,
                        FUN = smooth_wWHIT, wFUN = wTSM,
                        maxExtendMonth = 3,
-                       lambda = lambda,
+                       lambda = 1e3,
                        r_min = 0.03,
                        .check_season = FALSE,
                        # years.run = 2004,
@@ -141,3 +133,4 @@ save(lst_NDVI, file = "pheno_NDVI_st95.rda")
     halfwin = ceiling(nptperyear/36)
     movmean(d$y, halfwin) %>% lines(col = "blue", type = "b")
 }
+

@@ -1,5 +1,5 @@
 # source("test/main_phenofit.R")
-#' @importFrom phenofit check_season curvefits get_pheno get_fitting get_GOF 
+#' @importFrom phenofit check_season curvefits get_pheno get_fitting get_GOF
 #' plot_phenofit
 #' @export
 tidy_seasons <- function(l, rtrough_max = 0.6, r_min = 0.1, ypeak_min = 1, show = TRUE) {
@@ -35,7 +35,7 @@ main_phenofit <- function(lst_brks, TRS = c(0.1, 0.2, 0.5, 0.6, 0.8),
         on.exit({ dev.off(); SumatraPDF(outfile) })
     }
 
-    lst_pheno <- foreach(l = lst_brks, i = icount()) %do% {
+    lst_pheno <- foreach(l = lst_brks, i = icount()) %dopar% {
         runningId(i)
         first.fig = i == 1
         fit <- curvefits(l$INPUT, l$brks,
@@ -73,7 +73,6 @@ main_phenofit <- function(lst_brks, TRS = c(0.1, 0.2, 0.5, 0.6, 0.8),
         l_pheno <- get_pheno(fit, TRS = TRS, IsPlot = F) # %>% map(~melt_list(., "meth"))
         l_pheno
     }
-
     lst_pheno
 }
 

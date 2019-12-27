@@ -45,7 +45,26 @@ classify_lc <- function(st){
     st[IGBP %in% c("OSH", "CSH", "SAV", "WSA", "WET"), LC := "Shrubland"]
     lc_names = c("Cropland", "Grassland", "Shrubland", "Forest", "ENF")
     st$LC %<>% factor(lc_names)
-    st    
+    st
+}
+
+melt_pheno <- function(lst) {
+    res <- foreach(l = lst, i = icount()) %do% {
+        # print(i)
+        temp <- map(l, "pheno") %>% rm_empty()
+        if (!is_empty(temp)) {
+            Ipaper::melt_list(temp, "group")
+        } else NULL
+    } %>% rm_empty()
+    Ipaper::melt_list(res, "site")
+}
+
+## 每年仅挑取最大GSL的season, GSL = TRS5.EOS - TRS5.SOS
+filter_primary <- function(df){
+    df[, GSL := TRS5.eos - TRS5.sos]
+    groups = .(type_VI, site, meth, group, origin) %>% names() %>% intersect(names(df))
+    I_sel <- df[, order(-GSL), groups]$V1 == 1 & df$GSL > 30
+    df[I_sel, ]
 }
 
 st_166 <- st_flux166
@@ -59,3 +78,4 @@ file_brks        = "INPUT/pheno_gpp_st109.rda"
 # MODIS DATA
 file_MYD11A2       <- "INPUT/fluxnet212/flux212_MYD11A2_Tnight.RDS"
 file_MYD11A2_pheno <- "INPUT/fluxnet212/flux212_MYD11A2_T_phenology_5d_10d.RDS"
+
