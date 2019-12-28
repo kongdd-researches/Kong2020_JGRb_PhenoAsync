@@ -62,9 +62,21 @@ melt_pheno <- function(lst) {
 ## 每年仅挑取最大GSL的season, GSL = TRS5.EOS - TRS5.SOS
 filter_primary <- function(df){
     df[, GSL := TRS5.eos - TRS5.sos]
-    groups = .(type_VI, site, meth, group, origin) %>% names() %>% intersect(names(df))
+    groups = .(sate, type_VI, site, meth, group, origin) %>% names() %>% intersect(names(df))
     I_sel <- df[, order(-GSL), groups]$V1 == 1 & df$GSL > 30
     df[I_sel, ]
+}
+
+stat_sd <- function(x, ...) {
+    x <- x[!is.na(x)]
+    y  <- mean(x)
+    y2 <- median(x)
+
+    ymin = quantile(x, probs = 0.1)[[1]]
+    ymax = quantile(x, probs = 0.9)[[1]]
+    sd <- sd(x)
+    # c(y = y, y2 = y2, ymin = y-sd, ymax = y+sd, sd = sd)
+    c(y = y, y2 = y2, ymin = ymin, ymax = ymax, sd = sd)
 }
 
 st_166 <- st_flux166
@@ -79,3 +91,13 @@ file_brks        = "INPUT/pheno_gpp_st109.rda"
 file_MYD11A2       <- "INPUT/fluxnet212/flux212_MYD11A2_Tnight.RDS"
 file_MYD11A2_pheno <- "INPUT/fluxnet212/flux212_MYD11A2_T_phenology_5d_10d.RDS"
 
+names_VI = c("NDVI", "EVI", "LAI") %>% set_names(., .)
+file_pheno_prim <- "INPUT/pheno_flux95_prim.rda"
+
+# update in 20191229
+metrics_select <- c(
+    "TRS1.sos", "TRS2.sos", "TRS5.sos", "DER.sos", "TRS6.sos", "TRS8.sos", "TRS9.sos", 
+    "TRS9.eos", "TRS8.eos", "TRS6.eos", "DER.eos", "TRS5.eos", "TRS2.eos", "TRS1.eos")
+nmetrics = length(metrics_select)/2
+metric_spring <- metrics_select[ 1:nmetrics]
+metric_autumn <- metrics_select[-(1:nmetrics)]

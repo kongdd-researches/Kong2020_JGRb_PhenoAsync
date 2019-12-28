@@ -258,7 +258,6 @@ temp = foreach(indexName = names_VI, i = icount()) %do% {
 方差分析
 ```{r}
 names_lc = levels(st$LC)
-
 info <- foreach(indexName = indexNames %>% set_names(., .)) %do% {
     d <- foreach(name_VI = names_VI) %do% {
         temp <- foreach(lc = names_lc) %do% {

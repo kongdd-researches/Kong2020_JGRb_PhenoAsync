@@ -1,38 +1,132 @@
 source("test/main_pkgs.R")
 
-file_pheno_full = "INPUT/pheno_flux166_full.rda"
-if (!file.exists(file_pheno_full)) {
-    # 1. combined
-    load("./INPUT/pheno_MCD09A1_EVI_st166.rda")
-    load("./INPUT/pheno_MCD09A1_NDVI_st166.rda")
-    load("./INPUT/pheno_MCD15A3H_LAI_st166.rda")
+load(file_pheno_prim)
+# 1. 准备输入数据
+df = merge(
+    melt(df_VI_prim, c("sate", "type_VI", "group", "site", "flag", "origin", "meth"), value.name = "y_sim"),
+    melt(df_gpp_prim, c("site", "flag", "origin", "meth"), value.name = "y_obs")
+    # all.x = TRUE
+)[, diff := y_sim - y_obs]
+df_gsl = merge(
+    get_gsl(df_VI_prim, value.name = "y_sim"),
+    get_gsl(df_gpp_prim, value.name = "y_obs")
+) %>% plyr::mutate(diff = y_sim - y_obs)
+df_gsl$type_VI %<>% factor(names_VI)
 
-    lst_VI = list(EVI = lst_EVI, NDVI = lst_NDVI, LAI = lst_LAI)
-    df_combined = map(lst_VI, melt_pheno) %>% Ipaper::melt_list("type_VI")
-    # Aqua >= 2003
+per_bad = sum(abs(df$diff) >= 60, na.rm = TRUE)/nrow(df)
+per_bad
 
-    # 2. Terra
-    load("./INPUT/pheno_MOD09A1_EVI_st166.rda")
-    load("./INPUT/pheno_MOD09A1_NDVI_st166.rda")
+# metric_spring <- contain(df_gpp, "sos|UD|SD|Greenup|Maturity")
+# metric_autumn <- contain(df_gpp, "eos|DD|RD|Senescence|Dormancy")
 
-    lst_VI = list(EVI = lst_EVI, NDVI = lst_NDVI)
-    df_Terra = map(lst_VI, melt_pheno) %>% Ipaper::melt_list("type_VI")
+# about 15% has a MAE  > 60
+# 2.
+# Even trough we have dealed with growing season dividing very carefully, there are still 5.5% phenological metrics has a absolute error higher than 90d. If absolute difference of $y_{sim}$ and $y_{obs}$ is high that 90d (about 3 month), it might be introduced by the error of growing season dividing. Hence, those phenological metrics are excluded when calculating the goodness performance.
 
-    # 3. Aqua
-    load("./INPUT/pheno_MYD09A1_EVI_st166.rda")
-    load("./INPUT/pheno_MYD09A1_NDVI_st166.rda")
+## 2.1 不同VI, 不同curve fitting methods的表现 （数据准备）---------------------
 
-    lst_VI = list(EVI = lst_EVI, NDVI = lst_NDVI)
-    df_Aqua = map(lst_VI, melt_pheno) %>% Ipaper::melt_list("type_VI")
+df$type_period = "others"
+df[variable %in% metric_spring, type_period := "Green-up period"]
+df[variable %in% metric_autumn, type_period := "Withering period"]
 
-    # 0. GPPobs from flux site
-    load("INPUT/pheno_gpp_st109.rda")
-    sites = names(lst_pheno)[1:95]
-    df_gpp = map(lst_pheno[sites], "doy") %>% melt_tree(c("site", "meth"))
+products     = c("Terra_EVI", "Aqua_EVI", "combined_EVI", "Terra_NDVI", "Aqua_NDVI", "combined_NDVI", "combined_LAI")
+products_fix = c("Terra_EVI", "Aqua_EVI", "Combined_EVI", "Terra_NDVI", "Aqua_NDVI", "Combined_NDVI", "Combined_LAI")
+df[, product := sprintf("%s_%s", gsub("df_", "", sate), type_VI)]
+df$product %<>% factor(products, products_fix)
 
-    save(df_combined, df_Aqua, df_Terra, df_gpp, sites, file = file_pheno_full)
-} else {
-    load(file_pheno_full)
+include.r = FALSE
+# d = df[abs(diff) < 60, as.list(GOF(y_obs,y_sim, include.r = include.r)),
+#        .(sate, type_VI, meth, site, variable, type_period)]
+d = df[abs(diff) < 60, as.list(GOF(y_obs,y_sim, include.r = include.r)),
+       .(product, meth, site, variable, type_period)]
+
+# 不同植被指数
+d_vi = df[abs(diff) < 60, as.list(GOF(y_obs,y_sim, include.r = include.r)), .(product, type_period, site)]
+# 不同Curve fitting methods
+d_meth = df[abs(diff) < 60, as.list(GOF(y_obs,y_sim, include.r = include.r)), .(meth, type_period, site)]
+names(d_vi)[1] = "x"
+names(d_meth)[1] = "x"
+
+d_comp <- list("Curve fitting methods" = d_meth, "Remote sensing vegetation indices" = d_vi) %>%
+    melt_list("type_comp")
+
+## Figure 3. methods and products ----------------------------------------------
+## 2.2 不同VI, 不同curve fitting methods的表现 （数据准备）---------------------
+{
+    source("test/main_vis.R")
+    d_fig1 = d_comp %>% melt(c("x", "type_period", "type_comp", "site"), variable.name = "index")
+    d_gof  = d_fig1[type_period != "others", as.list(stat_sd(value)),
+                .(x, type_period, type_comp, index)][, label := sprintf("%.1f±%3.1f", y, sd)]
+    d_lab = expand.grid(type_comp = unique(d_gof$type_comp), type_period = unique(d_gof$type_period))
+    d_lab$label = sprintf("(%s)", letters[1:nrow(d_lab)])
+
+    indexNames = c("RMSE", "MAE", "Bias")
+    temp <- foreach(indexName = indexNames, i = icount()) %do% {
+        runningId(i)
+        d_i     = d_fig1[type_period != "others" & index == indexName]
+        d_gof_i = d_gof[type_period != "others" & index == indexName]
+        {
+            p <- ggplot(d_i, aes(x, value))
+            p <- p +
+                stat_summary(fun.data = box_qtl, geom = "errorbar", width = 0.5) +
+                geom_boxplot2(aes(fill = x), notch = TRUE, outlier.shape = NA, coef = 0, width = 0.8,
+                              show.legend = FALSE) +
+                geom_blank(data = d_gof_i, aes(x, y = ymax + 2)) +
+                geom_text(data = d_gof_i, # [type_comp == "Curve fitting methods"]
+                          aes(x, ymax, label = label), vjust = -0.5, size = 3.5) +
+                geom_text(data = d_lab, aes(-Inf, Inf, label = label), hjust = -0.5, vjust = 1.2,
+                          size = 6, fontface = 2, family = "Times") +
+                theme(panel.grid.major = element_blank(),
+                      axis.text.x = element_text(angle = 30, hjust = 1),
+                      strip.background = element_rect(colour = "black", size = 0.1),
+                      panel.background = element_rect(fill = "white", colour = "grey", size = 0.1)) +
+                facet_grid(type_period~type_comp, scales = "free_x") +
+                labs(x = NULL, y = glue("{indexName} (days)"))
+            if (indexName == "Bias")
+                p <- p + geom_hline(yintercept =  0, color = "red", linetype = 2)
+            else
+                p <- p + geom_hline(yintercept = 20, color = "blue", linetype = 2)
+            g = ggplot_gtable(ggplot_build(p))
+            g$widths[5] %<>% multiply_by(5/7)
+            # grid.draw(g)
+
+            outfile = glue("Figure3_methods_products {indexName}.pdf")
+            write_fig(g, outfile, 10, 6)
+            # p
+        }
+    }
 }
 
-# filter for Aqua
+## Figure S4 -------------------------------------------------------------------
+{
+    library(scales)
+    d = df[abs(diff) < 60, .(DOY = mean(y_obs, na.rm = TRUE)), .(type_period, variable, site)]
+    metrics_all = c("Greenup", "TRS1.sos", "UD", "TRS2.sos", "DER.sos", "TRS5.sos", "TRS6.sos", "TRS8.sos", "SD", "Maturity",
+        "Senescence", "DD", "TRS8.eos", "TRS6.eos", "TRS5.eos", "DER.eos", "TRS2.eos", "RD", "TRS1.eos", "Dormancy")
+    metrics_all = metrics_select
+    colors_period <- hue_pal()(2) %>% rev()
+
+    d$variable %<>% factor(metrics_all)
+    d <- d[!is.na(variable), ]
+
+    stat_hline <- function(x) {
+        x <- stats::na.omit(x)
+        c(yintercept = median(x))
+    }
+
+    p <- ggplot(d, aes(variable, DOY, fill = type_period)) +
+        stat_summary(fun.data = box_qtl, geom = "errorbar", width = 0.5) +
+        geom_boxplot2(notch = FALSE, outlier.shape = NA, coef = 0, width = 0.8) +
+        theme(legend.position = c(0.02, 0.998),
+            legend.justification = c(0, 1),
+            panel.grid.major.x = element_line(size = 0.2),
+            panel.grid.major.y = element_blank(),
+            axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) +
+        geom_vline(xintercept = c(2, 5, 7, 9, 12) + 0.5, linetype = 2, size = 0.1) +
+        scale_fill_manual(values = colors_period) +
+        labs(x = NULL, y = "Day of year (DOY)")
+    outfile = glue("FigureS4_time distribution of phenological metrics.pdf")
+    write_fig(p, outfile, 9, 5)
+    # write_fig(p, gsub(".pdf", ".tif", outfile), 9, 5)
+}
+
