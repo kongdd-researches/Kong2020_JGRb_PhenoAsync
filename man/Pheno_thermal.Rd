@@ -4,7 +4,7 @@
 \alias{Pheno_thermal}
 \title{Pheno_thermal}
 \usage{
-Pheno_thermal(x, t, trs = c(5, 10), n = 3, adjust = T)
+Pheno_thermal(x, t, trs = c(5, 10), n = 3, adjust = TRUE)
 }
 \arguments{
 \item{x}{Numeric vector, temperature}
@@ -22,4 +22,8 @@ growing season is set to Jun-Aug.
 }
 \description{
 Thermal phenology based on temperature data.
+}
+\examples{
+x = rnorm(365)
+t = seq(as.Date("2010-01-01"), as.Date("2010-01-01"))
 }

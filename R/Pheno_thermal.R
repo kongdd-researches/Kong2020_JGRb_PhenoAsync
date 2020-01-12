@@ -11,22 +11,25 @@ n_continue <- function(x, trs = 0, n = 3, type = 'sos'){
     # 1th: copy the idea of YaoZhang
     if (type == 'sos'){
         con <- x >= trs
-        I <- zoo::rollapply(con, n, prod, partial=T) %>% {which(.==1)}
+        I <- zoo::rollapply(con, n, sum) %>% {which(.==n)}
         I <- I[I < pop]
-        I0 <- max(1, first(I) - half_win) # to get first data, `-half-win` is essential
+        I0 <- first(I) - half_win # to get first data, `-half-win` is essential
 
+        if (!is_empty(I0)) I0 <- max(1, I0)
         # If all T < 5deg, get LSWImax on the day of NDVImax - 1.
-        if (is.na(I0)) I0 <- pop-1
+        # if (is_empty(I0)) I0 <- pop-1
     } else if (type == 'eos') {
         con <- x <= trs
-        I <- zoo::rollapply(con, n, prod, partial=T) %>% {which(.==1)}
+        I <- zoo::rollapply(con, n, sum) %>% {which(.==n)}
         I <- I[I > pop]
-        I0 <- max(1, first(I) - half_win - 1)
+        I0 <- first(I) - half_win - 1
 
+        if (!is_empty(I0))  I0 <- max(1, I0)
         # if all T >=10deg, eos = len
-        if (is.na(I0)) I0 <- len
+        if (is_empty(I0)) I0 <- len
     }
 
+    if (is_empty(I0)) I0 <- NA_integer_
     # 2th solution: run function
     # r <- rle(con)
     # I <- c(0, cumsum(r$lengths))+1
@@ -38,51 +41,58 @@ n_continue <- function(x, trs = 0, n = 3, type = 'sos'){
 }
 
 #' Pheno_thermal
-#' 
+#'
 #' Thermal phenology based on temperature data.
-#' 
+#'
 #' @param x Numeric vector, temperature
 #' @param t Date vector, corresponding date of \code{x}
 #' @param n Integer, continous days of T >= trs[1] or T <= trs[2]
-#' @param adjust If true: 
-#' 1. high latitude boreal regions will be fixed. If \code{all(T <= trs[1])}, 
+#' @param adjust If true:
+#' 1. high latitude boreal regions will be fixed. If \code{all(T <= trs[1])},
 #' growing season is set to Jun-Aug.
 #' 2. sos >= eos will be fixed, sos = pop-1; eos = pop+1.
-Pheno_thermal <- function(x, t, trs = c(5, 10), n = 3, adjust = T){
+#'
+#' @examples
+#' x = rnorm(365)
+#' t = seq(as.Date("2010-01-01"), as.Date("2010-01-01"))
+#' @export
+Pheno_thermal <- function(x, t, trs = c(5, 10), n = 3, adjust = TRUE){
     if (length(trs) == 1) trs[2] <- trs[1]
     pop <- which.max(x) # whether T.pop or NDVI.pop?
 
     # print(trs)
     sos = n_continue(x, trs=trs[1], n, type='sos')
     eos = n_continue(x, trs=trs[2], n, type='eos')
-    
+
+    # browser()
     # 2.1 for high latitude boreal regions
-    if (adjust && all(x <= trs[1], na.rm = T)){
+    if (adjust && is.na(sos)){
         I <- which(month(t) %in% 6:8)
         sos <- first(I)
         eos <- last(I)
     }
 
     # 2.2 if sos >= eos
+    # print(list(sos, eos))
     if (adjust && sos >= eos){
         sos <- pop - 1
         eos <- pop + 1
     }
 
     # index to date
-    list(sos_date = t[sos], sos_val = x[sos], 
+    list(sos_date = t[sos], sos_val = x[sos],
          eos_date = t[eos], eos_val = x[eos])
 }
 
 check_tpheno <- function(){
     sitename <- "CA-NS1"
-    d <- df0[site == sitename]
+    d = df0[site == "CA-Man" & group == 1, ]
 
-    info <- d[, Pheno_thermal(LST_Night_1km, date, trs = c(5, 10)), .(year2)]
+    info <- d[year <= 2001 & year >= 2001, Pheno_thermal(LST_Night_1km, date, trs = c(5, 10)), .(year2)]
 
     plot(LST_Night_1km~date, d, type = "l"); grid()
     points(sos_val~sos_date, info, col = "blue")
-    points(eos_val~eos_date, info, col = "red")    
+    points(eos_val~eos_date, info, col = "red")
 }
 
 add_Head <- function(d){

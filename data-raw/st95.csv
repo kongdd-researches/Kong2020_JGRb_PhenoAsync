@@ -1,0 +1,213 @@
+site,name,lon,lat,elev,MAT,MAP,IGBP,tier1,tier2,url
+AR-SLu,San Luis,-66.4598,-33.4648,,,400,MF,2009-2011,2009-2011,http://sites.fluxdata.org/AR-SLu/
+AR-Vir,Virasoro,-56.1886,-28.2395,,,,ENF,2009-2012,2009-2012,http://sites.fluxdata.org/AR-Vir/
+AT-Neu,Neustift,11.3175,47.11667,970,6.3,852,GRA,2002-2012,2002-2012,http://sites.fluxdata.org/AT-Neu/
+AU-Ade,Adelaide River,131.1178,-13.0769,,,,WSA,2007-2009,2007-2009,http://sites.fluxdata.org/AU-Ade/
+AU-ASM,Alice Springs,133.2490,-22.2830,,,,ENF,2010-2013,2010-2014,http://sites.fluxdata.org/AU-ASM/
+AU-Cpr,Calperum,140.5891,-34.0021,,,,SAV,2010-2014,2010-2014,http://sites.fluxdata.org/AU-Cpr/
+AU-Cum,Cumberland Plain,150.72362,-33.61518,,,,EBF,2012-2014,2012-2014,http://sites.fluxdata.org/AU-Cum/
+AU-DaP,Daly River Savanna,131.3181,-14.0633,,27.25,983.78,GRA,2007-2013,2007-2013,http://sites.fluxdata.org/AU-DaP/
+AU-DaS,Daly River Cleared,131.3881,-14.1593,,27.22,975.82,SAV,2008-2014,2008-2014,http://sites.fluxdata.org/AU-DaS/
+AU-Dry,Dry River,132.3706,-15.2588,,,,SAV,2008-2014,2008-2014,http://sites.fluxdata.org/AU-Dry/
+AU-Emr,Emerald,148.4746,-23.8587,,,,GRA,2011-2013,2011-2013,http://sites.fluxdata.org/AU-Emr/
+AU-Fog,Fogg Dam,131.3072,-12.5452,,27.02,1323.69,WET,2006-2008,2006-2008,http://sites.fluxdata.org/AU-Fog/
+AU-Gin,Gingin,115.7138,-31.3764,,,,WSA,2011-2014,2011-2014,http://sites.fluxdata.org/AU-Gin/
+AU-GWW,"Great Western Woodlands, Western Australia, Australia",120.6541,-30.1913,,,,SAV,2013-2014,2013-2014,http://sites.fluxdata.org/AU-GWW/
+AU-How,Howard Springs,131.1523,-12.4943,,27.01,1449.35,WSA,2001-2014,2001-2014,http://sites.fluxdata.org/AU-How/
+AU-Lox,Loxton,140.6551,-34.4704,,,,DBF,2008-2009,2008-2009,http://sites.fluxdata.org/AU-Lox/
+AU-RDF,"Red Dirt Melon Farm, Northern Territory",132.4776,-14.5636,,,,WSA,2011-2013,2011-2013,http://sites.fluxdata.org/AU-RDF/
+AU-Rig,Riggs Creek,145.5759,-36.6499,,,,GRA,2011-2014,2011-2014,http://sites.fluxdata.org/AU-Rig/
+AU-Rob,"Robson Creek, Queensland, Australia",145.6301,-17.1175,,,,EBF,2014-2014,2014-2014,http://sites.fluxdata.org/AU-Rob/
+AU-Stp,Sturt Plains,133.3502,-17.1507,,,,GRA,2008-2014,2008-2014,http://sites.fluxdata.org/AU-Stp/
+AU-TTE,Ti Tree East,133.6400,-22.2870,,,,OSH,2012-2013,2012-2014,http://sites.fluxdata.org/AU-TTE/
+AU-Tum,Tumbarumba,148.1517,-35.6566,1200,10.72,1159.01,EBF,2001-2014,2001-2014,http://sites.fluxdata.org/AU-Tum/
+AU-Wac,Wallaby Creek,145.1878,-37.4259,,12.76,1105.59,EBF,2005-2008,2005-2008,http://sites.fluxdata.org/AU-Wac/
+AU-Whr,Whroo,145.0294,-36.6732,,,,EBF,2011-2014,2011-2014,http://sites.fluxdata.org/AU-Whr/
+AU-Wom,Wombat,144.0944,-37.4222,705,,,EBF,2010-2012,2010-2014,http://sites.fluxdata.org/AU-Wom/
+AU-Ync,Jaxa,146.2907,-34.9893,,,,GRA,2012-2014,2012-2014,http://sites.fluxdata.org/AU-Ync/
+BE-Bra,Brasschaat,4.51984,51.30761,16,9.8,750,MF,1996-2014,1996-2014,http://sites.fluxdata.org/BE-Bra/
+BE-Lon,Lonzee,4.74613,50.5516,167,10,800,CRO,2004-2014,2004-2014,http://sites.fluxdata.org/BE-Lon/
+BE-Vie,Vielsalm,5.99808,50.30496,493,7.8,1062,MF,1996-2014,1996-2014,http://sites.fluxdata.org/BE-Vie/
+BR-Sa1,Santarem-Km67-Primary Forest,-54.9588900,-2.85667,88,26.13,2074.79,EBF,,2002-2011,http://sites.fluxdata.org/BR-Sa1/
+BR-Sa3,Santarem-Km83-Logged Forest,-54.9714400,-3.01803,100,26.12,2043.77,EBF,2000-2004,2000-2004,http://sites.fluxdata.org/BR-Sa3/
+CA-Gro,"Ontario - Groundhog River, Boreal Mixedwood Forest",-82.1556,48.2167,340,1.3,831,MF,,2003-2014,http://sites.fluxdata.org/CA-Gro/
+CA-Man,Manitoba - Northern Old Black Spruce (former BOREAS Northern Study Area),-98.4808100,55.8796200,259,-3.2,520,ENF,1994-2008,1994-2008,http://sites.fluxdata.org/CA-Man/
+CA-NS1,UCI-1850 burn site,-98.4838900,55.8791700,260,-2.89,500.29,ENF,2001-2005,2001-2005,http://sites.fluxdata.org/CA-NS1/
+CA-NS2,UCI-1930 burn site,-98.5247200,55.9058300,260,-2.88,499.82,ENF,2001-2005,2001-2005,http://sites.fluxdata.org/CA-NS2/
+CA-NS3,UCI-1964 burn site,-98.3822200,55.9116700,260,-2.87,502.22,ENF,2001-2005,2001-2005,http://sites.fluxdata.org/CA-NS3/
+CA-NS4,UCI-1964 burn site wet,-98.380645,55.914370,260,-2.87,502.22,ENF,2002-2005,2002-2005,http://sites.fluxdata.org/CA-NS4/
+CA-NS5,UCI-1981 burn site,-98.4850,55.8630600,260,-2.86,500.34,ENF,2001-2005,2001-2005,http://sites.fluxdata.org/CA-NS5/
+CA-NS6,UCI-1989 burn site,-98.9644400,55.9166700,244,-3.08,495.37,OSH,2001-2005,2001-2005,http://sites.fluxdata.org/CA-NS6/
+CA-NS7,UCI-1998 burn site,-99.9483300,56.6358300,297,-3.52,483.27,OSH,2002-2005,2002-2005,http://sites.fluxdata.org/CA-NS7/
+CA-Oas,"Saskatchewan - Western Boreal, Mature Aspen",-106.1977900,53.6288900,530,0.34,428.53,DBF,,1996-2010,http://sites.fluxdata.org/CA-Oas/
+CA-Obs,"Saskatchewan - Western Boreal, Mature Black Spruce",-105.1177900,53.9871700,628.94,0.79,405.6,ENF,,1997-2010,http://sites.fluxdata.org/CA-Obs/
+CA-Qfo,"Quebec - Eastern Boreal, Mature Black Spruce",-74.3420600,49.6925,382,-0.36,962.32,ENF,2003-2010,2003-2010,http://sites.fluxdata.org/CA-Qfo/
+CA-SF1,"Saskatchewan - Western Boreal, forest burned in 1977",-105.8175700,54.4850300,536,0.4,470,ENF,2003-2006,2003-2006,http://sites.fluxdata.org/CA-SF1/
+CA-SF2,"Saskatchewan - Western Boreal, forest burned in 1989",-105.8775000,54.2539200,520,0.4,470,ENF,2001-2005,2001-2005,http://sites.fluxdata.org/CA-SF2/
+CA-SF3,"Saskatchewan - Western Boreal, forest burned in 1998",-106.0052600,54.0915600,540,0.4,470,OSH,2001-2006,2001-2006,http://sites.fluxdata.org/CA-SF3/
+CA-TP1,Ontario - Turkey Point 2002 Plantation White Pine,-80.55951944,42.66093611,265,8,1036,ENF,,2002-2014,http://sites.fluxdata.org/CA-TP1/
+CA-TP2,Ontario - Turkey Point 1989 Plantation White Pine,-80.458775,42.77441944,212,8,1036,ENF,,2002-2007,http://sites.fluxdata.org/CA-TP2/
+CA-TP3,Ontario - Turkey Point 1974 Plantation White Pine,-80.34831389,42.70681111,184,8,1036,ENF,,2002-2014,http://sites.fluxdata.org/CA-TP3/
+CA-TP4,Ontario - Turkey Point 1939 Plantation White Pine,-80.357376,42.710161,184,8,1036,ENF,,2002-2014,http://sites.fluxdata.org/CA-TP4/
+CA-TPD,Ontario - Turkey Point Mature Deciduous,-80.557731,42.635328,260,8,1036,DBF,,2012-2014,http://sites.fluxdata.org/CA-TPD/
+CG-Tch,Tchizalamou,11.65642,-4.28917,82,25.7,1150,SAV,,2006-2009,http://sites.fluxdata.org/CG-Tch/
+CH-Cha,Chamau,8.41044,47.21022,393,9.5,1136,GRA,2005-2014,2005-2014,http://sites.fluxdata.org/CH-Cha/
+CH-Dav,Davos,9.85591,46.81533,1639,2.8,1062,ENF,1997-2014,1997-2014,http://sites.fluxdata.org/CH-Dav/
+CH-Fru,Früebüel ,8.53778,47.11583,982,7.2,1651,GRA,2005-2014,2005-2014,http://sites.fluxdata.org/CH-Fru/
+CH-Lae,Laegern,8.3650,47.47808,689,8.3,1100,MF,2004-2014,2004-2014,http://sites.fluxdata.org/CH-Lae/
+CH-Oe1,Oensingen grassland,7.73194,47.28583,450,9,1100,GRA,2002-2008,2002-2008,http://sites.fluxdata.org/CH-Oe1/
+CH-Oe2,Oensingen crop,7.73433,47.28631,452,9.8,1155,CRO,2004-2014,2004-2014,http://sites.fluxdata.org/CH-Oe2/
+CN-Cha,Changbaishan,128.0958,42.4025,,2.16,663.59,MF,2003-2005,2003-2005,http://sites.fluxdata.org/CN-Cha/
+CN-Cng,Changling,123.5092,44.5934,,,,GRA,2007-2010,2007-2010,http://sites.fluxdata.org/CN-Cng/
+CN-Dan,Dangxiong,91.0664,30.4978,,-1.54,246.88,GRA,2004-2005,2004-2005,http://sites.fluxdata.org/CN-Dan/
+CN-Din,Dinghushan,112.5361,23.1733,,19.64,1618.1,EBF,2003-2005,2003-2005,http://sites.fluxdata.org/CN-Din/
+CN-Du2,Duolun_grassland (D01),116.2836,42.0467,,2.01,318.96,GRA,2006-2008,2006-2008,http://sites.fluxdata.org/CN-Du2/
+CN-Du3,Duolun Degraded Meadow,116.2809,42.0551,,,,GRA,,2009-2010,http://sites.fluxdata.org/CN-Du3/
+CN-Ha2,Haibei Shrubland,101.3269,37.6086,,,,WET,2003-2005,2003-2005,http://sites.fluxdata.org/CN-Ha2/
+CN-HaM,Haibei Alpine Tibet site,101.1800,37.3700,,,,GRA,2002-2004,2002-2004,http://sites.fluxdata.org/CN-HaM/
+CN-Qia,Qianyanzhou,115.0581,26.7414,,18.95,1466.75,ENF,2003-2005,2003-2005,http://sites.fluxdata.org/CN-Qia/
+CN-Sw2,Siziwang Grazed (SZWG),111.8971,41.7902,,,,GRA,2010-2012,2010-2012,http://sites.fluxdata.org/CN-Sw2/
+CZ-BK1,Bily Kriz forest,18.53686,49.50213,875,6.7,1316,ENF,2004-2008,2004-2014,http://sites.fluxdata.org/CZ-BK1/
+CZ-BK2,Bily Kriz grassland,18.54285,49.49443,855,6.7,1316,GRA,2004-2006,2004-2012,http://sites.fluxdata.org/CZ-BK2/
+CZ-wet,Trebon (CZECHWET),14.77035,49.02465,426,7.7,604,WET,2006-2014,2006-2014,http://sites.fluxdata.org/CZ-wet/
+DE-Akm,Anklam,13.68342,53.86617,-1,8.7,558,WET,2009-2014,2009-2014,http://sites.fluxdata.org/DE-Akm/
+DE-Geb,Gebesee,10.9143,51.1001,161.5,8.5,470,CRO,2001-2014,2001-2014,http://sites.fluxdata.org/DE-Geb/
+DE-Gri,Grillenburg,13.51259,50.95004,385,7.8,901,GRA,2004-2014,2004-2014,http://sites.fluxdata.org/DE-Gri/
+DE-Hai,Hainich,10.4530,51.07917,430,8.3,720,DBF,2000-2012,2000-2012,http://sites.fluxdata.org/DE-Hai/
+DE-Kli,Klingenberg,13.52238,50.89306,478,7.6,842,CRO,2004-2014,2004-2014,http://sites.fluxdata.org/DE-Kli/
+DE-Lkb,Lackenberg,13.30467,49.09962,1308,4,1599,ENF,2009-2013,2009-2013,http://sites.fluxdata.org/DE-Lkb/
+DE-Lnf,Leinefelde,10.3678,51.32822,451,6.96,894.6,DBF,,2002-2012,http://sites.fluxdata.org/DE-Lnf/
+DE-Obe,Oberbärenburg,13.72129,50.78666,734,5.5,996,ENF,2008-2014,2008-2014,http://sites.fluxdata.org/DE-Obe/
+DE-RuR,Rollesbroich,6.30413,50.62191,514.7,7.7,1033,GRA,2011-2014,2011-2014,http://sites.fluxdata.org/DE-RuR/
+DE-RuS,Selhausen Juelich,6.44717,50.86591,102.755,10,700,CRO,2011-2014,2011-2014,http://sites.fluxdata.org/DE-RuS/
+DE-Seh,Selhausen,6.44965,50.87062,103,9.9,693,CRO,2007-2010,2007-2010,http://sites.fluxdata.org/DE-Seh/
+DE-SfN,Schechenfilz Nord,11.3275,47.80639,590,8.6,1127,WET,2012-2014,2012-2014,http://sites.fluxdata.org/DE-SfN/
+DE-Spw,Spreewald,14.03369,51.89225,61,8.7,558,WET,2010-2014,2010-2014,http://sites.fluxdata.org/DE-Spw/
+DE-Tha,Tharandt,13.56516,50.96235,385,8.2,843,ENF,1996-2014,1996-2014,http://sites.fluxdata.org/DE-Tha/
+DE-Zrk,Zarnekow,12.88901,53.87594,0,8.7,584,WET,,2013-2014,http://sites.fluxdata.org/DE-Zrk/
+DK-Eng,Enghave,12.19175,55.69053,10,8,613,GRA,,2005-2008,http://sites.fluxdata.org/DK-Eng/
+DK-Fou,Foulum,9.58722,56.4842,51,8,,CRO,2005-2005,2005-2005,http://sites.fluxdata.org/DK-Fou/
+DK-NuF,Nuuk Fen,-51.38611,64.13083,50,-1.4,750,WET,2008-2014,2008-2014,http://sites.fluxdata.org/DK-NuF/
+DK-Sor,Soroe,11.64464,55.48587,40,8.2,660,DBF,1996-2014,1996-2014,http://sites.fluxdata.org/DK-Sor/
+DK-ZaF,Zackenberg Fen,-20.55452,74.48143,38,-9,211,WET,2008-2011,2008-2011,http://sites.fluxdata.org/DK-ZaF/
+DK-ZaH,Zackenberg Heath,-20.5503,74.47328,38,-9,211,GRA,2000-2014,2000-2014,http://sites.fluxdata.org/DK-ZaH/
+ES-Amo,Amoladeras,-2.25232,36.83361,58,,0,OSH,,2007-2012,http://sites.fluxdata.org/ES-Amo/
+ES-LgS,Laguna Seca,-2.96583,37.09794,2267,,,OSH,2007-2009,2007-2009,http://sites.fluxdata.org/ES-LgS/
+ES-LJu,Llano de los Juanes,-2.75212,36.92659,1600,16,400,OSH,,2004-2013,http://sites.fluxdata.org/ES-LJu/
+ES-Ln2,Lanjaron-Salvage logging,-3.47582,36.9695,2249,,,OSH,2009-2009,2009-2009,http://sites.fluxdata.org/ES-Ln2/
+FI-Hyy,Hyytiala,24.29477,61.84741,181,3.8,709,ENF,1996-2014,1996-2014,http://sites.fluxdata.org/FI-Hyy/
+FI-Jok,Jokioinen,23.51345,60.8986,109,4.6,627,CRO,2000-2003,2000-2003,http://sites.fluxdata.org/FI-Jok/
+FI-Let,Lettosuo,23.95952,60.64183,119,,,ENF,,2009-2012,http://sites.fluxdata.org/FI-Let/
+FI-Lom,Lompolojankka,24.20918,67.99724,274,-1.4,484,WET,2007-2009,2007-2009,http://sites.fluxdata.org/FI-Lom/
+FI-Sod,Sodankyla,26.63859,67.36239,180,-1,500,ENF,2001-2014,2001-2014,http://sites.fluxdata.org/FI-Sod/
+FR-Fon,Fontainebleau-Barbeau,2.7801,48.47636,103,10.2,720,DBF,2005-2014,2005-2014,http://sites.fluxdata.org/FR-Fon/
+FR-Gri,Grignon,1.95191,48.84422,125,12,650,CRO,2004-2013,2004-2014,http://sites.fluxdata.org/FR-Gri/
+FR-LBr,Le Bray,-0.7693,44.71711,61,13.6,900,ENF,1996-2008,1996-2008,http://sites.fluxdata.org/FR-LBr/
+FR-Pue,Puechabon,3.5957,43.7413,270,13.5,883,EBF,2000-2014,2000-2014,http://sites.fluxdata.org/FR-Pue/
+GF-Guy,Guyaflux (French Guiana),-52.92486,5.27877,48,25.7,3041,EBF,2004-2014,2004-2014,http://sites.fluxdata.org/GF-Guy/
+GH-Ank,Ankasa,-2.69421,5.26854,124,26,1900,EBF,,2011-2014,http://sites.fluxdata.org/GH-Ank/
+IT-BCi,Borgo Cioffi,14.95744,40.52375,20,18,600,CRO,2004-2014,2004-2014,http://sites.fluxdata.org/IT-BCi/
+IT-CA1,Castel d'Asso1,12.02656,42.38041,200,14,766,DBF,2011-2014,2011-2014,http://sites.fluxdata.org/IT-CA1/
+IT-CA2,Castel d'Asso2,12.02604,42.37722,200,14,766,CRO,2011-2014,2011-2014,http://sites.fluxdata.org/IT-CA2/
+IT-CA3,Castel d'Asso3,12.0222,42.3800,197,14,766,DBF,2011-2014,2011-2014,http://sites.fluxdata.org/IT-CA3/
+IT-Col,Collelongo,13.58814,41.84936,1560,6.3,1180,DBF,1996-2014,1996-2014,http://sites.fluxdata.org/IT-Col/
+IT-Cp2,Castelporziano2,12.35729,41.70427,19,15.2,805,EBF,2012-2014,2012-2014,http://sites.fluxdata.org/IT-Cp2/
+IT-Cpz,Castelporziano,12.37611,41.70525,68,15.6,780,EBF,1997-2009,1997-2009,http://sites.fluxdata.org/IT-Cpz/
+IT-Isp,Ispra ABC-IS,8.63358,45.81264,210,12.2,1300,DBF,2013-2014,2013-2014,http://sites.fluxdata.org/IT-Isp/
+IT-La2,Lavarone2,11.2853,45.9542,1350,7.2,1150,ENF,2000-2002,2000-2002,http://sites.fluxdata.org/IT-La2/
+IT-Lav,Lavarone,11.28132,45.9562,1353,7.8,1291,ENF,2003-2014,2003-2014,http://sites.fluxdata.org/IT-Lav/
+IT-MBo,Monte Bondone,11.04583,46.01468,1550,5.1,1214,GRA,2003-2013,2003-2013,http://sites.fluxdata.org/IT-MBo/
+IT-Noe,Arca di Noe - Le Prigionette,8.15117,40.60618,25,15.9,588,CSH,2004-2014,2004-2014,http://sites.fluxdata.org/IT-Noe/
+IT-PT1,Parco Ticino forest,9.06104,45.20087,60,12.7,984,DBF,2002-2004,2002-2004,http://sites.fluxdata.org/IT-PT1/
+IT-Ren,Renon,11.43369,46.58686,1730,4.7,809.3,ENF,1998-2013,1998-2013,http://sites.fluxdata.org/IT-Ren/
+IT-Ro1,Roccarespampani 1,11.93001,42.40812,235,15.15,876.2,DBF,2000-2008,2000-2008,http://sites.fluxdata.org/IT-Ro1/
+IT-Ro2,Roccarespampani 2,11.92093,42.39026,160,15.15,876.2,DBF,2002-2012,2002-2012,http://sites.fluxdata.org/IT-Ro2/
+IT-SR2,San Rossore 2,10.29095,43.73203,4,14.2,920,ENF,2013-2014,2013-2014,http://sites.fluxdata.org/IT-SR2/
+IT-SRo,San Rossore,10.28444,43.72786,6,14.2,920,ENF,1999-2012,1999-2012,http://sites.fluxdata.org/IT-SRo/
+IT-Tor,Torgnon,7.57806,45.84444,2160,2.9,920,GRA,2008-2014,2008-2014,http://sites.fluxdata.org/IT-Tor/
+JP-MBF,Moshiri Birch Forest Site,142.3186,44.3869,,,,DBF,2003-2005,2003-2005,http://sites.fluxdata.org/JP-MBF/
+JP-SMF,Seto Mixed Forest Site,137.0788,35.2617,,,,MF,2002-2006,2002-2006,http://sites.fluxdata.org/JP-SMF/
+MY-PSO,Pasoh Forest Reserve (PSO),102.3062,2.9730,,,,EBF,,2003-2009,http://sites.fluxdata.org/MY-PSO/
+NL-Hor,Horstermeer,5.0713,52.24035,2.2,10,800,GRA,2004-2011,2004-2011,http://sites.fluxdata.org/NL-Hor/
+NL-Loo,Loobos,5.74356,52.16658,25,9.8,786,ENF,1996-2013,1996-2014,http://sites.fluxdata.org/NL-Loo/
+NO-Adv,Adventdalen,15.9230,78.1860,17,,,WET,2011-2014,2011-2014,http://sites.fluxdata.org/NO-Adv/
+NO-Blv,"Bayelva, Spitsbergen",11.83109,78.92163,25,-4.5,400,SNO,2008-2009,2008-2009,http://sites.fluxdata.org/NO-Blv/
+PA-SPn,Sardinilla Plantation,-79.6346,9.31814,78,26.5,2350,DBF,,2007-2009,http://sites.fluxdata.org/PA-SPn/
+PA-SPs,Sardinilla-Pasture,-79.63143,9.31378,68,26.5,2350,GRA,,2007-2009,http://sites.fluxdata.org/PA-SPs/
+RU-Che,Cherski,161.34143,68.61304,6,-11,197,WET,2002-2005,2002-2005,http://sites.fluxdata.org/RU-Che/
+RU-Cok,Chokurdakh,147.49428,70.82914,48,-14.3,232,OSH,2003-2014,2003-2014,http://sites.fluxdata.org/RU-Cok/
+RU-Fyo,Fyodorovskoye,32.92208,56.46153,265,3.9,711,ENF,1998-2014,1998-2014,http://sites.fluxdata.org/RU-Fyo/
+RU-Ha1,Hakasia steppe,90.00215,54.72517,446,-0.07,591.87,GRA,2002-2004,2002-2004,http://sites.fluxdata.org/RU-Ha1/
+RU-Sam,Samoylov,126.4958,72.3738,,,,GRA,,2002-2014,http://sites.fluxdata.org/RU-Sam/
+RU-SkP,Yakutsk Spasskaya Pad larch,129.1680,62.2550,246,,,DNF,,2012-2014,http://sites.fluxdata.org/RU-SkP/
+RU-Tks,Tiksi,128.88782,71.59427,7,-12.7,323,GRA,,2010-2014,http://sites.fluxdata.org/RU-Tks/
+RU-Vrk,Seida/Vorkuta,62.94047,67.05468,100,-5.6,501,CSH,,2008-2008,http://sites.fluxdata.org/RU-Vrk/
+SD-Dem,Demokeya,30.4783,13.2829,500,26,320,SAV,2005-2009,2005-2009,http://sites.fluxdata.org/SD-Dem/
+SE-St1,Stordalen grassland,19.05033,68.35415,351,-0.7,303.3,WET,,2012-2014,http://sites.fluxdata.org/SE-St1/
+SN-Dhr,Dahra,-15.43222,15.40278,40,29,404,SAV,2010-2013,2010-2013,http://sites.fluxdata.org/SN-Dhr/
+US-AR1,ARM USDA UNL OSU Woodward Switchgrass 1,-99.4200,36.4267,611,,,GRA,2009-2012,2009-2012,http://sites.fluxdata.org/US-AR1/
+US-AR2,ARM USDA UNL OSU Woodward Switchgrass 2,-99.5975,36.6358,646,,,GRA,2009-2012,2009-2012,http://sites.fluxdata.org/US-AR2/
+US-ARb,ARM Southern Great Plains burn site- Lamont,-98.0402,35.5497,424,,,GRA,2005-2006,2005-2006,http://sites.fluxdata.org/US-ARb/
+US-ARc,ARM Southern Great Plains control site- Lamont,-98.0400,35.54649,424,,,GRA,2005-2006,2005-2006,http://sites.fluxdata.org/US-ARc/
+US-ARM,ARM Southern Great Plains site- Lamont,-97.4888,36.6058,314,14.76,843,CRO,2003-2012,2003-2012,http://sites.fluxdata.org/US-ARM/
+US-Atq,Atqasuk,-157.4089,70.4696,15.00,-9.7,93,WET,,2003-2008,http://sites.fluxdata.org/US-Atq/
+US-Blo,Blodgett Forest,-120.6328,38.8953,1315,11.09,1226,ENF,1997-2007,1997-2007,http://sites.fluxdata.org/US-Blo/
+US-Cop,Corral Pocket,-109.39,38.09,1520,,,GRA,2001-2007,2001-2007,http://sites.fluxdata.org/US-Cop/
+US-CRT,Curtice Walter-Berger cropland,-83.347086,41.628495,180,10.1,849,CRO,,2011-2013,http://sites.fluxdata.org/US-CRT/
+US-GBT,GLEES Brooklyn Tower,-106.2397,41.36579,3191,0.80,1200,ENF,1999-2006,1999-2006,http://sites.fluxdata.org/US-GBT/
+US-GLE,GLEES,-106.2399,41.36653,3197,0.80,1200,ENF,2004-2014,2004-2014,http://sites.fluxdata.org/US-GLE/
+US-Goo,Goodwin Creek,-89.8735,34.2547,87,15.89,1425.77,GRA,,2002-2006,http://sites.fluxdata.org/US-Goo/
+US-Ha1,Harvard Forest EMS Tower (HFR1),-72.1715,42.5378,340,6.62,1071,DBF,1991-2012,1991-2012,http://sites.fluxdata.org/US-Ha1/
+US-IB2,Fermi National Accelerator Laboratory- Batavia (Prairie site),-88.2410300,41.8406200,226.5,9.04,930.25,GRA,,2004-2011,http://sites.fluxdata.org/US-IB2/
+US-Ivo,Ivotuk,-155.7503,68.4865,568.00,-8.28,304,WET,,2004-2007,http://sites.fluxdata.org/US-Ivo/
+US-KS1,Kennedy Space Center (slash pine),-80.6709,28.4583,1.00,21.90,1266,ENF,,2002-2002,http://sites.fluxdata.org/US-KS1/
+US-KS2,Kennedy Space Center (scrub oak),-80.6715,28.6086,3.00,21.66,1294,CSH,2003-2006,2003-2006,http://sites.fluxdata.org/US-KS2/
+US-Lin,Lindcove Orange Orchard,-119.84230,36.35660,131,,,CRO,,2009-2010,http://sites.fluxdata.org/US-Lin/
+US-Los,Lost Creek,-89.9792,46.0827,480.00,4.08,828,WET,2000-2014,2000-2014,http://sites.fluxdata.org/US-Los/
+US-LWW,Little Washita Watershed,-97.9789,34.9604,365,16.09,805.12,GRA,,1997-1998,http://sites.fluxdata.org/US-LWW/
+US-Me1,Metolius - Eyerly burn,-121.5000,44.5794,896,7.88,704.61,ENF,2004-2005,2004-2005,http://sites.fluxdata.org/US-Me1/
+US-Me2,Metolius mature ponderosa pine,-121.5574,44.4523,1253,6.28,523,ENF,2002-2014,2002-2014,http://sites.fluxdata.org/US-Me2/
+US-Me3,Metolius-second young aged pine,-121.6078,44.3154,1005,7.07,719,ENF,,2004-2009,http://sites.fluxdata.org/US-Me3/
+US-Me4,Metolius-old aged ponderosa pine,-121.6224,44.4992,922,7.61,1038.82,ENF,,1996-2000,http://sites.fluxdata.org/US-Me4/
+US-Me5,Metolius-first young aged pine,-121.5667600,44.4371900,1188,6.47,590.81,ENF,,2000-2002,http://sites.fluxdata.org/US-Me5/
+US-Me6,Metolius Young Pine Burn,-121.6078,44.3232842,998,7.5949137931,494.34068966,ENF,2010-2014,2010-2014,http://sites.fluxdata.org/US-Me6/
+US-MMS,Morgan Monroe State Forest,-86.4131,39.3232,275,10.85,1032,DBF,1999-2014,1999-2014,http://sites.fluxdata.org/US-MMS/
+US-Myb,Mayberry Wetland,-121.76498,38.049861,-4,15.9,338,WET,2010-2014,2010-2014,http://sites.fluxdata.org/US-Myb/
+US-Ne1,Mead - irrigated continuous maize site,-96.4766400,41.1650600,361,10.07,790.37,CRO,2001-2013,2001-2013,http://sites.fluxdata.org/US-Ne1/
+US-Ne2,Mead - irrigated maize-soybean rotation site,-96.4701,41.1648700,362,10.08,788.89,CRO,2001-2013,2001-2013,http://sites.fluxdata.org/US-Ne2/
+US-Ne3,Mead - rainfed maize-soybean rotation site,-96.4396500,41.1796700,363,10.11,783.68,CRO,2001-2013,2001-2013,http://sites.fluxdata.org/US-Ne3/
+US-NR1,Niwot Ridge Forest (LTER NWT1),-105.5464,40.0329,3050,1.5,800,ENF,1998-2014,1998-2014,http://sites.fluxdata.org/US-NR1/
+US-Oho,Oak Openings,-83.8438,41.5545,230,10.1,849,DBF,,2004-2013,http://sites.fluxdata.org/US-Oho/
+US-ORv,Olentangy River Wetland Research Park,-83.0183,40.0201,221,11.63,1499.1,WET,2011-2011,2011-2011,http://sites.fluxdata.org/US-ORv/
+US-PFa,Park Falls/WLEF,-90.2723,45.9459,470.00,4.33,823,MF,1995-2014,1995-2014,http://sites.fluxdata.org/US-PFa/
+US-Prr,Poker Flat Research Range Black Spruce Forest,-147.48756,65.12367,210,-2,275,ENF,2010-2013,2010-2014,http://sites.fluxdata.org/US-Prr/
+US-SRC,Santa Rita Creosote,-110.8395,31.9083,950,22,330,MF,,2008-2014,http://sites.fluxdata.org/US-SRC/
+US-SRG,Santa Rita Grassland,-110.827675,31.789379,1291,17,420,GRA,2008-2014,2008-2014,http://sites.fluxdata.org/US-SRG/
+US-SRM,Santa Rita Mesquite,-110.8661,31.8214,1120,17.92,380,WSA,2004-2014,2004-2014,http://sites.fluxdata.org/US-SRM/
+US-Sta,Saratoga,-106.8024,41.3966,2069,5.1,,OSH,,2005-2009,http://sites.fluxdata.org/US-Sta/
+US-Syv,Sylvania Wilderness Area,-89.3477,46.2420,540.00,3.81,826,MF,2001-2014,2001-2014,http://sites.fluxdata.org/US-Syv/
+US-Ton,Tonzi Ranch,-120.96598,38.4316,177,15.8,559,WSA,2001-2014,2001-2014,http://sites.fluxdata.org/US-Ton/
+US-Tw1,Twitchell Wetland West Pond,-121.6469,38.1074,-9,15.5,421,WET,2012-2014,2012-2014,http://sites.fluxdata.org/US-Tw1/
+US-Tw2,Twitchell Corn,-121.6433,38.1047,-5,15.5,421,CRO,2012-2013,2012-2013,http://sites.fluxdata.org/US-Tw2/
+US-Tw3,Twitchell Alfalfa,-121.6467,38.1159,-9,15.6,421,CRO,2013-2014,2013-2014,http://sites.fluxdata.org/US-Tw3/
+US-Tw4,Twitchell East End Wetland,-121.6414,38.10298,-5,15.6,421,Wet,2013-2014,2013-2014,http://sites.fluxdata.org/US-Tw4/
+US-Twt,Twitchell Island,-121.65310,38.1087204,-7,15.6,421,CRO,2009-2014,2009-2014,http://sites.fluxdata.org/US-Twt/
+US-UMB,Univ. of Mich. Biological Station,-84.7138,45.5598,234,5.83,803,DBF,2000-2014,2000-2014,http://sites.fluxdata.org/US-UMB/
+US-UMd,UMBS Disturbance,-84.6975,45.5625,239,5.83,803,DBF,2007-2014,2007-2014,http://sites.fluxdata.org/US-UMd/
+US-Var,Vaira Ranch- Ione,-120.9507,38.4133,129,15.8,559,GRA,2000-2014,2000-2014,http://sites.fluxdata.org/US-Var/
+US-WCr,Willow Creek,-90.0799,45.8059,520.00,4.02,787,DBF,1999-2014,1999-2014,http://sites.fluxdata.org/US-WCr/
+US-Whs,Walnut Gulch Lucky Hills Shrub,-110.0522,31.7438,1370,17.6,320,OSH,2007-2014,2007-2014,http://sites.fluxdata.org/US-Whs/
+US-Wi0,Young red pine (YRP),-91.0814440,46.6187780,349,,,ENF,2002-2002,2002-2002,http://sites.fluxdata.org/US-Wi0/
+US-Wi1,Intermediate hardwood (IHW),-91.2329440,46.7304720,352,,,DBF,,2003-2003,http://sites.fluxdata.org/US-Wi1/
+US-Wi2,Intermediate red pine (IRP),-91.1528330,46.6868890,395,,,ENF,,2003-2003,http://sites.fluxdata.org/US-Wi2/
+US-Wi3,Mature hardwood (MHW),-91.0986670,46.6347220,411,,,DBF,2002-2004,2002-2004,http://sites.fluxdata.org/US-Wi3/
+US-Wi4,Mature red pine (MRP),-91.1662500,46.7393330,352,,,ENF,2002-2005,2002-2005,http://sites.fluxdata.org/US-Wi4/
+US-Wi5,Mixed young jack pine (MYJP),-91.0858060,46.6530830,353,,,ENF,,2004-2004,http://sites.fluxdata.org/US-Wi5/
+US-Wi6,Pine barrens #1 (PB1),-91.2982220,46.6248890,371,,,OSH,2002-2003,2002-2003,http://sites.fluxdata.org/US-Wi6/
+US-Wi7,Red pine clearcut (RPCC),-91.0692780,46.6491110,335,,,OSH,,2005-2005,http://sites.fluxdata.org/US-Wi7/
+US-Wi8,Young hardwood clearcut (YHW),-91.2524170,46.7223330,348,,,DBF,,2002-2002,http://sites.fluxdata.org/US-Wi8/
+US-Wi9,Young Jack pine (YJP),-91.0814440,46.6187780,350,,,ENF,2004-2005,2004-2005,http://sites.fluxdata.org/US-Wi9/
+US-Wkg,Walnut Gulch Kendall Grasslands,-109.9419,31.7365,1531,15.64,407,GRA,2004-2014,2004-2014,http://sites.fluxdata.org/US-Wkg/
+US-WPT,Winous Point North Marsh,-82.996157,41.464639,175,10.1,849,WET,,2011-2013,http://sites.fluxdata.org/US-WPT/
+ZA-Kru,Skukuza,31.4969,-25.0197,359,21.9,547,SAV,2000-2010,2000-2013,http://sites.fluxdata.org/ZA-Kru/
+ZM-Mon,Mongu,23.25278,-15.43778,1053,25,945,DBF,2000-2009,2000-2009,http://sites.fluxdata.org/ZM-Mon/

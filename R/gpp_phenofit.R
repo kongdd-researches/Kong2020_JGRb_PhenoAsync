@@ -147,7 +147,7 @@ main_divide_season <- function(df_part, info, sites_multi, sites_single,
 #' @export
 get_fitting2 <- function(l){
     x <- rbind(l$brks$whit[, .(t, y, ziter1, ziter2, meth = "whit")],
-               l$fit[, .(t, y, ziter1, ziter2, meth)])
+               l$dfit[, .(t, y, ziter1, ziter2, meth)])
     y = dcast(unique(x)[, -3], t+y~meth, value.var = "ziter2", fun=mean, na.rm = TRUE)
     y
 }

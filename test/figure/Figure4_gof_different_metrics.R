@@ -1,19 +1,59 @@
 # run after Figure3
 ## Figure4: 绘制不同阶段的差异（phenological metrics）
-st = st_212[site %in% sites, .(site, lat, IGBP, LC)] #%>% summary()
+# st = st_212[site %in% sites, .(site, lat, IGBP, LC)] #%>% summary()
+source("test/main_pkgs.R")
+
+tidy_gof <- function(d){
+    d$type_period2 <- mapvalues(d$variable, metrics_select, metrics_period)
+    d$variable %<>% factor(metrics_select)
+    d <- d[!is.na(variable), ]
+    d$type_VI %<>% factor(names_VI)
+    d %>% reorder_name(c("type_VI", "type_period", "type_period2"))
+}
 
 d = df[abs(diff) < 60 & meth %in% c("Elmore", "Beck") & product %in% c("Terra_EVI", "Terra_NDVI", "Combined_LAI"),
        as.list(GOF(y_obs,y_sim, include.r = FALSE)), .(type_VI, type_period, variable, site)]
-d$variable %<>% factor(metrics_all)
-d <- d[!is.na(variable), ]
-d$type_VI %<>% factor(names_VI)
-d_melt <- melt(d, c("type_VI", "type_period", "variable", "site"), variable.name = "index") %>%
+d %<>% tidy_gof()
+
+d_melt <- melt(d, c("type_VI", "type_period", "type_period2", "variable", "site"), variable.name = "index") %>%
     .[index %in% c("RMSE", "Bias", "MAE"),] %>% merge(st[, .(site, IGBP, LC)])
 
 d_mean <- d_melt[, median(value, na.rm = TRUE), .(variable, index, type_period, type_VI)][, .(y = mean(V1)), .(type_period, type_VI, index)]
 n <- nrow(d_mean)/2
 d_1 = d_mean[type_period == "Green-up period"] %>% cbind(x = rep(c(0.4, 10.4), each = n))
 d_2 = d_mean[type_period == "Withering period"] %>% cbind(x = rep(c(10.6, 20.4), each = n))
+
+
+# Table_1
+{
+    func_label <- function(x) {
+        x <- x[!is.na(x)]
+        y  <- mean(x)
+        y2 <- median(x)
+        sd <- sd(x)
+        label <- sprintf("%.1f±%3.1f", y2, sd) # change mean to median
+        label
+    }
+    tidy_info <- function(info){
+        varnames <- c("type_VI", "index", "type_period", "type_period2") %>%
+            intersect(colnames(info))
+        formula <- paste(varnames, collapse = "+") %>% paste0("~LC") %>%
+            as.formula()
+        dt = dcast(info, formula, value.var = "label")
+        if ("type_period2" %in% varnames)
+            dt$type_period2 %<>% factor(unique(metrics_period))
+        dt$index %<>% factor(rev(indexNames))
+
+        vars_order = paste(varnames, collapse = ", ")
+        eval(parse(text = sprintf("dt[order(%s)]", vars_order)))
+    }
+    info_6 <- d_melt[, .(label = func_label(value)), .(LC, type_VI, type_period, type_period2, index)]
+    info_2  <- d_melt[, .(label = func_label(value)), .(LC, type_VI, type_period, index)]
+    info = listk(info_6, info_2) %>% map(tidy_info)
+    write_list2xlsx(info, "Table3. GOF of different period and different LCs2.xlsx")
+
+    # Table 2: 计算multiple annual VIs
+}
 
 if (FALSE){
     p2 <- ggplot(d_melt[type_period != "others"], aes(variable, value, fill = type_period)) +

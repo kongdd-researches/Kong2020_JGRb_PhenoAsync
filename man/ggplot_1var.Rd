@@ -10,7 +10,7 @@ ggplot_1var(
   varname = "APAR",
   color = "red",
   alpha = 0.3,
-  span = 0.75,
+  span = 0.7,
   ylab = NULL,
   labels = waiver()
 )

@@ -18,3 +18,4 @@ suppressWarnings({
     environment(load_all) <- environment(devtools::build)
     assignInNamespace("load_all", load_all, ns="devtools")  
 })
+

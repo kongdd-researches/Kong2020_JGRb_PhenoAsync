@@ -5,7 +5,7 @@
 \title{cal_LSWImax
 works for site}
 \usage{
-LUE_LSWImax(x)
+LUE_LSWImax(x, by = c("site", "group", "year2"))
 }
 \description{
 cal_LSWImax

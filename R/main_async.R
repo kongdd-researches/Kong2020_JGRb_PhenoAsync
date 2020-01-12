@@ -154,6 +154,8 @@ figureNo <- 0
 
 # global variables:
 # st, info_async
+#' check_sensitivity
+#' 
 #' @examples
 #' check_sensitivity(x, predictors)
 check_sensitivity <- function(x, predictors){
@@ -220,6 +222,7 @@ check_sensitivity <- function(x, predictors){
 # plot(pls1_one, "observations")
 # l <- lm(GPP ~ Rn + VPD + Prcp + T + EVI, x) #%>% plot()
 
+#' @rdname check_sensitivity
 #' @examples
 #' predictors <- c("EVI", "Rs", "TA", "Prcp", "VPD", "APAR")#[-6]#[-c(1, 2)]
 #' check_sensitivity(x, predictors)

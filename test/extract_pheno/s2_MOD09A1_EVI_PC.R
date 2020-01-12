@@ -1,24 +1,24 @@
 source("test/main_pkgs.R")
 
 # FOR MOD09A1
-# // 620-670nm, RED, sur_refl_b01
-# // 841-876nm, NIR, sur_refl_b02
-# // 459-479nm, BLUE, sur_refl_b03
-# // 1628-1652nm, SWIR, sur_refl_b06
 satellite = "MOD09A1"
 df = tidy_modis_09A1(satellite)
+
+df[, dhour2 := solartime::computeDayLength(date, lat)]
+df[, dhour_norm := (dhour2/max(dhour2))^2, .(site)]
+df[, EVI_pc := dhour_norm * EVI] # Bauerlea
 
 ## 2. phenofit -----------------------------------------------------------------
 
 sites = st_166$site %>% set_names(., .)
 grps_sites = sites %>% set_names(seq_along(.), .)
-grps_sites = df_bad[, set_names(ID, site)]
+# grps_sites = df_bad[, set_names(ID, site)]
 
 lambda0    = 15
 nptperyear = 46
 
 InitCluster(12)
-lst_EVI = foreach(i = grps_sites, icount()) %dopar% {
+lst_EVI_pc = foreach(i = grps_sites, icount()) %dopar% {
     runningId(i)
     sitename = sites[i]
     # brks = lst_brks[[sitename]]$brks
@@ -27,7 +27,7 @@ lst_EVI = foreach(i = grps_sites, icount()) %dopar% {
     l_site = foreach(j = grps, icount()) %do% {
         title = sprintf("[%02d] %s_%d", i, sitename, j)
         # wmin  = 0.5
-        d = df[site == sitename & group == j, .(t, y = EVI, QC, QC_flag, w)]
+        d = df[site == sitename & group == j, .(t, y = EVI_pc, QC, QC_flag, w)]
         south = st_212[site == sitename, lat] < 0
         # wmid = ifelse(sitename %in% c("DE-Obe", "US-Me2"), 0.1, 0.5)
         # d[, c("QC_flag", "w") := qc_summary(QC, wmin = 0.1, wmid = wmid)]
@@ -74,26 +74,26 @@ lst_EVI = foreach(i = grps_sites, icount()) %dopar% {
 
 # 133: NO-Blv, SNO
 # 168: US-Me1
-{
-    file_gof = "INPUT/gof_MOD09A1_EVI_st166_phenofit.csv"
-    df_gof = map(lst_EVI %>% rm_empty, function(l){
-        if (!is.null(l$`1`)) {
-            l$`1`$fit[, GOF(y, ziter2, include.r = TRUE)]
-        } else NULL
-    }) %>% do.call(rbind, .) %>%
-        {cbind(site = rownames(.), ID = match(rownames(.), sites), data.table(.))}
-    fwrite(df_gof, file_gof)
-    df_gof = fread(file_gof)
-    df_bad <- df_gof[NSE < 0.5, ]
-}
+# {
+#     file_gof = "INPUT/gof_MOD09A1_EVI_st166_phenofit.csv"
+#     df_gof = map(lst_EVI %>% rm_empty, function(l){
+#         if (!is.null(l$`1`)) {
+#             l$`1`$fit[, GOF(y, ziter2, include.r = TRUE)]
+#         } else NULL
+#     }) %>% do.call(rbind, .) %>%
+#         {cbind(site = rownames(.), ID = match(rownames(.), sites), data.table(.))}
+#     fwrite(df_gof, file_gof)
+#     df_gof = fread(file_gof)
+#     df_bad <- df_gof[NSE < 0.5, ]
+# }
 
 {
     version = 0.5
-    outfile = glue("phenofit_MOD09A1_EVI_{version}.pdf")
+    outfile = glue("Figures_phenofit/phenofit_MOD09A1_EVI_PC_{version}.pdf")
     merge_pdf(outfile, pattern = "\\[", del = FALSE)
     pdf_acrobat(outfile)
 }
-save(lst_EVI, file = "pheno_MOD09A1_EVI_st166.rda")
+save(lst_EVI_pc, file = "INPUT/pheno_MOD09A1_EVI_PC_st166.rda")
 
 # merge_pdf("EVI_phenofit_test.pdf", pattern = , del = TRUE)
 # merge_pdf("EVI_phenofit_v10_st95.pdf", pattern = "\\[", del = TRUE)
@@ -103,36 +103,36 @@ save(lst_EVI, file = "pheno_MOD09A1_EVI_st166.rda")
 # d_gpp = df_gpp[site == sitename, .(site, t = date, GPP_DT, GPP_NT)]
 # Sys.setenv(PATH = paste0("/opt/bin:/opt/anaconda3/bin:", Sys.getenv("PATH")))
 
-{
-    j = 5
-    sitename = "CZ-BK2"
-    sitename = "CA-NS5"
-    sitename = "CH-Dav"
-    sitename = "US-KS2"
-    d = df[site == sitename & group == j, ]
-    # d = d[t >= "2014-01-01" & t <= "2015-01-01"]
-    nptperyear = 92
-    INPUT <- check_input(d$t, d$y, d$w, QC_flag = d$QC_flag,
-                         nptperyear = nptperyear, south = FALSE,
-                         maxgap = nptperyear/4, alpha = 0.02, wmin = 0.2)
-    # plot_input(INPUT, show.y0 = TRUE)
-    lg_lambdas = seq(1, 4, 0.1)
-    lambda <- v_curve(INPUT, lg_lambdas)$lambda
-
-    brks <- season_mov(INPUT,
-                       FUN = smooth_wWHIT, wFUN = wTSM,
-                       maxExtendMonth = 3,
-                       lambda = 1e3,
-                       r_min = 0.03,
-                       .check_season = FALSE,
-                       # years.run = 2004,
-                       IsPlot = FALSE, IsPlot.OnlyBad = FALSE, print = FALSE)
-
-    write_fig(expression(plot_season(INPUT, brks)), "check_season.pdf", 10, 4)
-}
-
-{
-    d$y[1:200] %>% plot(type = "b")
-    halfwin = ceiling(nptperyear/36)
-    movmean(d$y, halfwin) %>% lines(col = "blue", type = "b")
-}
+# {
+#     j = 5
+#     sitename = "CZ-BK2"
+#     sitename = "CA-NS5"
+#     sitename = "CH-Dav"
+#     sitename = "US-KS2"
+#     d = df[site == sitename & group == j, ]
+#     # d = d[t >= "2014-01-01" & t <= "2015-01-01"]
+#     nptperyear = 92
+#     INPUT <- check_input(d$t, d$y, d$w, QC_flag = d$QC_flag,
+#                          nptperyear = nptperyear, south = FALSE,
+#                          maxgap = nptperyear/4, alpha = 0.02, wmin = 0.2)
+#     # plot_input(INPUT, show.y0 = TRUE)
+#     lg_lambdas = seq(1, 4, 0.1)
+#     lambda <- v_curve(INPUT, lg_lambdas)$lambda
+#
+#     brks <- season_mov(INPUT,
+#                        FUN = smooth_wWHIT, wFUN = wTSM,
+#                        maxExtendMonth = 3,
+#                        lambda = 1e3,
+#                        r_min = 0.03,
+#                        .check_season = FALSE,
+#                        # years.run = 2004,
+#                        IsPlot = FALSE, IsPlot.OnlyBad = FALSE, print = FALSE)
+#
+#     write_fig(expression(plot_season(INPUT, brks)), "check_season.pdf", 10, 4)
+# }
+#
+# {
+#     d$y[1:200] %>% plot(type = "b")
+#     halfwin = ceiling(nptperyear/36)
+#     movmean(d$y, halfwin) %>% lines(col = "blue", type = "b")
+# }

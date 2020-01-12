@@ -4,9 +4,10 @@ file = "INPUT/fluxnet/st212_MCD15A3H_0m_buffer.csv"
 df = fread(file, drop = 1:2) %>%
     .[date <= "2015-12-31", .(site, group, t = date, y = Lai/10, QC = FparExtra_QC, FparLai_QC)] # , FparExtra_QC
 df[, c("QC_flag", "w") := qc_FparLai(QC)]
-df[, w2 := qc_5l(FparLai_QC)]
+df[, w2 := qc_5l(FparLai_QC)] # w2: deprecated
 df$t %<>% ymd()
 # d = df[site == "AR-SLu" & group == 5,]
+saveRDS(df, "INPUT/st212_MCD15A3H_9grids.RDS")
 
 load(file_brks)
 # all 166 sites

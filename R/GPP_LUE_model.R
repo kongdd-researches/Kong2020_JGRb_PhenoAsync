@@ -13,24 +13,31 @@ addPredictor_tn <- function(x){
 }
 
 aggregate_dn <- function(data, nday = 16, st){
-    vars_com <- c("site", "date", "year", "doy", "d16", "d8")
+    byname   <- c("site", "group", "year", paste0("d", nday)) %>% intersect(colnames(data))
+    vars_com <- c(byname, "date", "doy", "d16", "d8") %>% unique()
     vars <- setdiff(colnames(data), vars_com)
 
     nptperyear <- ceiling(365/nday)
-    byname     <- c("site", "year", paste0("d", nday))
 
     res <- data[, lapply(.SD, mean, na.rm = T), byname, .SDcols = vars]
-    colnames(res)[3] <- "dn"
-    # cal Tscalar at here
-    res <- merge(st[, .(site, IGBP, lat)], res, by = "site")
-    res[, Tscalar := cal_Tscalar(TA, IGBP), .(IGBP)]
+    I_dn = colnames(res) %>% grep("d\\d", .)
+    colnames(res)[I_dn] <- "dn"
 
-    res <- plyr::mutate(res,
+    res %<>% plyr::mutate(
         date  = as.Date(sprintf("%d%03d", year, (dn - 1)*nday + 1), "%Y%j"),
-        year2 = as.integer(year + ((month(date) >= 7) - 1)*(lat < 0)),
-        ydn   = (year - 2000)*nptperyear + dn) %>% #dn ID order
-        ddply(.(site), addPredictor_tn) %>%
-        reorder_name(c("site", "IGBP", "date", "year", "year2", "d16", "d8", "ydn"))
+        # year2 = as.integer(year + ((month(date) >= 7) - 1)*(lat < 0)),
+        ydn   = (year - 2000)*nptperyear + dn)
+    # cal Tscalar at here
+    if (!missing(st)) {
+        res <- merge(st[, .(site, IGBP, lat)], res, by = "site")
+        res[, Tscalar := LUE_Tscalar(TA, IGBP), .(IGBP)]
+
+        res <- plyr::mutate(res,
+                            year2 = as.integer(year + ((month(date) >= 7) - 1)*(lat < 0))
+                            ) %>% #dn ID order
+            ddply(.(site), addPredictor_tn) %>%
+            reorder_name(c("site", "IGBP", "date", "year", "year2", "d16", "d8", "ydn"))
+    }
     res
 }
 
@@ -53,15 +60,16 @@ nth_max <- function(x, n = 2){
 
 #' cal_LSWImax
 #' works for site
-LUE_LSWImax <- function(x){
+LUE_LSWImax <- function(x, by = c("site", "group", "year2")){
+    by  <- intersect(by, colnames(x))
+    by2 <- setdiff(by, "year2")
     site = x$site[1]
-
     tryCatch({
         x <- x[date >= sos_date & date <= eos_date]
-        res <- x[QC_flag == "good", .(LSWI_max = max(LSWI)), .(site, year2)]
+        res <- x[QC_flag == "good", .(LSWI_max = max(LSWI)), by]
 
-        res[, LSWI_max := zoo::rollapply(LSWI_max, 5, nth_max, partial = T),
-             .(site)] # 5 year second maximum moving
+        res[, LSWI_max := zoo::rollapply(LSWI_max, 5, nth_max, n = 3, partial = TRUE),
+             by2] # 5 year second maximum moving
         return(res)
     }, error = function(e){
         message(sprintf("[%s] %s", site, e$message))
@@ -99,11 +107,16 @@ LUE_Tscalar <- function(T, IGBP){
 #' @rdname LUE
 #' @export
 LUE_Wscalar <- function(df, pheno_T) {
+    sites_ENF <- st[IGBP == "ENF"]$site
+    # site %in% sites_ENF
+
     df1 <- merge(df[, .(site, group, date, year2, LSWI, QC_flag)],
         pheno_T[, .(site, group, year2, sos_date, eos_date)], by = c("site", "group", "year2"))
     # d <- df1[site == sitename]
+    # browser()
+    d_LSWImax <- ddply(df1, .(site, group), LUE_LSWImax)
+    # browser()
 
-    d_LSWImax <- ddply(df1, .(site, group), cal_LSWImax)
     d_LSWImax[LSWI_max < 0.1, LSWI_max := 0.1]
 
     res <- merge(df, d_LSWImax, by = c("site", "group", "year2"), all.x = TRUE) %>%
@@ -113,7 +126,7 @@ LUE_Wscalar <- function(df, pheno_T) {
 
 # aggregate daily to 8-day, 16-day
 process_gpp <- function(df_gpp, st_212){
-    data <- df_gpp[, .(site, date, Rs = SW_IN, TA, TS, SWC, VPD, Prcp = P,
+    data <- df_gpp[, .(site, date, dhour, Rs = SW_IN, LE, LE_CORR, TA, TS, Tair_day, SWC, VPD, Prcp = P,
                       GPP_NT, GPP_DT, GPP = rowMeans(cbind(GPP_NT, GPP_DT), na.rm = TRUE))] %>%
         add_dn(days = c(8, 16))
 

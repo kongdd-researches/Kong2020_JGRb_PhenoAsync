@@ -1,5 +1,11 @@
 source("test/main_pkgs.R")
 
+# metrics_all = c("Greenup", "TRS1.sos", "UD", "TRS2.sos", "DER.sos", "TRS5.sos", "TRS6.sos", "TRS8.sos", "SD", "Maturity",
+#                 "Senescence", "DD", "TRS8.eos", "TRS6.eos", "TRS5.eos", "DER.eos", "TRS2.eos", "RD", "TRS1.eos", "Dormancy")
+metrics_all = metrics_select
+indexNames  = c("RMSE", "MAE", "Bias")
+
+## load phenology data
 load(file_pheno_prim)
 # 1. 准备输入数据
 df = merge(
@@ -7,6 +13,16 @@ df = merge(
     melt(df_gpp_prim, c("site", "flag", "origin", "meth"), value.name = "y_obs")
     # all.x = TRUE
 )[, diff := y_sim - y_obs]
+df$type_period = "others"
+df[variable %in% metric_spring, type_period := "Green-up period"]
+df[variable %in% metric_autumn, type_period := "Withering period"]
+
+products     = c("Terra_EVI", "Aqua_EVI", "combined_EVI", "Terra_NDVI", "Aqua_NDVI", "combined_NDVI", "combined_LAI")
+products_fix = c("Terra_EVI", "Aqua_EVI", "Combined_EVI", "Terra_NDVI", "Aqua_NDVI", "Combined_NDVI", "Combined_LAI")
+df[, product := sprintf("%s_%s", gsub("df_", "", sate), type_VI)]
+df$product %<>% factor(products, products_fix)
+
+
 df_gsl = merge(
     get_gsl(df_VI_prim, value.name = "y_sim"),
     get_gsl(df_gpp_prim, value.name = "y_obs")
@@ -24,15 +40,6 @@ per_bad
 # Even trough we have dealed with growing season dividing very carefully, there are still 5.5% phenological metrics has a absolute error higher than 90d. If absolute difference of $y_{sim}$ and $y_{obs}$ is high that 90d (about 3 month), it might be introduced by the error of growing season dividing. Hence, those phenological metrics are excluded when calculating the goodness performance.
 
 ## 2.1 不同VI, 不同curve fitting methods的表现 （数据准备）---------------------
-
-df$type_period = "others"
-df[variable %in% metric_spring, type_period := "Green-up period"]
-df[variable %in% metric_autumn, type_period := "Withering period"]
-
-products     = c("Terra_EVI", "Aqua_EVI", "combined_EVI", "Terra_NDVI", "Aqua_NDVI", "combined_NDVI", "combined_LAI")
-products_fix = c("Terra_EVI", "Aqua_EVI", "Combined_EVI", "Terra_NDVI", "Aqua_NDVI", "Combined_NDVI", "Combined_LAI")
-df[, product := sprintf("%s_%s", gsub("df_", "", sate), type_VI)]
-df$product %<>% factor(products, products_fix)
 
 include.r = FALSE
 # d = df[abs(diff) < 60, as.list(GOF(y_obs,y_sim, include.r = include.r)),
@@ -60,7 +67,6 @@ d_comp <- list("Curve fitting methods" = d_meth, "Remote sensing vegetation indi
     d_lab = expand.grid(type_comp = unique(d_gof$type_comp), type_period = unique(d_gof$type_period))
     d_lab$label = sprintf("(%s)", letters[1:nrow(d_lab)])
 
-    indexNames = c("RMSE", "MAE", "Bias")
     temp <- foreach(indexName = indexNames, i = icount()) %do% {
         runningId(i)
         d_i     = d_fig1[type_period != "others" & index == indexName]
@@ -101,9 +107,6 @@ d_comp <- list("Curve fitting methods" = d_meth, "Remote sensing vegetation indi
 {
     library(scales)
     d = df[abs(diff) < 60, .(DOY = mean(y_obs, na.rm = TRUE)), .(type_period, variable, site)]
-    metrics_all = c("Greenup", "TRS1.sos", "UD", "TRS2.sos", "DER.sos", "TRS5.sos", "TRS6.sos", "TRS8.sos", "SD", "Maturity",
-        "Senescence", "DD", "TRS8.eos", "TRS6.eos", "TRS5.eos", "DER.eos", "TRS2.eos", "RD", "TRS1.eos", "Dormancy")
-    metrics_all = metrics_select
     colors_period <- hue_pal()(2) %>% rev()
 
     d$variable %<>% factor(metrics_all)

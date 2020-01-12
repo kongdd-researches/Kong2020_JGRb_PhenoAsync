@@ -1,5 +1,5 @@
 # source("test/main_pkgs.R")
-suppressWarnings({
+suppressMessages({
     library(reshape2)
 
     library(plyr)
@@ -17,12 +17,15 @@ suppressWarnings({
 
     library(ggrepel)
     library(Cairo)
+    library(solartime)
+    
     ## load data
     library(sp2)
     library(foreach)
     library(iterators)
     library(glue)
     library(rfluxnet)
+    library(ppcor)
 })
 
 # IGBP  N
@@ -98,6 +101,11 @@ file_pheno_prim <- "INPUT/pheno_flux95_prim.rda"
 metrics_select <- c(
     "TRS1.sos", "TRS2.sos", "TRS5.sos", "DER.sos", "TRS6.sos", "TRS8.sos", "TRS9.sos", 
     "TRS9.eos", "TRS8.eos", "TRS6.eos", "DER.eos", "TRS5.eos", "TRS2.eos", "TRS1.eos")
+
+metrics_period <- c(
+    "Starting", "Starting", "Fast-growing", "Fast-growing", "Fast-growing", "Maturity", "Maturity",
+    "Senescence", "Senescence", "Fast-senescence", "Fast-senescence", "Fast-senescence", "Ending", "Ending")
+
 nmetrics = length(metrics_select)/2
 metric_spring <- metrics_select[ 1:nmetrics]
 metric_autumn <- metrics_select[-(1:nmetrics)]
