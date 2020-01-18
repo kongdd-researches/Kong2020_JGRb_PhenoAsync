@@ -93,7 +93,8 @@ d = df_obs[site == "AT-Neu"]
 
 vars_comm <- c("site", "date", "IGBP", "year", "year2", "nydn", "lat", "dn", "t", "LC", "QC_flag", "group")
 vars_aggr <- colnames(df_obs) %>% setdiff(vars_comm)
-df_d8 = df_obs[, lapply(.SD, mean, na.rm = TRUE), .(site, dn, LC), .SDcols = vars_aggr]
+df_d8 = df_obs[, lapply(.SD, mean, na.rm = TRUE), .(site, dn, LC), .SDcols = vars_aggr] %>%
+  plyr::mutate(dn = 8*dn + 1)
 # d <- df_d8[LC == "Grassland"]
 
 library(grid)
@@ -111,11 +112,13 @@ library(gtable)
   }
   fontsize <- 16
   left   <- textGrob(expression(GPP[obs]), gp=gpar(fontsize=fontsize, fontface = "bold"), rot = 90)
-  bottom <- textGrob(expression(bold("Time (the i-th 8-day)")), gp=gpar(fontsize=fontsize, fontface = "bold", fontfamily = "Times"))
+  # bottom <- textGrob(expression(bold("Time (the" ~ i^{th} ~ "8-day)")), gp=gpar(fontsize=fontsize, fontface = "bold", fontfamily = "Times"))
+  bottom <- textGrob(expression(bold("DOY (day of year)")), gp=gpar(fontsize=fontsize, fontface = "bold", fontfamily = "Times"))
   p = arrangeGrob(grobs = gs, left=NULL, bottom=bottom, ncol=1)
-  outfile = "Figure5_behind_reason_dhour2_linear.pdf"
-  write_fig(p, outfile, 18, 10, show = TRUE)
-  pdf_SumatraPDF(outfile)
+  outfile = "Figure7_behind_reason_dhour2_linear.pdf"
+  scale = 0.95
+  write_fig(p, outfile, 17*scale, 9*scale, show = TRUE)
+  # pdf_SumatraPDF(outfile)
 }
 
 

@@ -23,7 +23,7 @@ lst_EVI = foreach(i = grps_sites, icount()) %dopar% {
     sitename = sites[i]
     # brks = lst_brks[[sitename]]$brks
 
-    grps = 1:9 %>% set_names(., .)
+    grps = 5 %>% set_names(., .)
     l_site = foreach(j = grps, icount()) %do% {
         title = sprintf("[%02d] %s_%d", i, sitename, j)
         # wmin  = 0.5
@@ -64,6 +64,7 @@ lst_EVI = foreach(i = grps_sites, icount()) %dopar% {
                               verbose = FALSE,
                               ymin = 0.1, wmin = 0.1, wsnow = 0.8,
                               write.fig = TRUE,
+                              use.y0 = TRUE, ylab = "NDVI",
                               titlestr = title, show = FALSE)
             l
         }, error = function(e){

@@ -6,21 +6,26 @@ metrics_all = metrics_select
 indexNames  = c("RMSE", "MAE", "Bias")
 
 ## load phenology data
-load(file_pheno_prim)
 # 1. 准备输入数据
-df = merge(
-    melt(df_VI_prim, c("sate", "type_VI", "group", "site", "flag", "origin", "meth"), value.name = "y_sim"),
-    melt(df_gpp_prim, c("site", "flag", "origin", "meth"), value.name = "y_obs")
-    # all.x = TRUE
-)[, diff := y_sim - y_obs]
-df$type_period = "others"
-df[variable %in% metric_spring, type_period := "Green-up period"]
-df[variable %in% metric_autumn, type_period := "Withering period"]
+{
+    load(file_pheno_prim); rm(st)
+    x = melt(df_VI_prim, c("sate", "type_VI", "group", "site", "flag", "origin", "meth"),
+             value.name = "y_sim")
+    y = melt(df_gpp_prim, c("site", "flag", "origin", "meth"), value.name = "y_obs")
+    # x$flag %<>% as.character()
+    # y$flag %<>% as.character()
+    df = merge(x, y, by = c("site", "flag", "origin", "meth", "variable")
+        # all.x = TRUE
+    )[, diff := y_sim - y_obs]
+    df$type_period = "others"
+    df[variable %in% metric_spring, type_period := "Green-up season"]
+    df[variable %in% metric_autumn, type_period := "Withering season"]
 
-products     = c("Terra_EVI", "Aqua_EVI", "combined_EVI", "Terra_NDVI", "Aqua_NDVI", "combined_NDVI", "combined_LAI")
-products_fix = c("Terra_EVI", "Aqua_EVI", "Combined_EVI", "Terra_NDVI", "Aqua_NDVI", "Combined_NDVI", "Combined_LAI")
-df[, product := sprintf("%s_%s", gsub("df_", "", sate), type_VI)]
-df$product %<>% factor(products, products_fix)
+    products     = c("Terra_EVI", "Aqua_EVI", "combined_EVI", "Terra_NDVI", "Aqua_NDVI", "combined_NDVI", "combined_LAI")
+    products_fix = c("Terra_EVI", "Aqua_EVI", "Combined_EVI", "Terra_NDVI", "Aqua_NDVI", "Combined_NDVI", "Combined_LAI")
+    df[, product := sprintf("%s_%s", gsub("df_", "", sate), type_VI)]
+    df$product %<>% factor(products, products_fix)
+}
 
 
 df_gsl = merge(
@@ -54,7 +59,8 @@ d_meth = df[abs(diff) < 60, as.list(GOF(y_obs,y_sim, include.r = include.r)), .(
 names(d_vi)[1] = "x"
 names(d_meth)[1] = "x"
 
-d_comp <- list("Curve fitting methods" = d_meth, "Remote sensing vegetation indices" = d_vi) %>%
+d_comp <- list("Curve fitting methods" = d_meth,
+               "Remote sensing vegetation indices" = d_vi[!(x %in% c("Combined_LAI")) & !is.na(x), ]) %>%
     melt_list("type_comp")
 
 ## Figure 3. methods and products ----------------------------------------------
@@ -77,7 +83,7 @@ d_comp <- list("Curve fitting methods" = d_meth, "Remote sensing vegetation indi
                 stat_summary(fun.data = box_qtl, geom = "errorbar", width = 0.5) +
                 geom_boxplot2(aes(fill = x), notch = TRUE, outlier.shape = NA, coef = 0, width = 0.8,
                               show.legend = FALSE) +
-                geom_blank(data = d_gof_i, aes(x, y = ymax + 2)) +
+                geom_blank(data = d_gof_i, aes(x, y = ymax + 2.4)) +
                 geom_text(data = d_gof_i, # [type_comp == "Curve fitting methods"]
                           aes(x, ymax, label = label), vjust = -0.5, size = 3.5) +
                 geom_text(data = d_lab, aes(-Inf, Inf, label = label), hjust = -0.5, vjust = 1.2,
@@ -89,14 +95,14 @@ d_comp <- list("Curve fitting methods" = d_meth, "Remote sensing vegetation indi
                 facet_grid(type_period~type_comp, scales = "free_x") +
                 labs(x = NULL, y = glue("{indexName} (days)"))
             if (indexName == "Bias")
-                p <- p + geom_hline(yintercept =  0, color = "red", linetype = 2)
+                p <- p + geom_hline(yintercept =  0, color = "blue", linetype = 2)
             else
-                p <- p + geom_hline(yintercept = 20, color = "blue", linetype = 2)
+                p <- p + geom_hline(yintercept = 20, color = "red", linetype = 2)
             g = ggplot_gtable(ggplot_build(p))
-            g$widths[5] %<>% multiply_by(5/7)
+            g$widths[5] %<>% multiply_by(4/6) # 5/7
             # grid.draw(g)
 
-            outfile = glue("Figure3_methods_products {indexName}.pdf")
+            outfile = glue("Figure3_methods_products {indexName}.pdf") #pdf
             write_fig(g, outfile, 10, 6)
             # p
         }

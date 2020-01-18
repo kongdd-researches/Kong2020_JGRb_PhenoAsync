@@ -59,6 +59,7 @@ melt_pheno <- function(lst) {
             Ipaper::melt_list(temp, "group")
         } else NULL
     } %>% rm_empty()
+    # browser()
     Ipaper::melt_list(res, "site")
 }
 

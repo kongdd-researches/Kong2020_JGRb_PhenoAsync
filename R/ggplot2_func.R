@@ -154,7 +154,7 @@ plot_LUE_multiAxis <- function(x, label, span = 0.75) {
 
     p_APAR <- ggplot_1var(x, "APAR", "red", span = span)
     p_Rs   <- ggplot_1var(x, "PAR"  , "purple", span = span) + 
-        labs(y = expression("PAR (W " * m^-2 * d^-1 * ")"))
+        labs(y = expression("PAR (W " * m^-2 * ")")) # * d^-1 
     p_dhour <- ggplot_1var(x, "dhour2"  , "blue", span = span) + 
         labs(y = "dayl (hour)")
     p_TS   <- ggplot_1var(x, "TS"  , "darkgoldenrod2", span = span) + # soil
@@ -164,7 +164,7 @@ plot_LUE_multiAxis <- function(x, label, span = 0.75) {
     p_VPD  <- ggplot_1var(x, "VPD_sqrt" , "darkorange1", span = span) + 
         labs(y = expression(sqrt(VPD) * " (" * kPa ^ 0.5 * ")"))
     p_prcp <- ggplot_1var(x, "Prcp", "skyblue", labels = label_right(len = 3), span = span) + 
-        labs(y = expression(Prcp * " ("* mm^-1 * ")"))
+        labs(y = expression(Prcp * " ("* mm ~ d^-1 * ")"))
     p_epsilon_eco <- ggplot_1var(x, "epsilon_eco", "darkorange1", span = span)
     p_epsilon_chl <- ggplot_1var(x, "epsilon_chl", "yellow", span = span)
 
@@ -177,12 +177,12 @@ plot_LUE_multiAxis <- function(x, label, span = 0.75) {
     p1 <- reduce(lst_1, ggplot_multiAxis, show = F)
 
     p <- p + labs(y = NULL)
-    p2_0 <- reduce(list(p, p_EVI, p_LAI), ggplot_multiAxis, show = F) # p_NDVI, , p_VI2
+    p2_0 <- reduce(list(p, p_EVI, p_NDVI), ggplot_multiAxis, show = F) # p_NDVI, , p_VI2
     p2_1 <- reduce(list(p, p_Rs, p_dhour), ggplot_multiAxis, show = F) # , p_APAR
     p2 <- reduce(list(p, p_TS, p_Tair_day), ggplot_multiAxis, show = F) # p_Tscalar
     p3 <- reduce(list(p, p_prcp, p_VPD), ggplot_multiAxis, show = F) # p_Wscalar
 
-    p = arrangeGrob(grobs = list(p1, p2_0, p2_1, p2, p3), nrow = 1, widths = c(9, 9, 9, 9, 9))
+    p = arrangeGrob(grobs = list(p1, p2_0, p2_1, p2, p3), nrow = 1, widths = c(10, 9, 9, 9, 9))
     # listk(p1, p2)
     p
 }

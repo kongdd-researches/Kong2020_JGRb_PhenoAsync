@@ -3,6 +3,8 @@
 # st = st_212[site %in% sites, .(site, lat, IGBP, LC)] #%>% summary()
 source("test/main_pkgs.R")
 
+names_VI <- c("EVI", "EVI_pc", "NDVI", "LAI") %>% set_names(., .)
+
 tidy_gof <- function(d){
     d$type_period2 <- mapvalues(d$variable, metrics_select, metrics_period)
     d$variable %<>% factor(metrics_select)
@@ -11,10 +13,12 @@ tidy_gof <- function(d){
     d %>% reorder_name(c("type_VI", "type_period", "type_period2"))
 }
 
-d = df[abs(diff) < 60 & meth %in% c("Elmore", "Beck") & product %in% c("Terra_EVI", "Terra_NDVI", "Combined_LAI"),
+d = df[abs(diff) < 60 & meth %in% c("Elmore", "Beck") &
+           (product %in% c("Terra_EVI", "Terra_NDVI", "Combined_LAI") | type_VI == "EVI_pc"),
        as.list(GOF(y_obs,y_sim, include.r = FALSE)), .(type_VI, type_period, variable, site)]
 d %<>% tidy_gof()
 
+# rm(st)
 d_melt <- melt(d, c("type_VI", "type_period", "type_period2", "variable", "site"), variable.name = "index") %>%
     .[index %in% c("RMSE", "Bias", "MAE"),] %>% merge(st[, .(site, IGBP, LC)])
 
@@ -22,7 +26,6 @@ d_mean <- d_melt[, median(value, na.rm = TRUE), .(variable, index, type_period, 
 n <- nrow(d_mean)/2
 d_1 = d_mean[type_period == "Green-up period"] %>% cbind(x = rep(c(0.4, 10.4), each = n))
 d_2 = d_mean[type_period == "Withering period"] %>% cbind(x = rep(c(10.6, 20.4), each = n))
-
 
 # Table_1
 {
@@ -34,9 +37,15 @@ d_2 = d_mean[type_period == "Withering period"] %>% cbind(x = rep(c(10.6, 20.4),
         label <- sprintf("%.1f±%3.1f", y2, sd) # change mean to median
         label
     }
-    tidy_info <- function(info){
-        varnames <- c("type_VI", "index", "type_period", "type_period2") %>%
-            intersect(colnames(info))
+    tidy_info <- function(info, type = 1){
+        if (type == 1) {
+            # 6 period
+            varnames <- c("type_VI", "index", "type_period", "type_period2")
+        } else {
+            # 2 season
+            varnames <- c("type_period", "type_period2", "index", "type_VI")
+        }
+        varnames %<>% intersect(colnames(info))
         formula <- paste(varnames, collapse = "+") %>% paste0("~LC") %>%
             as.formula()
         dt = dcast(info, formula, value.var = "label")
@@ -46,12 +55,13 @@ d_2 = d_mean[type_period == "Withering period"] %>% cbind(x = rep(c(10.6, 20.4),
 
         vars_order = paste(varnames, collapse = ", ")
         eval(parse(text = sprintf("dt[order(%s)]", vars_order)))
+
     }
     info_6 <- d_melt[, .(label = func_label(value)), .(LC, type_VI, type_period, type_period2, index)]
     info_2  <- d_melt[, .(label = func_label(value)), .(LC, type_VI, type_period, index)]
-    info = listk(info_6, info_2) %>% map(tidy_info)
-    write_list2xlsx(info, "Table3. GOF of different period and different LCs2.xlsx")
-
+    info = listk(info6 = tidy_info(info_6, 1),
+                 info2 = tidy_info(info_2, 1))
+    write_list2xlsx(info, "Table3. GOF of different period and different LCs_pc2.xlsx")
     # Table 2: 计算multiple annual VIs
 }
 
@@ -122,7 +132,7 @@ if (FALSE){
                       size = 6, fontface = 2, family = "Times") +
             geom_hline(data = data.frame(index = "Bias", yintercept = 0),
                        aes(yintercept = yintercept), color = "blue", size = lwd) +
-            geom_hline(data = data.frame(index = "Bias", yintercept = c(-1, 1)*15),
+            geom_hline(data = data.frame(index = "Bias", yintercept = c(-1, 1)*20),
                        aes(yintercept = yintercept), color = "red", linetype = 2, size = lwd) +
             geom_hline(data = data.frame(index = "MAE", yintercept = c(1)*20),
                        aes(yintercept = yintercept), color = "red", linetype = 2, size = lwd) +

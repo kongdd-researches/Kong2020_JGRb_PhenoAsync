@@ -16,7 +16,8 @@ phenofit_site <- function(y, t, w, QC_flag, nptperyear = 36,
     verbose = TRUE,
     lambda  = NULL, lg_lambdas = seq(1, 4, 0.1),
     methods = c("AG", "Zhang", "Beck", "Elmore"),
-    prefix  = "", titlestr = NULL,
+    prefix  = "", 
+    titlestr = NULL, ylab = NULL,
     IsPlot.brks = FALSE,
     write.fig = TRUE, show = FALSE,
     ymin = 0.1, wmin = 0.1,
@@ -89,7 +90,8 @@ phenofit_site <- function(y, t, w, QC_flag, nptperyear = 36,
             check_dir(dirname(file_pdf))
         
             d_obs = INPUT[c("t", "y", "QC_flag")] %>% as.data.table()
-            g <- plot_phenofit(dfit, brks2, d_obs, title = titlestr, cex = 1.5)
+            # g <- plot_phenofit(dfit, brks2, d_obs, title = titlestr, cex = 1.5)
+            g <- plot_phenofit(dfit, brks2, title = titlestr, cex = 1.5, title.ylab = ylab)
             # grid::grid.newpage(); grid::grid.draw(g)# plot to check the curve fitting
             write_fig(g, file_pdf, 11, 6, show = show)
         }

@@ -13,7 +13,7 @@ lambda0    = 15
 nptperyear = 46
 
 InitCluster(12)
-lst_NDVI = foreach(i = grps_sites, icount()) %dopar% {
+lst_NDVI = foreach(i = grps_sites, icount()) %do% {
     runningId(i)
     sitename = sites[i]
     # brks = lst_brks[[sitename]]$brks
@@ -63,7 +63,7 @@ lst_NDVI = foreach(i = grps_sites, icount()) %dopar% {
                               ymin = 0.1, wmin = 0.1, wsnow = 0.8,
                               alpha = alpha,
                               write.fig = TRUE,
-                              titlestr = title, show = FALSE)
+                              titlestr = title, show = TRUE)
             l
         }, error = function(e){
             message(sprintf("[02%d]: %s", i, e$message))

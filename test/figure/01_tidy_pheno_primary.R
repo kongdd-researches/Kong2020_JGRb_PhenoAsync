@@ -35,6 +35,12 @@ if (!file.exists(file_pheno_full)) {
     load(file_pheno_full)
 }
 
+load("./INPUT/pheno_MOD09A1_EVI_PC_st166.rda")
+names(lst_EVI_pc) <- st_166$site
+df_EVI_pc = melt_pheno(lst_EVI_pc)
+saveRDS(df_EVI_pc, file = "INPUT/pheno_MOD09A1_EVI_PC_tidy.RDS")
+# df_EVI_pc <- readRDS("INPUT/pheno_MOD09A1_EVI_PC_tidy.RDS")
+
 # filter for Aqua
 {
     load(file_pheno_full)
@@ -49,6 +55,10 @@ if (!file.exists(file_pheno_full)) {
         melt_list("sate")
     df_VI_prim  <- filter_primary(df_VI)
     df_gpp_prim <- filter_primary(df_gpp)
+
+    df_EVI_pc_prim <- filter_primary(df_EVI_pc)
+    df_EVI_pc_prim %<>% cbind(sate = "Terra", type_VI = "EVI_pc", .)
+    df_VI_prim %<>% rbind(df_EVI_pc_prim)
 
     save(df_VI_prim, df_gpp_prim, sites, st, file = file_pheno_prim)
 }

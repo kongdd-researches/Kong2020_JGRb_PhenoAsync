@@ -25,3 +25,6 @@ log.txt
 INPUT/shp
 INPUT/
 interview/
+
+data-raw/shp
+*.tif
