@@ -89,7 +89,8 @@ st_212 <- fread(path.mnt("E:/Research/phenology/DATA/flux/station/st_flux212.csv
 file_official_dd = 'E:/github/hydro/rfluxnet/OUTPUT/fluxsites166_SUBSET_official_daily.csv'
 file_FULLSET_dd  = "E:/github/hydro/rfluxnet/OUTPUT/fluxsites166_FULLSET_8-day_v20191216 (80%).csv"
 file_GPP_north   = "INPUT/df_north.RDS"
-file_brks        = "INPUT/pheno_gpp_st109.rda"
+file_brks_DT     = "INPUT/pheno_gpp_st109 (GPP_DT).rda"
+file_brks_NT     = "INPUT/pheno_gpp_st109 (GPP_NT).rda"
 
 # MODIS DATA
 file_MYD11A2       <- "INPUT/fluxnet212/flux212_MYD11A2_Tnight.RDS"
@@ -97,6 +98,8 @@ file_MYD11A2_pheno <- "INPUT/fluxnet212/flux212_MYD11A2_T_phenology_5d_10d.RDS"
 
 names_VI = c("NDVI", "EVI", "LAI") %>% set_names(., .)
 file_pheno_prim <- "INPUT/pheno_flux95_prim.rda"
+file_pheno_prim_DT <- "INPUT/pheno_flux95_prim (DT).rda"
+file_pheno_prim_NT <- "INPUT/pheno_flux95_prim (NT).rda"
 
 # update in 20191229
 metrics_select <- c(

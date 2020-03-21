@@ -1,9 +1,10 @@
 source("test/main_pkgs.R")
 # load_all("../phenofit")
 
-df_north = readRDS(file_GPP_north)
-## -----------------------------------------------------------------------------
-{
+outfile = "INPUT/df_north_109st.rda"
+
+if (!file.exists(outfile)) {
+    df_north = readRDS(file_GPP_north)
     ## 建议删除站点：
     sites_rm <- c("CN-Sw2", "US-Blo",
                   "FR-LBr", "IT-CA1", "IT-CA2", # ENF, 拖尾分布
@@ -51,6 +52,14 @@ df_north = readRDS(file_GPP_north)
     #     "US-Me6", "US-PFa", "US-Syv", "US-WCr") %>% set_names(., .)
     date_start = make_date(1999,  1,  1)
     date_end   = make_date(2018, 12, 31)
+
+    df_part = df_north[date >= date_start & date <= date_end, ] %>% setkeyv(c("site"))
+
+    save(df_part, date_start, date_end, 
+      sites_multi, sites_single, sites, sites_rm, 
+      info_full, info_sub, file = outfile)
+} else {
+   load(outfile)
 }
 
 # {

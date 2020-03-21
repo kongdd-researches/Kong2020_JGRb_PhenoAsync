@@ -91,6 +91,7 @@ main_divide_season <- function(df_part, info, sites_multi, sites_single,
         # sitename = "DE-Kli"
         sp <- info[site == sitename, ]
         d <- df_part[site == sitename, .(site, t = date, y = GPP_DT, w = 1 - is.na(GPP_DT))] # GPP_NT,
+        # d <- df_part[site == sitename, .(site, t = date, y = GPP_NT, w = 1 - is.na(GPP_NT))] # GPP_NT,
 
         tryCatch(
             {

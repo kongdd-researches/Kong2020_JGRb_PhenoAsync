@@ -30,6 +30,7 @@ divide_seasons <- function(d, sp, nptperyear = 23,
     south <- sp$lat < 0
     dnew  <- add_HeadTail(d, south = south, nptperyear)
 
+    browser()
     INPUT <- check_input(dnew$t, dnew$y, dnew$w, QC_flag = NULL, nptperyear,
         maxgap = ceiling(nptperyear/12*1.5),
         south = sp$lat < 0,
@@ -60,7 +61,7 @@ divide_seasons <- function(d, sp, nptperyear = 23,
     maxExtendMonth <- ifelse(sp$IGBP == "EBF", 2, 2)
 
     # wFUN <- "wBisquare", "wTSM", threshold_max = 0.1, IGBP = CSH
-    # INPUT <- get_input(df, st, sitename)    
+    # INPUT <- get_input(df, st, sitename)
     brks2  <- season_mov(INPUT,
         rFUN = get(FUN_fit),
         wFUN = wFUN,
@@ -70,7 +71,7 @@ divide_seasons <- function(d, sp, nptperyear = 23,
         maxExtendMonth = 12,
         r_max = r_max, r_min = r_min,
         r_minPeakHeight = r_minPeakHeight,
-        calendarYear = calendarYear, 
+        calendarYear = calendarYear,
         # ...,
         # IsPlot.vc = FALSE,
         # plotdat = INPUT, print = TRUE,

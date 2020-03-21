@@ -8,7 +8,7 @@ indexNames  = c("RMSE", "MAE", "Bias")
 ## load phenology data
 # 1. 准备输入数据
 {
-    load(file_pheno_prim); rm(st)
+    load(file_pheno_prim_DT); rm(st)
     x = melt(df_VI_prim, c("sate", "type_VI", "group", "site", "flag", "origin", "meth"),
              value.name = "y_sim")
     y = melt(df_gpp_prim, c("site", "flag", "origin", "meth"), value.name = "y_obs")

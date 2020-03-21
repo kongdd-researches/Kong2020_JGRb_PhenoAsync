@@ -24,6 +24,7 @@ phenofit_site(
   methods = c("AG", "Zhang", "Beck", "Elmore"),
   prefix = "",
   titlestr = NULL,
+  ylab = NULL,
   IsPlot.brks = FALSE,
   write.fig = TRUE,
   show = FALSE,

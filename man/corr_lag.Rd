@@ -6,18 +6,26 @@
 \alias{find_x_lag}
 \title{Lag correlation between two variables}
 \usage{
-corr_lag(x, y = x, index = NULL, lag = 1, dates, doy_lims, verbose = FALSE)
+corr_lag(
+  x,
+  y = x,
+  lag = 1,
+  index = NULL,
+  dates = NULL,
+  doy_lims,
+  verbose = FALSE
+)
 
-corr_lags(x, y, index, lags, dates, doy_lims, ...)
+corr_lags(x, y, lags = -5:5, index, dates = NULL, doy_lims, ...)
 
-find_x_lag(x, index, lag)
+find_x_lag(x, lag, index)
 }
 \arguments{
 \item{x, y}{A numeric vector}
 
-\item{index}{A numeric vector, the subscript of x, e.g. \code{ydn}}
-
 \item{lag}{The step of lag time}
+
+\item{index}{A numeric vector, the subscript of x, e.g. \code{ydn}}
 
 \item{dates}{Dates vector, dates of x}
 
@@ -28,11 +36,18 @@ find_x_lag(x, index, lag)
 \value{
 \itemize{
 \item \code{cor}: pearson correlation of lag step
-\item \code{lag}: positive (negative) value means x is ahead (behind) of y about \code{lag} steps.
+\item \code{lag}:
+}
+\itemize{
+\item positive: y is earlier;
+\item negative: x is earlier.
 }
 }
 \description{
 Lag correlation between two variables
+}
+\note{
+correlation needs to be adjusted because the length of observation is different
 }
 \examples{
 # examples

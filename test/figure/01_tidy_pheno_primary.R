@@ -1,6 +1,12 @@
 source("test/main_pkgs.R")
 
-file_pheno_full = "INPUT/pheno_flux166_full.rda"
+# caution about ND and DT
+
+postfix = "DT"
+file_pheno_full = glue("INPUT/pheno_flux166_full_{postfix}.rda")
+file_pheno_prim = glue("INPUT/pheno_flux95_prim ({postfix}).rda")
+file_brks = glue("INPUT/pheno_gpp_st109 (GPP_{postfix}).rda")
+
 if (!file.exists(file_pheno_full)) {
     # 1. combined
     load("./INPUT/pheno_MCD09A1_EVI_st166.rda")
@@ -26,7 +32,7 @@ if (!file.exists(file_pheno_full)) {
     df_Aqua = map(lst_VI, melt_pheno) %>% Ipaper::melt_list("type_VI")
 
     # 0. GPPobs from flux site
-    load("INPUT/pheno_gpp_st109.rda")
+    load(file_brks) # "INPUT/pheno_gpp_st109.rda"
     sites = names(lst_pheno)[1:95]
     df_gpp = map(lst_pheno[sites], "doy") %>% melt_tree(c("site", "meth"))
 
@@ -38,8 +44,9 @@ if (!file.exists(file_pheno_full)) {
 load("./INPUT/pheno_MOD09A1_EVI_PC_st166.rda")
 names(lst_EVI_pc) <- st_166$site
 df_EVI_pc = melt_pheno(lst_EVI_pc)
-saveRDS(df_EVI_pc, file = "INPUT/pheno_MOD09A1_EVI_PC_tidy.RDS")
-# df_EVI_pc <- readRDS("INPUT/pheno_MOD09A1_EVI_PC_tidy.RDS")
+file_EVI_pc = glue("INPUT/pheno_MOD09A1_EVI_PC_tidy{postfix}.RDS")
+saveRDS(df_EVI_pc, file = file_EVI_pc)
+df_EVI_pc <- readRDS(file_EVI_pc)
 
 # filter for Aqua
 {

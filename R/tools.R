@@ -10,8 +10,8 @@ load_all <- function (path = ".", reset = TRUE, recompile = FALSE,
 
     pkgload::load_all(path = ".", reset = reset, recompile = recompile, 
         export_all = export_all, helpers = helpers, quiet = quiet, ...)
-    # pkgload::load_all(path = "../phenofit", reset = reset, recompile = recompile, 
-    #     export_all = export_all, helpers = helpers, quiet = quiet, ...)
+    pkgload::load_all(path = "../phenofit", reset = reset, recompile = recompile, 
+        export_all = export_all, helpers = helpers, quiet = quiet, ...)
 }
 
 suppressWarnings({

@@ -1,5 +1,5 @@
-windowsFonts(Times = windowsFont("Times New Roman"),
-             Arial = windowsFont("Arial"))
+# windowsFonts(Times = windowsFont("Times New Roman"),
+#              Arial = windowsFont("Arial"))
 fontsize <- 14
 mytheme_grey <- theme_grey(base_size = fontsize, base_family = "Times") +
     theme(
