@@ -30,7 +30,6 @@ divide_seasons <- function(d, sp, nptperyear = 23,
     south <- sp$lat < 0
     dnew  <- add_HeadTail(d, south = south, nptperyear)
 
-    browser()
     INPUT <- check_input(dnew$t, dnew$y, dnew$w, QC_flag = NULL, nptperyear,
         maxgap = ceiling(nptperyear/12*1.5),
         south = sp$lat < 0,

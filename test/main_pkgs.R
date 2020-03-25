@@ -26,6 +26,10 @@ suppressMessages({
     library(glue)
     library(rfluxnet)
     library(ppcor)
+
+    library(grid)
+    library(gridExtra)
+    library(gtable)
 })
 
 # IGBP  N

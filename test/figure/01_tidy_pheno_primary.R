@@ -1,11 +1,12 @@
 source("test/main_pkgs.R")
 
-# caution about ND and DT
+## update 20200322 -------------------------------------------------------------
+varname = "GPP_NT"
+version = glue("({varname}) v0.2.6.9000") # test version
 
-postfix = "DT"
-file_pheno_full = glue("INPUT/pheno_flux166_full_{postfix}.rda")
-file_pheno_prim = glue("INPUT/pheno_flux95_prim ({postfix}).rda")
-file_brks = glue("INPUT/pheno_gpp_st109 (GPP_{postfix}).rda")
+file_pheno_full = glue("INPUT/pheno_flux166_full {version}.rda")
+file_pheno_prim = glue("INPUT/pheno_flux95_prim ({version}).rda")
+file_brks = glue("INPUT/pheno_gpp_st109 {version}.rda")
 
 if (!file.exists(file_pheno_full)) {
     # 1. combined
@@ -41,11 +42,11 @@ if (!file.exists(file_pheno_full)) {
     load(file_pheno_full)
 }
 
-load("./INPUT/pheno_MOD09A1_EVI_PC_st166.rda")
-names(lst_EVI_pc) <- st_166$site
-df_EVI_pc = melt_pheno(lst_EVI_pc)
-file_EVI_pc = glue("INPUT/pheno_MOD09A1_EVI_PC_tidy{postfix}.RDS")
-saveRDS(df_EVI_pc, file = file_EVI_pc)
+# load("./INPUT/pheno_MOD09A1_EVI_PC_st166.rda")
+# names(lst_EVI_pc) <- st_166$site
+# df_EVI_pc = melt_pheno(lst_EVI_pc)
+file_EVI_pc = glue("INPUT/pheno_MOD09A1_EVI_PC_tidy.RDS")
+# saveRDS(df_EVI_pc, file = file_EVI_pc)
 df_EVI_pc <- readRDS(file_EVI_pc)
 
 # filter for Aqua
@@ -55,9 +56,8 @@ df_EVI_pc <- readRDS(file_EVI_pc)
     df_combined = df_combined[site %in% sites & origin >= "2003-01-01", ]
     df_Aqua     = df_Aqua[site %in% sites & origin >= "2003-01-01", ]
     df_Terra    = df_Terra[site %in% sites & origin >= "2000-01-01", ]
-}
 
-{
+
     df_VI = list(combined = df_combined, df_Aqua = df_Aqua, df_Terra = df_Terra) %>%
         melt_list("sate")
     df_VI_prim  <- filter_primary(df_VI)

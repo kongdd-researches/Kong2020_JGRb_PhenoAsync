@@ -1,6 +1,4 @@
-# windowsFonts(Times = windowsFont("Times New Roman"),
-#              Arial = windowsFont("Arial"))
-fontsize <- 14
+fontsize <- 12
 mytheme_grey <- theme_grey(base_size = fontsize, base_family = "Times") +
     theme(
         # legend.position = c(0.02, 0.02), legend.justification = c(0, 0),

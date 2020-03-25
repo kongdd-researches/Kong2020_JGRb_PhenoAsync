@@ -80,6 +80,7 @@ main_divide_season <- function(df_part, info, sites_multi, sites_single,
                                ypeak_min = 1,
                                calendarYear = FALSE,
                                show = TRUE,
+                               varname = c("GPP_DT", "GPP_NT")[1], 
                                outfile = "phenofit_multi_seasons_v4.pdf") {
     sites <- if (calendarYear) sites_single else sites_multi
 
@@ -90,33 +91,34 @@ main_divide_season <- function(df_part, info, sites_multi, sites_single,
         # sitename = "IT-Ro1"
         # sitename = "DE-Kli"
         sp <- info[site == sitename, ]
-        d <- df_part[site == sitename, .(site, t = date, y = GPP_DT, w = 1 - is.na(GPP_DT))] # GPP_NT,
-        # d <- df_part[site == sitename, .(site, t = date, y = GPP_NT, w = 1 - is.na(GPP_NT))] # GPP_NT,
 
-        tryCatch(
-            {
-                l <- divide_seasons(d, sp, 365,
-                    # lambda = 100, optim by v_curve
-                    # .movmean = TRUE,
-                    iters = 1,
-                    # wFUN = wBisquare,
-                    .v_curve = TRUE,
-                    r_min = 0.0, r_max = 0.2,
-                    calendarYear = calendarYear,
-                    rm.closed = FALSE, is.continuous = FALSE,
-                    .check_season = FALSE
-                )
-                l$titlestr <- with(sp[1, ], sprintf(
-                    "%s, %s, [%.2f, %.2f] lambda = %.1f",
-                    site, IGBP, lon, lat, l$lambda
-                )) # %dth, ID
-                l
-                # write_fig(expression({with(l, plot_season(INPUT, brks, title = sitename))}), "a.pdf", 10, 4)
-            },
-            error = function(e) {
-                message(sprintf("[e] %d %s: %s", i, sitename, e$message))
-            }
-        )
+        if (varname == "GPP_DT") {
+            d <- df_part[site == sitename, .(site, t = date, y = GPP_DT, w = 1 - is.na(GPP_DT))]
+        } else {
+            d <- df_part[site == sitename, .(site, t = date, y = GPP_NT, w = 1 - is.na(GPP_NT))]
+        }
+        
+        tryCatch({
+            l <- divide_seasons(d, sp, 365,
+                # lambda = 100, optim by v_curve
+                # .movmean = TRUE,
+                iters = 1,
+                # wFUN = wBisquare,
+                .v_curve = TRUE,
+                r_min = 0.0, r_max = 0.2,
+                calendarYear = calendarYear,
+                rm.closed = FALSE, is.continuous = FALSE,
+                .check_season = FALSE
+            )
+            l$titlestr <- with(sp[1, ], sprintf(
+                "%s, %s, [%.2f, %.2f] lambda = %.1f",
+                site, IGBP, lon, lat, l$lambda
+            )) # %dth, ID
+            l
+            # write_fig(expression({with(l, plot_season(INPUT, brks, title = sitename))}), "a.pdf", 10, 4)
+        }, error = function(e) {
+            message(sprintf("[e] %d %s: %s", i, sitename, e$message))
+        })
     }
 
     if (show) {

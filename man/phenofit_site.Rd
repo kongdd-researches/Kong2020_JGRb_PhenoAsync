@@ -84,7 +84,10 @@ ymin=0.5 gC m-2 s-1 for GPP.}
 \item{wmin}{Double, minimum weight of bad points, which could be smaller
 the weight of snow, ice and cloud.}
 
-\item{alpha}{Double value in \code{[0,1]}, quantile prob of ylu_min.}
+\item{use.y0}{boolean. whether to use original \code{y0}, which is before the
+process of \code{check_input}.}
+
+\item{alpha}{Double value in \verb{[0,1]}, quantile prob of ylu_min.}
 
 \item{...}{other parameters to \code{\link[phenofit:curvefits]{phenofit::curvefits()}}}
 }

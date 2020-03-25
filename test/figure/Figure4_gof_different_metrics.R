@@ -61,7 +61,7 @@ d_2 = d_mean[type_period == "Withering period"] %>% cbind(x = rep(c(10.6, 20.4),
     info_2  <- d_melt[, .(label = func_label(value)), .(LC, type_VI, type_period, index)]
     info = listk(info6 = tidy_info(info_6, 1),
                  info2 = tidy_info(info_2, 1))
-    write_list2xlsx(info, "Table3. GOF of different period and different LCs_pc2.xlsx")
+    write_list2xlsx(info, glue("Table3. GOF of different period and different LCs_pc2 {version}.xlsx"))
     # Table 2: 计算multiple annual VIs
 }
 
@@ -139,7 +139,7 @@ if (FALSE){
             geom_hline(data = data.frame(index = factor("RMSE", levels(d_melt$index)),
                                          yintercept = 20),
                        aes(yintercept = yintercept), color = "red", linetype = 2, size = lwd)
-        outfile = glue("Figure4_gof_landcover_{indexName}.pdf")
+        outfile = glue("Figure4_gof_landcover_{indexName} {version}.pdf")
         write_fig(p, outfile, 14, 7)
     }
 }

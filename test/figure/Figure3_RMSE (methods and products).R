@@ -1,5 +1,13 @@
 source("test/main_pkgs.R")
 
+## update 20200322 -------------------------------------------------------------
+varname = "GPP_NT"
+version = glue("({varname}) v0.2.6.9000") # test version
+
+file_pheno_full = glue("INPUT/pheno_flux166_full {version}.rda")
+file_pheno_prim = glue("INPUT/pheno_flux95_prim ({version}).rda")
+file_brks = glue("INPUT/pheno_gpp_st109 {version}.rda")
+
 # metrics_all = c("Greenup", "TRS1.sos", "UD", "TRS2.sos", "DER.sos", "TRS5.sos", "TRS6.sos", "TRS8.sos", "SD", "Maturity",
 #                 "Senescence", "DD", "TRS8.eos", "TRS6.eos", "TRS5.eos", "DER.eos", "TRS2.eos", "RD", "TRS1.eos", "Dormancy")
 metrics_all = metrics_select
@@ -8,7 +16,7 @@ indexNames  = c("RMSE", "MAE", "Bias")
 ## load phenology data
 # 1. 准备输入数据
 {
-    load(file_pheno_prim_DT); rm(st)
+    load(file_pheno_prim); rm(st)
     x = melt(df_VI_prim, c("sate", "type_VI", "group", "site", "flag", "origin", "meth"),
              value.name = "y_sim")
     y = melt(df_gpp_prim, c("site", "flag", "origin", "meth"), value.name = "y_obs")
@@ -102,7 +110,7 @@ d_comp <- list("Curve fitting methods" = d_meth,
             g$widths[5] %<>% multiply_by(4/6) # 5/7
             # grid.draw(g)
 
-            outfile = glue("Figure3_methods_products {indexName}.pdf") #pdf
+            outfile = glue("Figure3_methods_products {indexName} {version}.pdf") #pdf
             write_fig(g, outfile, 10, 6)
             # p
         }
@@ -134,7 +142,7 @@ d_comp <- list("Curve fitting methods" = d_meth,
         geom_vline(xintercept = c(2, 5, 7, 9, 12) + 0.5, linetype = 2, size = 0.1) +
         scale_fill_manual(values = colors_period) +
         labs(x = NULL, y = "Day of year (DOY)")
-    outfile = glue("FigureS4_time distribution of phenological metrics.pdf")
+    outfile = glue("FigureS4_time distribution of phenological metrics {version}.pdf")
     write_fig(p, outfile, 9, 5)
     # write_fig(p, gsub(".pdf", ".tif", outfile), 9, 5)
 }
