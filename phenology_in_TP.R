@@ -1,8 +1,9 @@
 source("test/main_pkgs.R")
 
+sp <- st_166[site %in% sites] %>% df2sp()
+writeOGR(sp, "3 flux in TP.kml", "station", driver = "KML")
 ## update 20200322 -------------------------------------------------------------
-# varname = "GPP_NT"
-varname = "GPP_DT"
+varname = "GPP_NT"
 version = glue("({varname}) v0.2.6.9000") # test version
 
 file_pheno_full = glue("INPUT/pheno_flux166_full {version}.rda")
@@ -24,7 +25,7 @@ indexNames  = c("RMSE", "MAE", "Bias")
     # x$flag %<>% as.character()
     # y$flag %<>% as.character()
     df = merge(x, y, by = c("site", "flag", "origin", "meth", "variable")
-        # all.x = TRUE
+               # all.x = TRUE
     )[, diff := y_sim - y_obs]
     df$type_period = "others"
     df[variable %in% metric_spring, type_period := "Green-up season"]
@@ -36,6 +37,12 @@ indexNames  = c("RMSE", "MAE", "Bias")
     df$product %<>% factor(products, products_fix)
 }
 
+metrics <- colnames(df_gpp_prim)[-(1:4)]
+d_gpp <- df_gpp_prim[meth %in% c("Beck", "Elmore") & site %in% sites,lapply(.SD, mean), .(site, flag), .SDcols = metrics]
+d_vi <- df_VI_prim[meth %in% c("Beck", "Elmore") &site %in% sites,lapply(.SD, mean), .(site, flag, type_VI), .SDcols = metrics] %>%
+    {merge(. , d_gpp[, 1:2])[order(type_VI, site, flag)]}
+
+d_gpp[, .(site, flag)]
 
 df_gsl = merge(
     get_gsl(df_VI_prim, value.name = "y_sim"),
@@ -72,13 +79,16 @@ d_comp <- list("Curve fitting methods" = d_meth,
                "Remote sensing vegetation indices" = d_vi[!(x %in% c("Combined_LAI")) & !is.na(x), ]) %>%
     melt_list("type_comp")
 
+sites <- c("CN-Dan", "CN-Ha2", "CN-HaM")
+
+
 ## Figure 3. methods and products ----------------------------------------------
 ## 2.2 不同VI, 不同curve fitting methods的表现 （数据准备）---------------------
 {
     source("test/main_vis.R")
     d_fig1 = d_comp %>% melt(c("x", "type_period", "type_comp", "site"), variable.name = "index")
     d_gof  = d_fig1[type_period != "others", as.list(stat_sd(value)),
-                .(x, type_period, type_comp, index)][, label := sprintf("%.1f±%3.1f", y, sd)]
+                    .(x, type_period, type_comp, index)][, label := sprintf("%.1f±%3.1f", y, sd)]
     d_lab = expand.grid(type_comp = unique(d_gof$type_comp), type_period = unique(d_gof$type_period))
     d_lab$label = sprintf("(%s)", letters[1:nrow(d_lab)])
 
@@ -136,10 +146,10 @@ d_comp <- list("Curve fitting methods" = d_meth,
         stat_summary(fun.data = box_qtl, geom = "errorbar", width = 0.5) +
         geom_boxplot2(notch = FALSE, outlier.shape = NA, coef = 0, width = 0.8) +
         theme(legend.position = c(0.02, 0.998),
-            legend.justification = c(0, 1),
-            panel.grid.major.x = element_line(size = 0.2),
-            panel.grid.major.y = element_blank(),
-            axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) +
+              legend.justification = c(0, 1),
+              panel.grid.major.x = element_line(size = 0.2),
+              panel.grid.major.y = element_blank(),
+              axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) +
         geom_vline(xintercept = c(2, 5, 7, 9, 12) + 0.5, linetype = 2, size = 0.1) +
         scale_fill_manual(values = colors_period) +
         labs(x = NULL, y = "Day of year (DOY)")

@@ -19,3 +19,12 @@ suppressWarnings({
     assignInNamespace("load_all", load_all, ns="devtools")  
 })
 
+#' @export
+mark_outlier <- function(x, nsd = 3) {
+    sd <- sd(x, na.rm = TRUE)
+    mean <- mean(x, na.rm = TRUE)
+    max <- mean + nsd * sd
+    min <- mean - nsd * sd
+    x[x > max | x < min] <- NA_real_
+    x
+}

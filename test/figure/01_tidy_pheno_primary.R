@@ -57,7 +57,6 @@ df_EVI_pc <- readRDS(file_EVI_pc)
     df_Aqua     = df_Aqua[site %in% sites & origin >= "2003-01-01", ]
     df_Terra    = df_Terra[site %in% sites & origin >= "2000-01-01", ]
 
-
     df_VI = list(combined = df_combined, df_Aqua = df_Aqua, df_Terra = df_Terra) %>%
         melt_list("sate")
     df_VI_prim  <- filter_primary(df_VI)

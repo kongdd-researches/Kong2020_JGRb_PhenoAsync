@@ -84,6 +84,11 @@ ymin=0.5 gC m-2 s-1 for GPP.}
 \item{wmin}{Double, minimum weight of bad points, which could be smaller
 the weight of snow, ice and cloud.}
 
+\item{wsnow}{Doulbe. Reset the weight of snow points, after get \code{ylu}.
+Snow flag is an important flag of ending of growing
+season. Snow points is more valuable than marginal points. Hence, the weight
+of snow should be great than that of \code{marginal}.}
+
 \item{use.y0}{boolean. whether to use original \code{y0}, which is before the
 process of \code{check_input}.}
 

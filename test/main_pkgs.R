@@ -18,7 +18,7 @@ suppressMessages({
     library(ggrepel)
     library(Cairo)
     library(solartime)
-    
+
     ## load data
     library(sp2)
     library(foreach)
@@ -30,6 +30,7 @@ suppressMessages({
     library(grid)
     library(gridExtra)
     library(gtable)
+    library(ggpmisc)
 })
 
 # IGBP  N
@@ -88,7 +89,8 @@ stat_sd <- function(x, ...) {
 }
 
 st_166 <- st_flux166
-st_212 <- fread(path.mnt("E:/Research/phenology/DATA/flux/station/st_flux212.csv")) %>% classify_lc()
+st_212 <- fread(path.mnt("E:/Research/phenology/rfluxnet/data-raw/st_flux212.csv")) %>% classify_lc()
+
 
 file_official_dd = 'E:/github/hydro/rfluxnet/OUTPUT/fluxsites166_SUBSET_official_daily.csv'
 file_FULLSET_dd  = "E:/github/hydro/rfluxnet/OUTPUT/fluxsites166_FULLSET_8-day_v20191216 (80%).csv"
@@ -107,7 +109,7 @@ file_pheno_prim_NT <- "INPUT/pheno_flux95_prim (NT).rda"
 
 # update in 20191229
 metrics_select <- c(
-    "TRS1.sos", "TRS2.sos", "TRS5.sos", "DER.sos", "TRS6.sos", "TRS8.sos", "TRS9.sos", 
+    "TRS1.sos", "TRS2.sos", "TRS5.sos", "DER.sos", "TRS6.sos", "TRS8.sos", "TRS9.sos",
     "TRS9.eos", "TRS8.eos", "TRS6.eos", "DER.eos", "TRS5.eos", "TRS2.eos", "TRS1.eos")
 
 metrics_period <- c(

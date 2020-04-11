@@ -32,3 +32,9 @@ MJ_2W  <- function(x) {
 W2_MJ <- function(x) {
     x/1e6*86400
 }
+
+w2mm <- function(LE, tmean) {
+    Cp <- 4.2 * 0.242 # specific heat at constant pressure, 1.013 [kJ kg-1 0C-1]
+    lamada <- 2500 - 2.2 * tmean
+    LE / lamada * 86400 * 10^-3 # W M-2 to mm
+}
