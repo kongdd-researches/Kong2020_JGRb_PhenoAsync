@@ -14,13 +14,14 @@
 #'  * negative: x is earlier.
 #'
 #' @examples
+#' \dontrun{
 #' # examples
 #' x = sin(1:365)
 #' y = x
 #' index = 1:365
 #' dates = seq(as.Date('2010-01-01'), as.Date('2010-12-31'), 'day')
 #' corr_lags(x, y, index, dates, lag = 1)
-#'
+#' }
 #' @note
 #' correlation needs to be adjusted because the length of observation is different
 #'

@@ -155,9 +155,7 @@ figureNo <- 0
 # global variables:
 # st, info_async
 #' check_sensitivity
-#' 
-#' @examples
-#' check_sensitivity(x, predictors)
+#' @export 
 check_sensitivity <- function(x, predictors){
     ## 0. prepare plot data
     dx_z <- GPP_D1(x, predictors) # only suit for by site
@@ -224,8 +222,8 @@ check_sensitivity <- function(x, predictors){
 
 #' @rdname check_sensitivity
 #' @examples
-#' predictors <- c("EVI", "Rs", "TA", "Prcp", "VPD", "APAR")#[-6]#[-c(1, 2)]
-#' check_sensitivity(x, predictors)
+#' # predictors <- c("EVI", "Rs", "TA", "Prcp", "VPD", "APAR")#[-6]#[-c(1, 2)]
+#' # check_sensitivity(x, predictors)
 check_sensitivity_async <- function(x, predictors){
     ## 0. prepare plot data
     dx_z <- GPP_D1(x, predictors) # only suit for by site

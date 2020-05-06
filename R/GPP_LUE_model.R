@@ -47,6 +47,7 @@ aggregate_dn <- function(data, nday = 16, st){
 #' @examples
 #' x <- c(12.45,34,4,0,-234,45.6,4)
 #' nth_max(x)
+#' @export
 nth_max <- function(x, n = 2){
     len <- length(x)
     if (sum(!is.na(x)) <= n){

@@ -4,7 +4,7 @@ varname = "GPP_DT"
 version = glue("({varname}) v0.2.6.9000") # test version
 file_pheno_full = glue("INPUT/pheno_flux166_full {version}.rda")
 # -------------------------------------------------------------------------
-df <- fread("E:/Research/phenology/rfluxnet/OUTPUT/fluxsites166_FULLSET_daily_v20200411 (80%).csv") %>%
+df <- fread("n:/Research/phenology/rfluxnet/OUTPUT/fluxsites166_FULLSET_daily_v20200411 (80%).csv") %>%
     plyr::mutate(LE = w2mm(LE, TA),
                  LE_CORR = w2mm(LE_CORR, TA),
                  # H = w2mm(H, TA),
@@ -37,26 +37,62 @@ metrics_all <- colnames(df_gpp)[-(1:4)]
 
     st <- st_212[site %in% sites, .(site, LC)]
     temp <- merge(d_gpp, d_mean2)
+
+    # at here, it is anormaly
     data <- temp[, map(.SD, ~scale(., scale = FALSE)[,1]), .(site), .SDcols = c(metrics_all, "TRS1.los", mete_vars)] %>%
+        merge(st, ., by = "site")
+
+    cal_perc <- function(x) {
+        mean <- mean(x, na.rm = TRUE)
+        (x - mean)/mean*100
+    }
+    data_perc <- temp[, map(.SD, cal_perc), .(site), .SDcols = c(mete_vars)] %>%
         merge(st, ., by = "site")
     # merge(d_days[, .SD, .SDcols = c("site", "year", mete_vars)], d_mean2[, .(site, year)])
 }
 
 # H, LE, Rn
 {
-    outfile <- glue("Figure7-9 phenology impact on ET and GPP {varname}.pdf")
+    load_all()
 
     lc_names <- c("Grassland", "Cropland", "Shrubland", "Forest", "ENF")
     data$LC %<>% factor(lc_names)
     lc_N <- data[, .N, .(LC)][order(LC)]
-    lc_newname <- sprintf("%s (N=%d)", c("草地", "耕地", "灌木", "森林", "针叶林"), lc_N$N)
+    lc_newname <- sprintf("%s (N=%d)", c("草地", "耕地", "灌木", "阔叶林", "针叶林"), lc_N$N)
 
     d1 <- data[, .(site, LC, TRS1.sos, TRS1.eos, TRS1.los, NEE = -NEE, GPP_DT, LE_CORR, H_CORR)] %>% #GPP_NT,
         melt(c("site", "LC", "TRS1.sos", "TRS1.eos", "TRS1.los")) %>%
         melt(c("site", "LC", "variable", "value"), variable.name = "metric", value.name = "pheno")
     d1$LC %<>% mapvalues(lc_names, lc_newname)
+    tbl1 <- d1[metric != "TRS1.los" & !(variable %in% c("NEE", "H_CORR"))] %>% ddply(.(variable, LC, metric), cal_coef)
 
-    r <- pheno_impact(d1, outfile, devices = c("pdf", "jpg")[1])
+    outfile1 <- glue("Figure7-9 phenology impact on ET and GPP {varname}.pdf")
+    r <- pheno_impact(d1[metric != "TRS1.los" & !(variable %in% c("NEE", "H_CORR"))],
+                      outfile1, devices = c("emf", "pdf", "jpg")[3], height = 9)
+}
+
+cal_coef <- function(d) {
+    l <- lm(value ~ pheno, d)
+    coef <- c(slope = coef(l)[[2]], confint(l)[2,], pvalue = summary(l)$coef[2, 4])
+    round(coef, 2)
+}
+
+## d2 结果测试 -----------------------------------------------------------------
+{
+    d2 <- data[, .(site, LC, TRS1.sos, TRS1.eos, TRS1.los)] %>%
+        cbind(data_perc[, .(NEE = -NEE, GPP_DT, LE_CORR, H_CORR)]) %>%
+        melt(c("site", "LC", "TRS1.sos", "TRS1.eos", "TRS1.los")) %>%
+        melt(c("site", "LC", "variable", "value"), variable.name = "metric", value.name = "pheno")
+    d2$LC %<>% mapvalues(lc_names, lc_newname)
+    tbl2 <- d2[metric != "TRS1.los" & !(variable %in% c("NEE", "H_CORR"))] %>%
+        ddply(.(variable, LC, metric), cal_coef) %>% data.table()
+
+    outfile <- glue("Figure7-9 phenology impact on ET and GPP {varname} (percentage).pdf")
+    r <- pheno_impact(d2[metric != "TRS1.los" & !(variable %in% c("NEE", "H_CORR"))],
+                      outfile, devices = c("emf", "pdf", "jpg")[3], height = 9,
+                      ylab = expression(bold("年变化百分比 (%)")))
+
+    write_list2xlsx(list("年异常值" = tbl1, "年变化百分比" = tbl2), "tbl Figure7-09通量站物候变化影响验证")
 }
 
 # {

@@ -54,7 +54,7 @@ pdf_acrobat <- function(file) {
     cmd = sprintf('acrobat /A "zoom=100" "%s"', file)
     Ipaper:::shell(cmd)
 }
-pdf_SumatraPDF <- Ipaper::SumatraPDF
+# pdf_SumatraPDF <- Ipaper::SumatraPDF
 
 list_files <- function(indir, pattern, del = FALSE) {
     files = dir(indir, pattern, full.names = TRUE)

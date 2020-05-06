@@ -3,9 +3,8 @@
 #' smooth_formula, span
 #' @import grid
 #' @importFrom ggpmisc stat_poly_eq
-#'
-#' @examples
-#' ggplot_1var
+#' 
+#' @export
 ggplot_1var <- function(x, varname = "APAR",
     color = "red", alpha = 0.3, span = 0.7,
     ylab = NULL, labels = waiver())

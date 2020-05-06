@@ -28,3 +28,9 @@ interview/
 
 data-raw/shp
 *.tif
+
+*.kml
+*.kmz
+*.jpg
+
+Figure*/

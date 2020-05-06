@@ -14,10 +14,10 @@ load_all <- function (path = ".", reset = TRUE, recompile = FALSE,
     #     export_all = export_all, helpers = helpers, quiet = quiet, ...)
 }
 
-suppressWarnings({
-    environment(load_all) <- environment(devtools::build)
-    assignInNamespace("load_all", load_all, ns="devtools")  
-})
+# suppressWarnings({
+#     environment(load_all) <- environment(devtools::build)
+#     assignInNamespace("load_all", load_all, ns="devtools")  
+# })
 
 #' @export
 mark_outlier <- function(x, nsd = 3) {

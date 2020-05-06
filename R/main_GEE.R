@@ -32,8 +32,10 @@ gee_var_len <- function(x, varnames = c("Lai", "Fpar", "FparLai_QC"))
 #' @param scale in the unit of `m`
 #' 
 #' @examples 
+#' \dontrun{
 #' st = st_212[, .(site, lon, lat, IGBP)]
 #' writeOGR_3by3(st, 500, "agripheno")
+#' }
 #' @export
 writeOGR_3by3 <- function(st, scale = 500, prefix = "st212", outdir = "INPUT/shp"){
     # st = st_212[, .(site, lon, lat, IGBP)]

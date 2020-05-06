@@ -1,12 +1,11 @@
 source("test/main_pkgs.R")
 
-varname = "GPP_NT"
+varname = "GPP_DT"
 version = glue("({varname}) v0.2.6.9000") # test version
-
 file_pheno_full = glue("INPUT/pheno_flux166_full {version}.rda")
 
 # -------------------------------------------------------------------------
-df <- fread("E:/Research/phenology/rfluxnet/OUTPUT/fluxsites166_FULLSET_daily_v20200411 (80%).csv") %>%
+df <- fread("n:/Research/phenology/rfluxnet/OUTPUT/fluxsites166_FULLSET_daily_v20200411 (80%).csv") %>%
     plyr::mutate(LE = w2mm(LE, TA),
                  LE_CORR = w2mm(LE_CORR, TA),
                  # H = w2mm(H, TA),
@@ -15,7 +14,7 @@ df <- fread("E:/Research/phenology/rfluxnet/OUTPUT/fluxsites166_FULLSET_daily_v2
                  Rn = w2mm(H_CORR, TA)
     )
 
-vars <- colnames(df) %>% .[grep("QC_", .)] %>% gsub("QC_", "", .)
+vars   <- colnames(df) %>% .[grep("QC_", .)] %>% gsub("QC_", "", .)
 d_mean <- df[, map(.SD, ~mean(., na.rm = TRUE)*365), .(site, year), .SDcols = vars] %>% cbind(I = 1:nrow(.), .)
 d_days <- df[, lapply(.SD, . %>% {sum(!is.na(.))}), .(site, year), .SDcols = vars]
 
@@ -54,10 +53,12 @@ metrics_all <- colnames(df_gpp)[-(1:4)]
 }
 
 # H, LE, Rn
-lc_names <- c("Cropland", "Grassland", "Shrubland", "Forest", "ENF")
+lc_names = c("Grassland", "Cropland", "Shrubland", "Forest", "ENF")
+lc_names_zh = c("草地", "耕地", "灌木", "森林", "针叶林")
+
 data2$LC %<>% factor(lc_names)
 lc_N <- data2[, .(N = .N / 2), .(LC)][order(LC)]
-lc_newname <- sprintf("%s (N=%d)", c("耕地", "草地", "灌木", "森林", "针叶林"), lc_N$N)
+lc_newname <- sprintf("%s (N=%d)", lc_names_zh, lc_N$N)
 
 devices = c("pdf", "jpg")[2]
 {

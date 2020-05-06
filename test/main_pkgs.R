@@ -88,12 +88,13 @@ stat_sd <- function(x, ...) {
     c(y = y, y2 = y2, ymin = ymin, ymax = ymax, sd = sd)
 }
 
+dir_root = "n:/Research/phenology/"
 st_166 <- st_flux166
-st_212 <- fread(path.mnt("E:/Research/phenology/rfluxnet/data-raw/st_flux212.csv")) %>% classify_lc()
+st_212 <- fread(path.mnt("n:/Research/phenology/rfluxnet/data-raw/st_flux212.csv")) %>% classify_lc()
 
 
-file_official_dd = 'E:/github/hydro/rfluxnet/OUTPUT/fluxsites166_SUBSET_official_daily.csv'
-file_FULLSET_dd  = "E:/github/hydro/rfluxnet/OUTPUT/fluxsites166_FULLSET_8-day_v20191216 (80%).csv"
+file_official_dd = glue("{dir_root}rfluxnet/OUTPUT/fluxsites166_SUBSET_official_daily.csv")
+file_FULLSET_dd  = glue("{dir_root}rfluxnet/OUTPUT/fluxsites166_FULLSET_8-day_v20191216 (80%).csv")
 file_GPP_north   = "INPUT/df_north.RDS"
 file_brks_DT     = "INPUT/pheno_gpp_st109 (GPP_DT).rda"
 file_brks_NT     = "INPUT/pheno_gpp_st109 (GPP_NT).rda"

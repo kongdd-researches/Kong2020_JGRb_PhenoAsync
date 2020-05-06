@@ -15,6 +15,8 @@ writeOGR_3by3(st, scale = 500, prefix = "st212", outdir = "INPUT/shp")
 writeOGR_3by3
 }
 \examples{
+\dontrun{
 st = st_212[, .(site, lon, lat, IGBP)]
 writeOGR_3by3(st, 500, "agripheno")
+}
 }

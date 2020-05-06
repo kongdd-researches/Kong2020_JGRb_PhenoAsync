@@ -19,6 +19,3 @@ ggplot_1var(
 global variables:
 smooth_formula, span
 }
-\examples{
-ggplot_1var
-}

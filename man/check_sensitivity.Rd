@@ -13,7 +13,6 @@ check_sensitivity_async(x, predictors)
 check_sensitivity
 }
 \examples{
-check_sensitivity(x, predictors)
-predictors <- c("EVI", "Rs", "TA", "Prcp", "VPD", "APAR")#[-6]#[-c(1, 2)]
-check_sensitivity(x, predictors)
+# predictors <- c("EVI", "Rs", "TA", "Prcp", "VPD", "APAR")#[-6]#[-c(1, 2)]
+# check_sensitivity(x, predictors)
 }

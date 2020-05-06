@@ -54,7 +54,7 @@ n_continue <- function(x, trs = 0, n = 3, type = 'sos'){
 #'
 #' @examples
 #' x = rnorm(365)
-#' t = seq(as.Date("2010-01-01"), as.Date("2010-01-01"))
+#' t = seq(as.Date("2010-01-01"), as.Date("2010-12-31"), by = "day")
 #' @export
 Pheno_thermal <- function(x, t, trs = c(5, 10), n = 3, adjust = TRUE){
     if (length(trs) == 1) trs[2] <- trs[1]

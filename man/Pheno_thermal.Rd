@@ -25,5 +25,5 @@ Thermal phenology based on temperature data.
 }
 \examples{
 x = rnorm(365)
-t = seq(as.Date("2010-01-01"), as.Date("2010-01-01"))
+t = seq(as.Date("2010-01-01"), as.Date("2010-12-31"), by = "day")
 }
