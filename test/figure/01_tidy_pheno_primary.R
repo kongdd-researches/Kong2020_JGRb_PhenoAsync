@@ -2,6 +2,7 @@ source("test/main_pkgs.R")
 
 ## update 20200322 -------------------------------------------------------------
 varname = "GPP_NT"
+# varname = "GPP_DT"
 version = glue("({varname}) v0.2.6.9000") # test version
 
 file_pheno_full = glue("INPUT/pheno_flux166_full {version}.rda")
@@ -42,12 +43,25 @@ if (!file.exists(file_pheno_full)) {
     load(file_pheno_full)
 }
 
-# load("./INPUT/pheno_MOD09A1_EVI_PC_st166.rda")
-# names(lst_EVI_pc) <- st_166$site
-# df_EVI_pc = melt_pheno(lst_EVI_pc)
-file_EVI_pc = glue("INPUT/pheno_MOD09A1_EVI_PC_tidy.RDS")
-# saveRDS(df_EVI_pc, file = file_EVI_pc)
-df_EVI_pc <- readRDS(file_EVI_pc)
+
+if (FALSE) {
+    var = "NDVI"
+    load(glue("./INPUT/pheno_MOD09A1_{var}_PC_st166.rda"))
+    file_pc = glue("INPUT/pheno_MOD09A1_{var}_PC_tidy.RDS")
+
+    names(lst_NDVI_pc) <- st_166$site
+    df_pc = melt_pheno(lst_NDVI_pc)
+    saveRDS(df_pc, file = file_pc)
+}
+
+var = "EVI"
+df_pc  <- readRDS(glue("INPUT/pheno_MOD09A1_{var}_PC_tidy.RDS"))
+df_EVI_pc_prim <- filter_primary(df_pc)
+df_EVI_pc_prim %<>% cbind(sate = "Terra", type_VI = glue("{var}_pc"), .)
+var = "NDVI"
+df_pc  <- readRDS(glue("INPUT/pheno_MOD09A1_{var}_PC_tidy.RDS"))
+df_NDVI_pc_prim <- filter_primary(df_pc)
+df_NDVI_pc_prim %<>% cbind(sate = "Terra", type_VI = glue("{var}_pc"), .)
 
 # filter for Aqua
 {
@@ -62,9 +76,7 @@ df_EVI_pc <- readRDS(file_EVI_pc)
     df_VI_prim  <- filter_primary(df_VI)
     df_gpp_prim <- filter_primary(df_gpp)
 
-    df_EVI_pc_prim <- filter_primary(df_EVI_pc)
-    df_EVI_pc_prim %<>% cbind(sate = "Terra", type_VI = "EVI_pc", .)
-    df_VI_prim %<>% rbind(df_EVI_pc_prim)
+    df_VI_prim %<>% rbind(df_EVI_pc_prim, df_NDVI_pc_prim)
 
     save(df_VI_prim, df_gpp_prim, sites, st, file = file_pheno_prim)
 }

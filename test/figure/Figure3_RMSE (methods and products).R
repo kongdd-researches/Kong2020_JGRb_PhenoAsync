@@ -1,8 +1,9 @@
 source("test/main_pkgs.R")
 
 ## update 20200322 -------------------------------------------------------------
-# varname = "GPP_NT"
-varname = "GPP_DT"
+varname = "GPP_NT"
+# varname = "GPP_DT"
+
 version = glue("({varname}) v0.2.6.9000") # test version
 
 file_pheno_full = glue("INPUT/pheno_flux166_full {version}.rda")
@@ -64,7 +65,8 @@ d = df[abs(diff) < 60, as.list(GOF(y_obs,y_sim, include.r = include.r)),
 # 不同植被指数
 d_vi = df[abs(diff) < 60, as.list(GOF(y_obs,y_sim, include.r = include.r)), .(product, type_period, site)]
 # 不同Curve fitting methods
-d_meth = df[abs(diff) < 60, as.list(GOF(y_obs,y_sim, include.r = include.r)), .(meth, type_period, site)]
+d_meth = df[abs(diff) < 60 & !(type_VI %in% c("NDVI_pc", "EVI_pc")),
+            as.list(GOF(y_obs,y_sim, include.r = include.r)), .(meth, type_period, site)]
 names(d_vi)[1] = "x"
 names(d_meth)[1] = "x"
 
@@ -87,8 +89,7 @@ d_comp <- list("Curve fitting methods" = d_meth,
         d_i     = d_fig1[type_period != "others" & index == indexName]
         d_gof_i = d_gof[type_period != "others" & index == indexName]
         {
-            p <- ggplot(d_i, aes(x, value))
-            p <- p +
+            p <- ggplot(d_i, aes(x, value)) +
                 stat_summary(fun.data = box_qtl, geom = "errorbar", width = 0.5) +
                 geom_boxplot2(aes(fill = x), notch = TRUE, outlier.shape = NA, coef = 0, width = 0.8,
                               show.legend = FALSE) +
@@ -119,7 +120,7 @@ d_comp <- list("Curve fitting methods" = d_meth,
 }
 
 ## Figure S4 -------------------------------------------------------------------
-{
+if (FALSE) {
     library(scales)
     d = df[abs(diff) < 60, .(DOY = mean(y_obs, na.rm = TRUE)), .(type_period, variable, site)]
     colors_period <- hue_pal()(2) %>% rev()

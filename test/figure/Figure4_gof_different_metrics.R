@@ -3,7 +3,7 @@
 # st = st_212[site %in% sites, .(site, lat, IGBP, LC)] #%>% summary()
 source("test/main_pkgs.R")
 
-names_VI <- c("EVI", "EVI_pc", "NDVI", "LAI") %>% set_names(., .)
+names_VI <- c("EVI", "NDVI", "EVI_pc", "NDVI_pc", "LAI") %>% set_names(., .)
 
 tidy_gof <- function(d){
     d$type_period2 <- mapvalues(d$variable, metrics_select, metrics_period)
@@ -14,7 +14,7 @@ tidy_gof <- function(d){
 }
 
 d = df[abs(diff) < 60 & meth %in% c("Elmore", "Beck") &
-           (product %in% c("Terra_EVI", "Terra_NDVI", "Combined_LAI") | type_VI == "EVI_pc"),
+           (product %in% c("Terra_EVI", "Terra_NDVI", "Combined_LAI") | type_VI %in% c("EVI_pc", "NDVI_pc")),
        as.list(GOF(y_obs,y_sim, include.r = FALSE)), .(type_VI, type_period, variable, site)]
 d %<>% tidy_gof()
 
@@ -94,21 +94,21 @@ if (FALSE){
 
 ## Figure4:
 ## 方差分析
-{
-    names_lc = levels(st$LC)
-    info <- foreach(indexName = indexNames %>% set_names(., .)) %do% {
-        d <- foreach(name_VI = names_VI) %do% {
-            temp <- foreach(lc = names_lc) %do% {
-                d = d_melt[type_VI == name_VI & LC == lc]
-                m <- aov( value ~ type_period , d)
-                TukeyHSD(m)[[1]]
-            }
-            x = do.call(rbind, temp)
-            cbind(rownames(x), LC = names_lc, data.table(x))
-        } %>% Ipaper::melt_list("type_VI")
-        d
-    }
-}
+# {
+#     names_lc = levels(st$LC)
+#     info <- foreach(indexName = indexNames %>% set_names(., .)) %do% {
+#         d <- foreach(name_VI = names_VI) %do% {
+#             temp <- foreach(lc = names_lc) %do% {
+#                 d = d_melt[type_VI == name_VI & LC == lc]
+#                 m <- aov( value ~ type_period , d)
+#                 TukeyHSD(m)[[1]]
+#             }
+#             x = do.call(rbind, temp)
+#             cbind(rownames(x), LC = names_lc, data.table(x))
+#         } %>% Ipaper::melt_list("type_VI")
+#         d
+#     }
+# }
 
 {
     gof_index = c("Bias", "MAE", "RMSE")

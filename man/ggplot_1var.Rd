@@ -11,6 +11,7 @@ ggplot_1var(
   color = "red",
   alpha = 0.3,
   span = 0.7,
+  lwd = 1,
   ylab = NULL,
   labels = waiver()
 )

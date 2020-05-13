@@ -43,13 +43,18 @@ df_d8 = df_obs[, lapply(.SD, mean, na.rm = TRUE), .(site, dn, LC), .SDcols = var
   plyr::mutate(dn = 8*dn + 1)
 # d <- df_d8[LC == "Grassland"]
 {
+  # devtools::load_all()
   fontsize = 14
+  varname = "GPP_NT"
+  # varname = "GPP_DT"
   # load_all()
+
   lcs = st$LC %>% levels()
   gs = foreach(lc = lcs, i = icount()) %do% {
     d = df_d8[LC == lc]
     label = sprintf("(%s) %s", letters[i], lc)
-    g = plot_LUE_multiAxis(d, label = label, span = 0.65)
+    NO_begin = (i-1)*5 + 1
+    g = plot_LUE_multiAxis(d, NO_begin, lc, span = 0.65, varname)
     # write_fig(g, "temp.pdf", 15, 3)
     g
   }
@@ -58,9 +63,9 @@ df_d8 = df_obs[, lapply(.SD, mean, na.rm = TRUE), .(site, dn, LC), .SDcols = var
   # bottom <- textGrob(expression(bold("Time (the" ~ i^{th} ~ "8-day)")), gp=gpar(fontsize=fontsize, fontface = "bold", fontfamily = "Times"))
   bottom <- textGrob(expression(bold("DOY (day of year)")), gp=gpar(fontsize=fontsize, fontface = "bold", fontfamily = "Times"))
   p = arrangeGrob(grobs = gs, left=NULL, bottom=bottom, ncol=1)
-  outfile = "Figure7_behind_reason_dhour2_linear.pdf"
+  outfile = glue("Figure7_behind_reason_dhour2_linear-{varname}.pdf")
   scale = 0.95
-  write_fig(p, outfile, 17*scale, 9*scale, show = TRUE)
+  write_fig(p, outfile, 18*scale, 9*scale, show = TRUE)
   # pdf_SumatraPDF(outfile)
 }
 

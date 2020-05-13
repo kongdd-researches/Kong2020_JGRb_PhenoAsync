@@ -16,7 +16,7 @@ phenofit_site <- function(y, t, w, QC_flag, nptperyear = 36,
     verbose = TRUE,
     lambda  = NULL, lg_lambdas = seq(1, 4, 0.1),
     methods = c("AG", "Zhang", "Beck", "Elmore"),
-    prefix  = "", 
+    prefix  = "",
     titlestr = NULL, ylab = NULL,
     IsPlot.brks = FALSE,
     write.fig = TRUE, show = FALSE,
@@ -83,19 +83,19 @@ phenofit_site <- function(y, t, w, QC_flag, nptperyear = 36,
         l_param <- get_param(fit)
         dfit   <- get_fitting(fit)
         # d_gof   <- get_GOF(fit)
-        
+
         ## visualization
         if (write.fig) {
             file_pdf = glue("Figure/{prefix}{titlestr}.pdf")
             check_dir(dirname(file_pdf))
-        
+
             d_obs = INPUT[c("t", "y", "QC_flag")] %>% as.data.table()
             # g <- plot_phenofit(dfit, brks2, d_obs, title = titlestr, cex = 1.5)
             g <- plot_phenofit(dfit, brks2, title = titlestr, cex = 1.5, title.ylab = ylab)
             # grid::grid.newpage(); grid::grid.draw(g)# plot to check the curve fitting
             write_fig(g, file_pdf, 11, 6, show = show)
         }
-        
+
         ## 2.5 Extract phenology
         l_pheno <- get_pheno(fit, TRS = TRS, IsPlot = F) #%>% map(~melt_list(., "meth"))
         pheno <- l_pheno$doy %>% melt_list("meth")
