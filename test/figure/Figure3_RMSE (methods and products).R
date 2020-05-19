@@ -1,8 +1,8 @@
 source("test/main_pkgs.R")
 
 ## update 20200322 -------------------------------------------------------------
-varname = "GPP_NT"
-# varname = "GPP_DT"
+# varname = "GPP_NT"
+varname = "GPP_DT"
 
 version = glue("({varname}) v0.2.6.9000") # test version
 
@@ -63,12 +63,20 @@ d = df[abs(diff) < 60, as.list(GOF(y_obs,y_sim, include.r = include.r)),
        .(product, meth, site, variable, type_period)]
 
 # 不同植被指数
-d_vi = df[abs(diff) < 60, as.list(GOF(y_obs,y_sim, include.r = include.r)), .(product, type_period, site)]
+d_vi  = df[abs(diff) < 60, as.list(GOF(y_obs,y_sim, include.r = include.r)), .(product, type_period, site)]
+d_vi2 = df[abs(diff) < 60, as.list(GOF(y_obs,y_sim, include.r = include.r)), .(product, type_period, type_VI, site)]
+d_vi2[type_VI %in% c("NDVI_pc", "EVI_pc"), as.list(stat_sd(Bias)), .(type_VI)]
+
 # 不同Curve fitting methods
 d_meth = df[abs(diff) < 60 & !(type_VI %in% c("NDVI_pc", "EVI_pc")),
             as.list(GOF(y_obs,y_sim, include.r = include.r)), .(meth, type_period, site)]
 names(d_vi)[1] = "x"
 names(d_meth)[1] = "x"
+
+d <- d_meth[, mean(RMSE), .(type_period, site, meth = x %in% c("AG", "Zhang"))]  %>% dcast2("meth", "V1")
+t_test(d$`FALSE`, d$`TRUE`)
+# first     second    diff        lwr      upr     p adj      tval   pvalue
+# 1: 24.83±7.94 25.88±7.82 1.04268 -0.2545596 2.339919 0.1149568 -1.578721 0.114957
 
 d_comp <- list("Curve fitting methods" = d_meth,
                "Remote sensing vegetation indices" = d_vi[!(x %in% c("Combined_LAI")) & !is.na(x), ]) %>%

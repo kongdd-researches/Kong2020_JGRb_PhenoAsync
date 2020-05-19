@@ -3,11 +3,11 @@
 #' smooth_formula, span
 #' @import grid
 #' @importFrom ggpmisc stat_poly_eq
-#' 
+#'
 #' @export
 ggplot_1var <- function(x, varname = "APAR",
     color = "red", alpha = 0.3, span = 0.7,
-    lwd = 1, 
+    lwd = 1,
     ylab = NULL, labels = waiver())
 {
     p <- ggplot(x, aes_string("dn", varname)) + #, color = "year"
@@ -15,7 +15,7 @@ ggplot_1var <- function(x, varname = "APAR",
         geom_smooth(method = "loess",
           # formula = smooth_formula,
                     span = span,
-                    alpha = alpha, fill = color, 
+                    alpha = alpha, fill = color,
                     size = lwd,
                     color = color) + #
         scale_y_continuous(position = "right", labels = labels) +
@@ -112,20 +112,20 @@ plot_LUE_multiAxis <- function(x, NO_begin, LC, span = 0.75, GPPobs = "GPP_NT") 
     p <- ggplot(x, aes_string("dn", GPPobs)) +
         # geom_point() +
         geom_smooth(method = "loess",
-            span = span, 
+            span = span,
             size = 1,
             # formula = smooth_formula, span = span,
             color = "black") +
         theme(panel.background = element_rect(size = 1)) +
         scale_y_continuous(labels = label_left()) +
     labs(y = ylab, x = NULL)
-    
+
     x[, VPD_sqrt := sqrt(VPD) ]
     # p_GPPsim  <- ggplot_1var(x, "GPP_sim" , "grey60",
     #     ylab = expression(bold(GPP[sim])),
     #     labels = label_right())
     p_GPPvpm  <- ggplot_1var(x, "GPP_vpm" , "blue", ylab = expression(bold(GPP[vpm])),
-        labels = label_right(), span = span, lwd = 0.2) + 
+        labels = label_right(), span = span, lwd = 1) +
         labs(y = expression(GPP[vpm] * " (gC " * m^-2 * d^-1 * ")"))
     p_GPPpml  <- ggplot_1var(x, "GPP_pml" , "red", ylab = expression(bold(GPP[pml])),
         labels = label_right(), span = span, lwd = 0.2)
@@ -144,21 +144,21 @@ plot_LUE_multiAxis <- function(x, NO_begin, LC, span = 0.75, GPPobs = "GPP_NT") 
     p_EVI  <- ggplot_1var(x, "EVI", "darkgreen", labels = label_right(digit = 2), alpha = alpha, span = span)
     p_NDVI <- ggplot_1var(x, "NDVI", "green", labels = label_right(digit = 1), alpha = alpha, span = span)
     p_LAI  <- ggplot_1var(x, "LAI" , "darkviolet", labels = label_right(digit = 1), alpha = alpha, span = span)
-    p_VI2  <- ggplot_1var(x, "VI_dhour", "red", labels = label_right(digit = 2), alpha = alpha, span = span) + 
+    p_VI2  <- ggplot_1var(x, "VI_dhour", "red", labels = label_right(digit = 2), alpha = alpha, span = span) +
         labs(y = "EVI*PC")
 
     p_APAR <- ggplot_1var(x, "APAR", "red", span = span)
-    p_Rs   <- ggplot_1var(x, "PAR"  , "purple", span = span) + 
-        labs(y = expression("PAR (W " * m^-2 * ")")) # * d^-1 
-    p_dhour <- ggplot_1var(x, "dhour2"  , "blue", span = span) + 
+    p_Rs   <- ggplot_1var(x, "PAR"  , "purple", span = span) +
+        labs(y = expression("PAR (W " * m^-2 * ")")) # * d^-1
+    p_dhour <- ggplot_1var(x, "dhour2"  , "blue", span = span) +
         labs(y = "dayl (hour)")
     p_TS   <- ggplot_1var(x, "TS"  , "darkgoldenrod2", span = span) + # soil
         labs(y = "TS (°C)")
     p_Tair_day <- ggplot_1var(x, "Tair_day"  , "yellow4", span = span) + # soil
         labs(y = expression(Tair[day] * " (°C)"))
-    p_VPD  <- ggplot_1var(x, "VPD_sqrt" , "darkorange1", span = span) + 
+    p_VPD  <- ggplot_1var(x, "VPD_sqrt" , "darkorange1", span = span) +
         labs(y = expression(sqrt(VPD) * " (" * kPa ^ 0.5 * ")"))
-    p_prcp <- ggplot_1var(x, "Prcp", "skyblue", labels = label_right(len = 3), span = span) + 
+    p_prcp <- ggplot_1var(x, "Prcp", "skyblue", labels = label_right(len = 3), span = span) +
         labs(y = expression(Prcp * " ("* mm ~ d^-1 * ")"))
     p_epsilon_eco <- ggplot_1var(x, "epsilon_eco", "darkorange1", span = span)
     p_epsilon_chl <- ggplot_1var(x, "epsilon_chl", "yellow", span = span)
@@ -173,7 +173,7 @@ plot_LUE_multiAxis <- function(x, NO_begin, LC, span = 0.75, GPPobs = "GPP_NT") 
     lst_1[[length(lst_1)]] %<>% add_label(label_tag2(NO_begin))
     p1 <- reduce(lst_1, ggplot_multiAxis, show = F)
     p <- p + labs(y = NULL)
-    
+
     p_EVI %<>% add_label(label_tag2(NO_begin+1))
     p_Rs  %<>% add_label(label_tag2(NO_begin+2))
     p_TS  %<>% add_label(label_tag2(NO_begin+3))

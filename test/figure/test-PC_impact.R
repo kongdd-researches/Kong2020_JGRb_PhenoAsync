@@ -4,7 +4,7 @@
 {
   d <- df_final[group == 5,
                 .(site, date, ydn, dn,
-                  GPP, GPP_vpm, EVI.whit, VPD,
+                  GPP = GPP_NT, GPP_vpm, EVI.whit, VPD,
                     LE_CORR, len = dhour2, intensity = Rs*24/dhour,
                     volume = Rs*24, Rs,
                     TA, TS, Tair_day, Prcp,

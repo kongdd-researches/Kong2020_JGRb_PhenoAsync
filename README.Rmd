@@ -16,7 +16,6 @@ knitr::opts_chunk$set(
 ```
 ## PhenoAsync
 
-
 <!-- badges: start -->
 [![Travis build status](https://travis-ci.org/kongdd/PhenoAsync.svg?branch=master)](https://travis-ci.org/kongdd/PhenoAsync)
 [![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/kongdd/PhenoAsync?branch=master&svg=true)](https://ci.appveyor.com/project/kongdd/PhenoAsync)
@@ -25,3 +24,36 @@ knitr::opts_chunk$set(
 
 Extract vegetation phenology by `phenofit` (v0.2.7) at 95 flux sites.
 
+
+## Vegetation Phenology Data at 95 flux sites
+
+There are two data files: 
+
+- `pheno_flux95_prim ((GPP_DT) v0.2.6.9000).rda`: vegetation carbon phenology from GPP_DT
+- `pheno_flux95_prim ((GPP_NT) v0.2.6.9000).rda`: vegetation carbon phenology from GPP_NT
+
+For each file, two variables are in there:
+
+- `df_gpp_prim`: vegetation carbon phenological metrics extracted from flux sites GPP observations   
+- `df_VI_prim` : vegetation greenness phenological metrics extracted from MODIS remote sensing vegetation indexes   
+
+```{r cars}
+load("INPUT/pheno_flux95_prim ((GPP_NT) v0.2.6.9000).rda")
+# load("INPUT/pheno_flux95_prim ((GPP_DT) v0.2.6.9000).rda")
+print(df_gpp_prim)
+print(df_VI_prim)
+```
+<!-- # unique(df_VI_prim$sate) -->
+<!-- # unique(df_VI_prim$type_VI) -->
+<!-- # unique(df_VI_prim$group) -->
+<!-- # unique(df_VI_prim$meth) -->
+
+**column variables**: 
+
+- `sate`   : MODIS satellites, one of "combined" "Aqua", and "Terra"
+- `type_VI`: vegetation indexes, one of "EVI", "NDVI", "EVI_pc" and "NDVI_pc"
+- `group`  : 3*3 grids id, `5` is the central grid
+- `meth`   : curve fitting methods, one of 
+- `flag`   : growing season id
+- `origin` : first date of this year
+- `others` : vegetation phenological metrics extracted by phenofit
