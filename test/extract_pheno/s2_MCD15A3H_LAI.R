@@ -1,5 +1,6 @@
 source("test/main_pkgs.R")
 
+# `st212_MCD15A3H_0m_buffer.csv` is clipped by 3*3 sites
 file = "INPUT/fluxnet/st212_MCD15A3H_0m_buffer.csv"
 df = fread(file, drop = 1:2) %>%
     .[date <= "2015-12-31", .(site, group, t = date, y = Lai/10, QC = FparExtra_QC, FparLai_QC)] # , FparExtra_QC

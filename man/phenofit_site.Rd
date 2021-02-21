@@ -55,8 +55,8 @@ used for visualization in \code{\link[phenofit:get_pheno]{get_pheno()}} and \cod
 \code{season} or \code{season_mov}, which contains the growing season
 dividing information.}
 
-\item{wFUN}{weights updating function, can be one of \code{\link[phenofit:wTSM]{wTSM()}},
-\code{\link[phenofit:wChen]{wChen()}}, \code{\link[phenofit:wBisquare]{wBisquare()}} and \code{\link[phenofit:wSELF]{wSELF()}}.}
+\item{wFUN}{weights updating function, can be one of \code{\link[phenofit:wFUN]{wTSM()}},
+\code{\link[phenofit:wFUN]{wChen()}}, \code{\link[phenofit:wFUN]{wBisquare()}} and \code{\link[phenofit:wFUN]{wSELF()}}.}
 
 \item{maxExtendMonth}{Search good or marginal good values in previous and
 subsequent \code{maxExtendMonth} period.}
