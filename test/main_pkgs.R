@@ -20,7 +20,7 @@ suppressMessages({
     library(solartime)
 
     ## load data
-    library(sp2)
+    library(sf2) # rpkgs/sf2
     library(foreach)
     library(iterators)
     library(glue)

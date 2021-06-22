@@ -17,9 +17,11 @@ source("test/main_vis.R")
 
   # 2. dhour2, linear比较合适
   # df_final[, dhour3 := solartime::computeDayLength(date, lat)]
+  df_final[, dhour2 := solartime::computeDayLength(date, lat)]
   df_final[, dhour_norm := (dhour2/max(dhour2))^1, .(site)]
   df_final[, VI_dhour := dhour_norm * EVI.whit, .(site)] # Bauerlea
 
+  # Ma XuanLong, 2013, RSE; Monteith and Unsworth, 2013
   df_final$PAR_TOA = df_final[, .(lat, doy = yday(date))][, MJ_2W(cal_Ra(lat, doy))*0.4 ]
 }
 
@@ -28,11 +30,12 @@ df_obs[, `:=`(
   Wscalar = clamp(Wscalar, c(0, 1)),
   Tscalar = LUE_Tscalar(TS, IGBP)
 )]
+
 df_obs[, `:=`(
   PAR  = Rs*0.45,
-  APAR = Rs*0.45*1.25*(EVI.whit),
+  APAR = Rs*0.45*1.25*(EVI.whit - 0.08),
   epsilon_eco = GPP / (Rs*0.45),
-  epsilon_chl = GPP / (Rs*0.45*1.25*(EVI - 0.1))
+  epsilon_chl = GPP / (Rs*0.45*1.25*(EVI.whit - 0.08))
 )]
 # add simulated VI
 d = df_obs[site == "AT-Neu"]
@@ -96,3 +99,6 @@ df_d8 = df_obs[, lapply(.SD, mean, na.rm = TRUE), .(site, dn, LC), .SDcols = var
 # }), "async.pdf", 8, 10)
 #
 # ggplot_1var(d)
+
+
+
