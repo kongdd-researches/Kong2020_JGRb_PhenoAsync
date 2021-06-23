@@ -2,7 +2,7 @@
 #'
 #' @inheritParams phenofit::check_input
 #' @inheritParams phenofit::curvefits
-#' @param ... other parameters to [phenofit::curvefits()]
+#' @param ... other parameters to `phenofit::curvefits()`
 #'
 #' @export
 phenofit_site <- function(y, t, w, QC_flag, nptperyear = 36,

@@ -64,13 +64,16 @@ list_files <- function(indir, pattern, del = FALSE) {
 transpose <- purrr::transpose
 mutate <- plyr::mutate
 
-
-stat_sd <- function(x, ...){
+stat_sd <- function(x, ...) {
     x <- x[!is.na(x)]
     y  <- mean(x)
     y2 <- median(x)
+
+    ymin = quantile(x, probs = 0.1)[[1]]
+    ymax = quantile(x, probs = 0.9)[[1]]
     sd <- sd(x)
-    c(y = y, y2 = y2, ymin = y-sd, ymax = y+sd, sd = sd)
+    # c(y = y, y2 = y2, ymin = y-sd, ymax = y+sd, sd = sd)
+    c(y = y, y2 = y2, ymin = ymin, ymax = ymax, sd = sd)
 }
 
 stat_sd_label <- function(x) {

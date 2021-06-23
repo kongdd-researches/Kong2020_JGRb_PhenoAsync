@@ -1,8 +1,19 @@
+devtools::load_all("../phenofit.R")
+
 ## multiple seasons
 source("test/main_pkgs.R")
 source("test/data-prepare/s1_dat0_divide_growing_season.R")
 
+df_part$date %<>% as_date()
 calendarYear = TRUE
+
+{
+    p <- df_part[site == "US-ARM", ] %>% ggplot(aes(date, GPP_DT)) +
+        # geom_point() +
+        geom_line()
+    write_fig(p, "a.pdf")
+}
+# OUTPUT/fluxsites166_official_SUBSET_DD_raw.csv
 
 # InitCluster(12)
 sites2 = c(sites_multi, sites_rm) %>% set_names(., .)
@@ -11,7 +22,7 @@ info  = info_full
 
 nptperyear = 365
 varname = "GPP_NT"
-version = glue("({varname}) v0.2.6.9000") # test version
+version = glue("({varname})v0.2.9.9000") # test version
 
 ## 1. divide growing seasons
 lst_brks.multi  = main_divide_season(df_part, info, sites_multi = sites2, sites_single,
@@ -27,7 +38,7 @@ lst_brks.single = main_divide_season(df_part, info, sites_multi = sites2, sites_
 lst_brks  = c(lst_brks.single, lst_brks.multi)
 TRSs = c(0.1, 0.2, 0.5, 0.6, 0.8, 0.9)
 
-InitCluster(10)
+InitCluster(10, kill = FALSE)
 lst_pheno = main_phenofit(lst_brks, TRS = TRSs,
     show = FALSE, outfile = glue("Figure/gpp_phenofit_pheno_{version}.pdf"))
 # lst_pheno2 = main_phenofit(lst_brks[86:length(lst_brks)], TRS = TRSs,

@@ -120,7 +120,7 @@ main_divide_season <- function(df_part, info, sites_multi, sites_single,
             message(sprintf("[e] %d %s: %s", i, sitename, e$message))
         })
     }
-
+    
     if (show) {
         Cairo::CairoPDF(outfile, 10, 8)
         par(mfrow = c(5, 1), oma = c(3, 1, 1, 1) / 4)

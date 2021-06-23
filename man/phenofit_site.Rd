@@ -94,7 +94,7 @@ process of \code{check_input}.}
 
 \item{alpha}{Double value in \verb{[0,1]}, quantile prob of ylu_min.}
 
-\item{...}{other parameters to \code{\link[phenofit:curvefits]{phenofit::curvefits()}}}
+\item{...}{other parameters to \code{phenofit::curvefits()}}
 }
 \description{
 Extract Vegetation Phenology at site scale

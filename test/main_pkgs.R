@@ -76,21 +76,11 @@ filter_primary <- function(df){
     df[I_sel, ]
 }
 
-stat_sd <- function(x, ...) {
-    x <- x[!is.na(x)]
-    y  <- mean(x)
-    y2 <- median(x)
-
-    ymin = quantile(x, probs = 0.1)[[1]]
-    ymax = quantile(x, probs = 0.9)[[1]]
-    sd <- sd(x)
-    # c(y = y, y2 = y2, ymin = y-sd, ymax = y+sd, sd = sd)
-    c(y = y, y2 = y2, ymin = ymin, ymax = ymax, sd = sd)
-}
 
 dir_root = "n:/Research/phenology/"
 st_166 <- st_flux166
-st_212 <- fread(path.mnt("n:/Research/phenology/rfluxnet/data-raw/st_flux212.csv")) %>% classify_lc()
+st_212 <- st_flux212 %>% classify_lc()
+# st_212 <- fread(path.mnt("n:/Research/phenology/rfluxnet/data-raw/st_flux212.csv")) %>% classify_lc()
 
 
 file_official_dd = glue("{dir_root}rfluxnet/OUTPUT/fluxsites166_SUBSET_official_daily.csv")

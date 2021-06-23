@@ -3,8 +3,11 @@
 .RData
 .Ruserdata
 
+*.tex
 *.pdf
+*.docx
 *.xlsx
+*.csv
 *.html
 temp/
 data/
@@ -18,9 +21,6 @@ data/
 *.rda
 *.json
 log.txt
-
-*.docx
-*.tex
 
 INPUT/shp
 INPUT/

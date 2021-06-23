@@ -28,3 +28,17 @@ mark_outlier <- function(x, nsd = 3) {
     x[x > max | x < min] <- NA_real_
     x
 }
+
+dn2date <- function(year, dn, days = 8) {
+    as.Date(sprintf("%d%03d", year, (dn - 1)*days + 1), "%Y%j")
+}
+
+make_dt <- function(..., ncol = 3) {
+    x = list(...)
+    n = length(x)
+    nrow = floor(n/ncol)
+    lapply(1:nrow, function(i) {
+        ind = seq((i-1)*ncol + 1, i*ncol)
+        x[ind] %>% as.data.table()
+    }) %>% do.call(rbind, .)
+}

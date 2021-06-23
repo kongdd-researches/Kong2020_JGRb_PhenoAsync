@@ -6,9 +6,10 @@
 \usage{
 divide_seasons(
   d,
-  sp,
   nptperyear = 23,
   iters = 2,
+  south = FALSE,
+  igbp = "GRA",
   lambda = 100,
   wFUN = wTSM,
   r_max = 0.2,
@@ -21,11 +22,14 @@ divide_seasons(
 )
 }
 \arguments{
-\item{d}{data.frame of vegetation index}
-
-\item{sp}{one line data.frame}
+\item{d}{data.frame, with the columns of \code{t}, \code{y} and \code{w}.}
 
 \item{.movmean}{moving mean by phenofit::wSG}
+
+\item{.v_curve}{If true, it will use V-curve theory to optimize Whittaker
+parameter, lambda.}
+
+\item{sp}{one line data.frame}
 
 \item{sitename}{character}
 }

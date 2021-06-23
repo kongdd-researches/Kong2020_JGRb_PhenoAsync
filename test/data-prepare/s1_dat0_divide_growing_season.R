@@ -1,5 +1,4 @@
 source("test/main_pkgs.R")
-# load_all("../phenofit")
 
 outfile = "INPUT/df_north_109st.rda"
 
