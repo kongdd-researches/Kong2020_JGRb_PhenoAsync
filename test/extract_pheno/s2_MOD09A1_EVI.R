@@ -9,7 +9,6 @@ satellite = "MOD09A1"
 df = tidy_modis_09A1(satellite)
 
 ## 2. phenofit -----------------------------------------------------------------
-
 sites = st_166$site %>% set_names(., .)
 grps_sites = sites %>% set_names(seq_along(.), .)
 grps_sites = df_bad[, set_names(ID, site)]

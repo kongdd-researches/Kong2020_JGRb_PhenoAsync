@@ -18,6 +18,7 @@ divide_seasons(
   calendarYear = FALSE,
   .movmean = TRUE,
   .v_curve = FALSE,
+  is.plot = FALSE,
   ...
 )
 }

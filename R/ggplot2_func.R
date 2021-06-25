@@ -41,9 +41,15 @@ ggplot_multiAxis <- function(p1, p2, show = TRUE){
     # intersperse a copy of the bottom axes
     g1 <- p1
     g2 <- p2
-
+    
     if (!("gtable" %in% class(p1)))  g1 <- ggplotGrob(p1)
-    if (!("gtable" %in% class(p2)))  g2 <- ggplotGrob(p2)
+    if (!("gtable" %in% class(p2)))  {
+        p2 <- p2 + theme(
+            panel.background = element_rect(fill = "transparent"),
+            panel.grid = element_blank()
+        ) +  scale_y_continuous(position = "right")
+        g2 <- ggplotGrob(p2)
+    }
 
     g1_grob_names <- map_chr(g1$grob, "name")
     g2_grob_names <- map_chr(g2$grob, "name")
@@ -67,7 +73,6 @@ ggplot_multiAxis <- function(p1, p2, show = TRUE){
     axis_y_top    = segmentsGrob(x, 1, x+tck, 1, gp = gp)
     axis_y_bottom = segmentsGrob(x, 0, x+tck, 0, gp = gp)
     axis_y = gtable_add_grob(g, list(axis_y, axis_y_top, axis_y_bottom), t = 7, l = 1) #%>% grid.draw()
-    # browser()
 
     all <- gtable:::cbind.gtable(
         g1[, seq(max(I_yr1))],

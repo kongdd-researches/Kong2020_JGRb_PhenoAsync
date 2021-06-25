@@ -22,7 +22,6 @@ lst_EVI_pc = foreach(i = grps_sites, icount()) %dopar% {
     runningId(i)
     sitename = sites[i]
     # brks = lst_brks[[sitename]]$brks
-
     grps = 1:9 %>% set_names(., .)
     l_site = foreach(j = grps, icount()) %do% {
         title = sprintf("[%02d] %s_%d", i, sitename, j)

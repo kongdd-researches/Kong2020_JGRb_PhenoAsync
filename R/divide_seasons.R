@@ -15,30 +15,32 @@ divide_seasons <- function(d, nptperyear = 23,
     iters = 2,
     south = FALSE, igbp = "GRA",
     lambda = 100,
+    nf = 3, 
+    rFUN = "smooth_wWHIT", 
     wFUN = wTSM, 
     r_max = 0.2, r_min = 0.0,
     r_minPeakHeight = 0.05,
     calendarYear = FALSE,
+    maxExtendMonth = 12, 
     .movmean = TRUE,
     .v_curve = FALSE,
+    is.plot = FALSE, 
     ...)
 {
     # sp = sp[1, , drop = FALSE]
     # south <- sp$lat < 0
-    maxExtendMonth <- ifelse(igbp == "EBF", 2, 2)
-
+    # maxExtendMonth <- ifelse(igbp == "EBF", 2, 2)
     ## moving average first
     # check_season(sitename, df_raw, stations)
-    dnew  <- add_HeadTail(d, south = south, nptperyear)
-
+    # dnew  <- add_HeadTail(d, south = south, nptperyear)
+    dnew = d
     INPUT <- check_input(dnew$t, dnew$y, dnew$w, QC_flag = NULL, nptperyear,
         maxgap = ceiling(nptperyear/12*1.5),
-        south = sp$lat < 0,
+        south = south,
         date_start = d$t[1],
         date_end = last(d$t))
 
-    frame = floor(INPUT$nptperyear/8) * 2 + 1
-
+    frame = floor(INPUT$nptperyear/8) * 2 + 1 # wSG
     if (.v_curve) {
         lg_lambdas <- seq(3.3, 5, 0.1) # 2000-
         r <- v_curve(INPUT, lg_lambdas, d = 2, IsPlot = FALSE)
@@ -52,9 +54,6 @@ divide_seasons <- function(d, nptperyear = 23,
     # browser()
     # parameters for season_mov
     threshold_max = 0.1
-    nf = 1
-
-    FUN_fit        <- "smooth_wWHIT"
     threshold_max  <- ifelse(cv_coef(d$y)[3] >= 1, 0.1, 0.2) # empirical param
     # FUN_fit <- ifelse(sp$IGBP %in% IGBP_forest, "wHANTS", "wWHIT")
     # "wBisquare"
@@ -62,12 +61,12 @@ divide_seasons <- function(d, nptperyear = 23,
     # wFUN <- "wBisquare", "wTSM", threshold_max = 0.1, IGBP = CSH
     # INPUT <- get_input(df, st, sitename)
     brks2  <- season_mov(INPUT,
-        rFUN = get(FUN_fit),
+        rFUN = get(rFUN),
         wFUN = wFUN,
         iters = iters, wmin = 0.1,
         IsOptim_lambda = FALSE,
-        lambda = lambda, nf = 3, frame = frame,
-        maxExtendMonth = 12,
+        lambda = lambda, nf = nf, frame = frame,
+        maxExtendMonth = maxExtendMonth,
         r_max = r_max, r_min = r_min,
         r_minPeakHeight = r_minPeakHeight,
         calendarYear = calendarYear,
@@ -75,7 +74,8 @@ divide_seasons <- function(d, nptperyear = 23,
         # IsPlot.vc = FALSE,
         # plotdat = INPUT, print = TRUE,
         # titlestr = "")
-        IsPlot = FALSE, IsPlot.OnlyBad = FALSE,
+        IsPlot = is.plot, 
+        IsPlot.OnlyBad = FALSE,
         minpeakdistance = nptperyear/36*2, # 20 days
         MaxPeaksPerYear = 3,
         MaxTroughsPerYear = 4,
