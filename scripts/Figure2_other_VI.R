@@ -3,8 +3,6 @@ devtools::load_all("../phenofit.R")
 ## multiple seasons
 source("test/main_pkgs.R")
 source("test/data-prepare/s1_dat0_divide_growing_season.R")
-library(ggnewscale)
-library(patchwork)
 
 satellite = "MOD09A1"
 df = tidy_modis_09A1(satellite)
@@ -12,11 +10,11 @@ df[, dhour2 := solartime::computeDayLength(date, lat)]
 df[, dhour_norm := (dhour2/max(dhour2))^2, .(site)]
 df[, EVI_pc := dhour_norm * EVI] # Bauerlea
 
-
 # & group == 5
 sitename = "US-ARM"; grp = 5
 d = df[site == sitename & date >= "2008-01-01" & date <= "2012-12-31" & group == grp,
        .(t, y = EVI_pc, QC, QC_flag, w)]
+d[is.na(y), y := -0.05]
 # d = df[site == sitename & group == j, ]
 {
     anno_cropInfo2 <- function(show.arrow = TRUE) {
@@ -62,23 +60,31 @@ d = df[site == sitename & date >= "2008-01-01" & date <= "2012-12-31" & group ==
 }
 
 
-library(ggplotify)
 
 g_phenofit = as.grob(function(){
     l <- divide_seasons(d, 46, iters = 3, is.plot = TRUE, show.legend = F)
 })
 write_fig(g_phenofit, "Figure2_GS_division_EVI.pdf")
 
-
 write_fig({
-    l <- divide_seasons(d, 46, iters = 3, is.plot = TRUE, show.legend = F)
+    l <- divide_seasons(dat, 46, iters = 3, is.plot = TRUE,
+                        wFUN = wTSM,
+                        # wFUN = wBisquare_julia,
+                        lambda = 10,
+                        .v_curve = FALSE,
+                        show.legend = F)
 }, "Figure2_GS_division_EVI_phenofit.pdf")
 
-r_TS <- TIMESAT_process(d, 46, p_trs = 0.05)
-g_TS <- TIMESAT_plot(d, r_TS)
-g = plot_grid(g_phenofit, g_TS, ncol = 1)
-write_fig(g, "Figure2_GS_division_EVI.pdf")
+{
+    # load_all("/mnt/i/Research/phenology/rTIMESAT.R")
+    r_TS <- TIMESAT_process(dat, 46, p_trs = 0.05, half_win = 10)
+    g_TS <- TIMESAT_plot(d, r_TS, base_size = 14)
+    g = plot_grid(g_phenofit, g_TS, ncol = 1)
+    write_fig(g, "Figure2_GS_division_EVI.pdf")
+}
 
-
+library(ggplotify)
 library(cowplot)
 library(patchwork)
+
+d = data.table(t, y, w = as.factor(w))

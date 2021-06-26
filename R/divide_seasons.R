@@ -1,13 +1,13 @@
 #' divide_seasons
 #'
 #' @param d data.frame, with the columns of `t`, `y` and `w`.
-#' 
+#'
 #' @param sp one line data.frame
 #' @param sitename character
 #' @param .movmean moving mean by phenofit::wSG
-#' @param .v_curve If true, it will use V-curve theory to optimize Whittaker 
+#' @param .v_curve If true, it will use V-curve theory to optimize Whittaker
 #' parameter, lambda.
-#' 
+#'
 #' @note site-year may be not continuous.
 #'
 #' @export
@@ -15,16 +15,16 @@ divide_seasons <- function(d, nptperyear = 23,
     iters = 2,
     south = FALSE, igbp = "GRA",
     lambda = 100,
-    nf = 3, 
-    rFUN = "smooth_wWHIT", 
-    wFUN = wTSM, 
+    nf = 3,
+    rFUN = "smooth_wWHIT",
+    wFUN = wTSM,
     r_max = 0.2, r_min = 0.0,
     r_minPeakHeight = 0.05,
     calendarYear = FALSE,
-    maxExtendMonth = 12, 
+    maxExtendMonth = 12,
     .movmean = TRUE,
     .v_curve = FALSE,
-    is.plot = FALSE, 
+    is.plot = FALSE,
     ...)
 {
     # sp = sp[1, , drop = FALSE]
@@ -53,13 +53,15 @@ divide_seasons <- function(d, nptperyear = 23,
     # plot_input(INPUT)
     # browser()
     # parameters for season_mov
+    print(lambda)
     threshold_max = 0.1
     threshold_max  <- ifelse(cv_coef(d$y)[3] >= 1, 0.1, 0.2) # empirical param
     # FUN_fit <- ifelse(sp$IGBP %in% IGBP_forest, "wHANTS", "wWHIT")
     # "wBisquare"
-    
+
     # wFUN <- "wBisquare", "wTSM", threshold_max = 0.1, IGBP = CSH
     # INPUT <- get_input(df, st, sitename)
+    # browser()
     brks2  <- season_mov(INPUT,
         rFUN = get(rFUN),
         wFUN = wFUN,
@@ -74,7 +76,7 @@ divide_seasons <- function(d, nptperyear = 23,
         # IsPlot.vc = FALSE,
         # plotdat = INPUT, print = TRUE,
         # titlestr = "")
-        IsPlot = is.plot, 
+        IsPlot = is.plot,
         IsPlot.OnlyBad = FALSE,
         minpeakdistance = nptperyear/36*2, # 20 days
         MaxPeaksPerYear = 3,

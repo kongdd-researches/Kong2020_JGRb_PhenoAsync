@@ -31,6 +31,8 @@ suppressMessages({
     library(gridExtra)
     library(gtable)
     library(ggpmisc)
+    library(ggnewscale)
+    library(patchwork)
 })
 
 # IGBP  N
