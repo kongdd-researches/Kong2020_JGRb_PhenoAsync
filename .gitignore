@@ -34,3 +34,6 @@ data-raw/shp
 *.jpg
 
 Figure*/
+
+TSF*
+*/deprecated
